@@ -66,7 +66,7 @@
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
-	<string>$(TELEGRAPH_BUNDLE_ID)</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -111,7 +111,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>61064</string>
+	<string>61071</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>ITSAppUsesNonExemptEncryption </key>
@@ -155,15 +155,15 @@
 	<key>NSCameraUsageDescription</key>
 	<string>We need this so that you can take and share photos and videos.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>Telegram stores your contacts heavily encrypted in the cloud to let you connect with your friends across all your devices.</string>
+	<string>CloudVeil Messenger stores your contacts heavily encrypted in the cloud to let you connect with your friends across all your devices.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>When you send your location to your friends, Telegram needs access to show them a map. You also need this to send locations from an Apple Watch.</string>
+	<string>When you send your location to your friends, CloudVeil Messenger needs access to show them a map. You also need this to send locations from an Apple Watch.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>When you send your location to your friends, Telegram needs access to show them a map.</string>
+	<string>When you send your location to your friends, CloudVeil Messenger needs access to show them a map.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>We need this so that you can record and share voice messages and videos with sound.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>When you send your location to your friends, Telegram needs access to show them a map.</string>
+	<string>When you send your location to your friends, CloudVeil Messenger needs access to show them a map.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need this so that you can share photos and videos from your photo library.</string>
 	<key>NSSiriUsageDescription</key>

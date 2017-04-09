@@ -7,7 +7,7 @@
 #import <CommonCrypto/CommonKeyDerivation.h>
 #import <CommonCrypto/CommonCryptoError.h>
 
-#import "../../config.h"
+#import "../config.h"
 
 @implementation TGUnauthorizedShareContext
 
@@ -98,7 +98,7 @@ static void TGShareLoggingFunction(NSString *format, va_list args)
                         int32_t apiId = 0;
                         SETUP_API_ID(apiId)
                         
-                        if ([bundleIdentifier isEqualToString:@"org.telegram.TelegramEnterprise"])
+                        if ([bundleIdentifier isEqualToString:@"org.cloudveil.CVMessenger"])
                             apiEnvironment.apiId = 16352;
                         else
                             apiEnvironment.apiId = 1;
