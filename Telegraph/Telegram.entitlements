@@ -19,13 +19,9 @@
 	</array>
 	<key>com.apple.developer.siri</key>
 	<true/>
-	<key>com.apple.security.application-groups</key>
-	<array>
-		<string>group.ph.telegra.Telegraph</string>
-	</array>
 	<key>com.apple.developer.in-app-payments</key>
 	<array>
-		<string>merchant.ph.telegra.Telegraph</string>
+		<string>merchant.com.cloudveil.CloudVeilMessenger</string>
 	</array>
 	<key>com.apple.developer.ubiquity-container-identifiers</key>
 	<array>

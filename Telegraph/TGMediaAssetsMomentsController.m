@@ -66,6 +66,11 @@
     _layoutMetrics = [TGMediaPickerLayoutMetrics defaultLayoutMetrics];
     
     _preheatMixin.imageSize = [_layoutMetrics imageSize];
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated

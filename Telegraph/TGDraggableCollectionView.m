@@ -65,6 +65,12 @@ typedef enum
                                                      name:UIApplicationWillResignActiveNotification
                                                    object:nil];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

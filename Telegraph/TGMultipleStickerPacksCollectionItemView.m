@@ -132,6 +132,12 @@ static const CGFloat TGStickersCollectionErrorLabelMargin = 23.0f;
         _panGestureRecognizer.delegate = self;
         [self addGestureRecognizer:_panGestureRecognizer];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

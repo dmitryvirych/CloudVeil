@@ -38,9 +38,15 @@
         {
             _whiteFooterView = [[UIView alloc] init];
             _whiteFooterView.backgroundColor = [UIColor whiteColor];
-            [self insertSubview:_whiteFooterView atIndex:0];
+            //[self insertSubview:_whiteFooterView atIndex:0];
         }
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

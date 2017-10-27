@@ -91,6 +91,12 @@
         CGFloat draggingInset = 40.0f + _collectionViewLayout.itemSize.width / 2;
         _collectionView.scrollingTriggerEdgeInsets = UIEdgeInsetsMake(draggingInset, draggingInset, draggingInset, draggingInset);
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

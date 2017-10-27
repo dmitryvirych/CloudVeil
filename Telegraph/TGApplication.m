@@ -12,6 +12,8 @@
 
 #import "TGRootController.h"
 
+#import "URLOpener.h"
+
 @interface TGApplication ()
 {
 }
@@ -102,35 +104,6 @@
         }
         return [text substringWithRange:[match rangeAtIndex:1]];
     }
-    
-    {
-        NSString *pattern = @"https?:\\/\\/t\\.me\\/share\\/url\\?(.*)$";
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:NULL];
-        NSTextCheckingResult *match = [regex firstMatchInString:text options:0 range:NSMakeRange(0, [text length])];
-        if (match != nil) {
-            NSString *arguments = ([match numberOfRanges] >= 1 && [match rangeAtIndex:1].location != NSNotFound) ? [text substringWithRange:[match rangeAtIndex:1]] : nil;
-            if (arguments.length != 0)
-            {
-                return arguments;
-            }
-            return [text substringWithRange:[match rangeAtIndex:1]];
-        }
-    }
-    
-    return nil;
-}
-
-- (NSString *)socksLinkFromText:(NSString *)text {
-    NSString *pattern = @"(https|http)?:\\/\\/(telegram|t)\\.me\\/socks\\?(.*)$";
-    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:NULL];
-    NSTextCheckingResult *match = [regex firstMatchInString:text options:0 range:NSMakeRange(0, [text length])];
-    if (match != nil) {
-        NSString *arguments = ([match numberOfRanges] >= 3 && [match rangeAtIndex:3].location != NSNotFound) ? [text substringWithRange:[match rangeAtIndex:3]] : nil;
-        if (arguments.length != 0) {
-            return arguments;
-        }
-    }
-    
     return nil;
 }
 
@@ -188,32 +161,19 @@
         return true;
     }
     
-    if ([absolutePrefixString hasPrefix:@"https://telegram.me/addstickers/"])
+    if ([absolutePrefixString hasPrefix:@"http://telegram.me/joinchat/"])
     {
-        NSString *stickerPackHash = [rawAbsoluteString substringFromIndex:@"https://telegram.me/addstickers/".length];
-        NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://addstickers?set=%@", stickerPackHash];
+        NSString *groupHash = [rawAbsoluteString substringFromIndex:@"http://telegram.me/joinchat/".length];
+        NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://join?invite=%@", groupHash];
         [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
         return true;
     }
-    
-    /*NSString *instantViewPattern = @"https?:\\/\\/(t|telegram)\\.me\\/iv\\?(.*?)$";
-    NSRegularExpression *instantViewRegex = [NSRegularExpression regularExpressionWithPattern:instantViewPattern options:NSRegularExpressionCaseInsensitive error:NULL];
-    NSArray *instantViewMatches = [instantViewRegex matchesInString:rawAbsoluteString options:0 range:NSMakeRange(0, rawAbsoluteString.length)];
-    for (NSTextCheckingResult *match in instantViewMatches) {
-        if ([match rangeAtIndex:2].location != NSNotFound) {
-            [TGStringUtils argumentDictionaryInUrlString:[rawAbsoluteString substringWithRange:[match rangeAtIndex:2]]];
-            [(TGAppDelegate *)self.delegate handleOpenInstantView:];
-            return true;
-        }
-        
-        break;
-    }*/
     
     if ([absolutePrefixString hasPrefix:@"http://t.me/joinchat/"])
     {
         NSString *groupHash = [rawAbsoluteString substringFromIndex:@"http://t.me/joinchat/".length];
         NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://join?invite=%@", groupHash];
-        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true keepStack:keepStack];
+        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
         return true;
     }
     
@@ -221,7 +181,7 @@
     {
         NSString *groupHash = [rawAbsoluteString substringFromIndex:@"https://telegram.me/joinchat/".length];
         NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://join?invite=%@", groupHash];
-        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true keepStack:keepStack];
+        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
         return true;
     }
     
@@ -229,31 +189,7 @@
     {
         NSString *groupHash = [rawAbsoluteString substringFromIndex:@"https://t.me/joinchat/".length];
         NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://join?invite=%@", groupHash];
-        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true keepStack:keepStack];
-        return true;
-    }
-    
-    if ([absolutePrefixString hasPrefix:@"t.me/joinchat/"])
-    {
-        NSString *groupHash = [rawAbsoluteString substringFromIndex:@"t.me/joinchat/".length];
-        NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://join?invite=%@", groupHash];
-        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true keepStack:keepStack];
-        return true;
-    }
-    
-    if ([absolutePrefixString hasPrefix:@"telegram.me/joinchat/"])
-    {
-        NSString *groupHash = [rawAbsoluteString substringFromIndex:@"telegram.me/joinchat/".length];
-        NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://join?invite=%@", groupHash];
-        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true keepStack:keepStack];
-        return true;
-    }
-    
-    if ([absolutePrefixString hasPrefix:@"http://telegram.me/joinchat/"])
-    {
-        NSString *groupHash = [rawAbsoluteString substringFromIndex:@"http://telegram.me/joinchat/".length];
-        NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://join?invite=%@", groupHash];
-        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true keepStack:keepStack];
+        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
         return true;
     }
     
@@ -277,7 +213,7 @@
     NSString *startGroupPayload = nil;
     NSString *gamePayload = nil;
     NSString *telegramMeLink = [self telegramMeLinkFromText:rawAbsoluteString startPrivatePayload:&startPrivatePayload startGroupPayload:&startGroupPayload gamePayload:&gamePayload];
-    if (telegramMeLink.length != 0 && ![telegramMeLink isEqualToString:@"iv"])
+    if (telegramMeLink.length != 0)
     {
         NSString *domainName = telegramMeLink;
         NSString *postId = nil;
@@ -313,22 +249,22 @@
         return true;
     }
     
-    NSString *socksLink = [self socksLinkFromText:rawAbsoluteString];
-    if (socksLink.length != 0) {
-        NSMutableString *internalUrl = [[NSMutableString alloc] initWithFormat:@"tg://socks?%@", socksLink];
-        [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
-        return true;
-    }
-    
     if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone && iosMajorVersion() >= 9 && ([url.scheme isEqual:@"http"] || [url.scheme isEqual:@"https"])) {
         if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                SFSafariViewController *controller = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:false];
-                [TGAppDelegateInstance.window.rootViewController presentViewController:controller animated:true completion:nil];
+                /*
+                 SFSafariViewController *controller = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:false];
+                 [TGAppDelegateInstance.window.rootViewController presentViewController:controller animated:true completion:nil];
+                 */
+                [self openURLNew:url];
+                
             });
         } else {
-            SFSafariViewController *controller = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:false];
-            [TGAppDelegateInstance.window.rootViewController presentViewController:controller animated:true completion:nil];
+            /*
+             SFSafariViewController *controller = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:false];
+             [TGAppDelegateInstance.window.rootViewController presentViewController:controller animated:true completion:nil];
+             */
+            [self openURLNew:url];
         }
         return true;
     }
@@ -336,9 +272,73 @@
     return [super openURL:url];
 }
 
+- (void)openURLNew:(NSURL *)url{
+    
+    NSString * userAgent = BROWSER_ICAB;
+    URLOpener * opener = [[URLOpener alloc] initWithURL:url browser:userAgent];
+    bool res = [opener openURL];
+    if(res == false) {
+        
+        bool isSingle = TRUE;
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+        
+        UIAlertAction* actionDefault = [UIAlertAction actionWithTitle:@"Default Browser" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            NSDictionary *options = [[NSDictionary alloc] init];
+            [[UIApplication sharedApplication] openURL:url options:options completionHandler:^(BOOL success){
+            }];
+        }];
+        [alert addAction:actionDefault];
+        
+        if([opener isChromeAvailable]==TRUE){
+            UIAlertAction* actionChrome = [UIAlertAction actionWithTitle:@"Chrome" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[[URLOpener alloc] initWithURL:url browser:BROWSER_CHROME] openURL];
+            }];
+            isSingle = FALSE;
+            [alert addAction:actionChrome];
+        };
+        
+        if([opener isOperaAvailable]==TRUE){
+            UIAlertAction* actionOpera = [UIAlertAction actionWithTitle:@"Opera mini" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[[URLOpener alloc] initWithURL:url browser:BROWSER_OPERA] openURL];
+            }];
+            isSingle = FALSE;
+            [alert addAction:actionOpera];
+        };
+        
+        if([opener isMozillaAvailable]==TRUE){
+            UIAlertAction* actionFirefox = [UIAlertAction actionWithTitle:@"Firefox Mozilla" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[[URLOpener alloc] initWithURL:url browser:BROWSER_FIREFOX] openURL];
+            }];
+            isSingle = FALSE;
+            [alert addAction:actionFirefox];
+        };
+        
+        if([opener isICabAvailable]==TRUE){
+            UIAlertAction* actionICab = [UIAlertAction actionWithTitle:@"ICab Mobile" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [[[URLOpener alloc] initWithURL:url browser:BROWSER_ICAB] openURL];
+            }];
+            isSingle = FALSE;
+            [alert addAction:actionICab];
+        };
+        
+        UIAlertAction* actionCancel = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {}];
+        [alert addAction:actionCancel];
+        
+        UIViewController *viewController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
+        
+        if(isSingle==TRUE) {
+            
+            NSDictionary *options = [[NSDictionary alloc] init];
+            [[UIApplication sharedApplication] openURL:url];
+        } else {
+            [viewController presentViewController:alert animated:YES completion:nil];
+        }
+    }
+}
+
 - (BOOL)openURL:(NSURL *)url
 {
-    return [self openURL:url forceNative:false];
+    return [self nativeOpenURL: url];//[self openURL:url forceNative:false];
 }
 
 - (BOOL)nativeOpenURL:(NSURL *)url
@@ -363,23 +363,7 @@
 - (void)setStatusBarHidden:(BOOL)hidden withAnimation:(UIStatusBarAnimation)animation
 {
     if (_processStatusBarHiddenRequests)
-    {
-        /*if (animation != UIStatusBarAnimationNone)
-         {
-         [TGHacks animateApplicationStatusBarAppearance:hidden ? TGStatusBarAppearanceAnimationSlideUp : TGStatusBarAppearanceAnimationSlideUp duration:0.3 completion:^
-         {
-         if (hidden)
-         [TGHacks setApplicationStatusBarAlpha:0.0f];
-         }];
-         
-         if (!hidden)
-         [TGHacks setApplicationStatusBarAlpha:1.0f];
-         }
-         else
-         {
-         [TGHacks setApplicationStatusBarAlpha:hidden ? 0.0f : 1.0f];
-         }*/
-        
+    {     
         [self forceSetStatusBarHidden:hidden withAnimation:animation];
     }
 }

@@ -48,6 +48,12 @@
         _titleLabel.userInteractionEnabled = false;
         [self addSubview:_titleLabel];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

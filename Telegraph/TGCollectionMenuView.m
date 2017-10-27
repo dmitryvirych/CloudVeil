@@ -34,6 +34,11 @@
     {
         _allowEditingCells = true;
     }
+    
+    if (@available(iOS 11.0, *)) {
+        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

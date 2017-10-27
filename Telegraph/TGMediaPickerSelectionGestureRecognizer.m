@@ -28,6 +28,12 @@ const CGFloat TGSelectionGestureVerticalFailureThreshold = 5.0f;
         _gestureRecognizer.delegate = self;
         [collectionView addGestureRecognizer:_gestureRecognizer];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

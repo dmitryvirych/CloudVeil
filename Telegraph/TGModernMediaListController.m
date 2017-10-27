@@ -162,6 +162,11 @@
     [_collectionLayout invalidateLayout];
     [_collectionView layoutSubviews];
     [self _adjustContentOffsetToBottom:self.interfaceOrientation];
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated

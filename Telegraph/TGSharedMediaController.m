@@ -974,6 +974,11 @@
     [_collectionView registerClass:[TGSharedMediaLinkItemView class] forCellWithReuseIdentifier:@"TGSharedMediaLinkItemView"];
     [_collectionContainer addSubview:_collectionView];
     
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     _searchCollectionLayout = [[TGSharedMediaCollectionLayout alloc] init];
     _searchCollectionView = [[TGSharedMediaCollectionView alloc] initWithFrame:_searchCollectionContainer.bounds collectionViewLayout:_searchCollectionLayout];
     _searchCollectionView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;

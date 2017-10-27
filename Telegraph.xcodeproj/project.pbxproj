@@ -187,7 +187,7 @@
 		0981B0991E96387000A55F6A /* TGVideoMessagePIPController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0981B0971E96387000A55F6A /* TGVideoMessagePIPController.h */; };
 		0981B09A1E96387000A55F6A /* TGVideoMessagePIPController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0981B0981E96387000A55F6A /* TGVideoMessagePIPController.m */; };
 		099120C11EEAA63400F1366E /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6869F8C81D96D33C00D5AA92 /* NotificationCenter.framework */; };
-		099120CC1EEAA63400F1366E /* Widget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 099120C01EEAA63400F1366E /* Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		099120CC1EEAA63400F1366E /* Cloud Veil Messenger Widget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 099120C01EEAA63400F1366E /* Cloud Veil Messenger Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		099120F61EEAA6AF00F1366E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 099120D31EEAA6AF00F1366E /* InfoPlist.strings */; };
 		099120F71EEAA6AF00F1366E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 099120D61EEAA6AF00F1366E /* InfoPlist.strings */; };
 		099120F81EEAA6AF00F1366E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 099120D91EEAA6AF00F1366E /* InfoPlist.strings */; };
@@ -842,8 +842,7 @@
 		686ED3201BF3CBB8001F2F96 /* StickerPanelPopupLeftDark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 686ED31D1BF3CBB8001F2F96 /* StickerPanelPopupLeftDark@2x.png */; };
 		686ED3211BF3CBB8001F2F96 /* StickerPanelPopupMiddleDark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 686ED31E1BF3CBB8001F2F96 /* StickerPanelPopupMiddleDark@2x.png */; };
 		686ED3221BF3CBB8001F2F96 /* StickerPanelPopupRightDark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 686ED31F1BF3CBB8001F2F96 /* StickerPanelPopupRightDark@2x.png */; };
-		68744C1A1BB1A9F700FE6542 /* watchkitapp Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 68744C191BB1A9F700FE6542 /* watchkitapp Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		68744C2E1BB1A9F800FE6542 /* watchkitapp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 68744C0D1BB1A9F700FE6542 /* watchkitapp.app */; };
+		68744C2E1BB1A9F800FE6542 /* Cloud Veil Messenger watchkitapp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 68744C0D1BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp.app */; };
 		6875C8541BBD27DF0061D94C /* TGMenuSheetController.h in Headers */ = {isa = PBXBuildFile; fileRef = 6875C8521BBD27DF0061D94C /* TGMenuSheetController.h */; };
 		6875C8551BBD27DF0061D94C /* TGMenuSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6875C8531BBD27DF0061D94C /* TGMenuSheetController.m */; };
 		6875C8581BBD28000061D94C /* TGMenuSheetView.h in Headers */ = {isa = PBXBuildFile; fileRef = 6875C8561BBD28000061D94C /* TGMenuSheetView.h */; };
@@ -1191,7 +1190,6 @@
 		68B639CC1BB2514700205AC3 /* MediaDocument@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 68B639BE1BB2514100205AC3 /* MediaDocument@2x.png */; };
 		68B639CD1BB2514700205AC3 /* MediaLocation@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 68B639BF1BB2514100205AC3 /* MediaLocation@2x.png */; };
 		68B639CE1BB2514700205AC3 /* MediaPhoto@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 68B639C01BB2514100205AC3 /* MediaPhoto@2x.png */; };
-		68B639CF1BB2514700205AC3 /* MediaVideo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 68B639C11BB2514100205AC3 /* MediaVideo@2x.png */; };
 		68B639ED1BB251A100205AC3 /* TGBridgeUserCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 68B639D21BB2516D00205AC3 /* TGBridgeUserCache.m */; };
 		68B639EE1BB251A100205AC3 /* TGFileCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 68B639D41BB2516D00205AC3 /* TGFileCache.m */; };
 		68B639EF1BB251B000205AC3 /* TGInputController.m in Sources */ = {isa = PBXBuildFile; fileRef = 68B639DA1BB2519B00205AC3 /* TGInputController.m */; };
@@ -1607,6 +1605,10 @@
 		68F7D3C61CADF1FB00265D0A /* TGPreviewWebPageItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 68F7D3C41CADF1FB00265D0A /* TGPreviewWebPageItemView.m */; };
 		68F9A7761D89E65C00BCBE31 /* CameraLargeFlipButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 68F9A7751D89E65C00BCBE31 /* CameraLargeFlipButton@2x.png */; };
 		69F8429F1E67589900C110F7 /* libtgvoip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F8429E1E67589900C110F7 /* libtgvoip.framework */; };
+		724B53961F86A1AC002819C0 /* Cloud Veil Messenger watchkitapp Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 68744C191BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		724B53981F86AD81002819C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 724B53971F86AD81002819C0 /* Images.xcassets */; };
+		7276C03F1F82984F002B2D12 /* URLOpener.h in Headers */ = {isa = PBXBuildFile; fileRef = 7276C03D1F82984D002B2D12 /* URLOpener.h */; };
+		7276C0401F82984F002B2D12 /* URLOpener.m in Sources */ = {isa = PBXBuildFile; fileRef = 7276C03E1F82984E002B2D12 /* URLOpener.m */; };
 		9302CA2F171B581200C8559D /* VideoSliderBackground@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9302CA2A171B581200C8559D /* VideoSliderBackground@2x.png */; };
 		9302CA31171B581200C8559D /* VideoSliderForeground@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9302CA2C171B581200C8559D /* VideoSliderForeground@2x.png */; };
 		9302CA33171B581200C8559D /* VideoSliderHandle@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9302CA2E171B581200C8559D /* VideoSliderHandle@2x.png */; };
@@ -2443,7 +2445,7 @@
 		D020B75F18B509C50026DB24 /* ModernConversationMicButton_Highlighted@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D020B75D18B509C50026DB24 /* ModernConversationMicButton_Highlighted@2x.png */; };
 		D020B76018B509C50026DB24 /* ModernConversationMicButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D020B75E18B509C50026DB24 /* ModernConversationMicButton@2x.png */; };
 		D020FAE11D99466A00F279AA /* IntentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D020FAE01D99466A00F279AA /* IntentHandler.m */; };
-		D020FAE51D99466A00F279AA /* SiriIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D020FADD1D99466A00F279AA /* SiriIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D020FAE51D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D020FADD1D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D020FB021D995E9000F279AA /* MtProtoKitDynamic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0EE3B301C7C86B200DD5E83 /* MtProtoKitDynamic.framework */; };
 		D020FB0E1D99637200F279AA /* LegacyDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D020FB0C1D99637200F279AA /* LegacyDatabase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D020FB121D99637200F279AA /* LegacyDatabase.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D020FB0A1D99637100F279AA /* LegacyDatabase.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -4294,7 +4296,7 @@
 		D061F2F81A9290420031BCBE /* TGCameraTimeCodeView.m in Sources */ = {isa = PBXBuildFile; fileRef = D061F2DA1A9290420031BCBE /* TGCameraTimeCodeView.m */; };
 		D061F2F91A9290420031BCBE /* TGCameraZoomView.h in Headers */ = {isa = PBXBuildFile; fileRef = D061F2DB1A9290420031BCBE /* TGCameraZoomView.h */; };
 		D061F2FA1A9290420031BCBE /* TGCameraZoomView.m in Sources */ = {isa = PBXBuildFile; fileRef = D061F2DC1A9290420031BCBE /* TGCameraZoomView.m */; };
-		D061F2FF1A9290F80031BCBE /* Share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D02601D71A55CA2300716290 /* Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D061F2FF1A9290F80031BCBE /* Cloud Veil Messenger Share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D02601D71A55CA2300716290 /* Cloud Veil Messenger Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D06232B21B39D544006A4140 /* ConversationInputFieldActionsIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D06232AF1B39D544006A4140 /* ConversationInputFieldActionsIcon@2x.png */; };
 		D06232B31B39D544006A4140 /* ConversationInputFieldActionsIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = D06232B01B39D544006A4140 /* ConversationInputFieldActionsIcon@3x.png */; };
 		D06232B41B39D544006A4140 /* ConversationInputFieldActionsIcon@1x.png in Resources */ = {isa = PBXBuildFile; fileRef = D06232B11B39D544006A4140 /* ConversationInputFieldActionsIcon@1x.png */; };
@@ -5750,13 +5752,6 @@
 			remoteGlobalIDString = 099120BF1EEAA63400F1366E;
 			remoteInfo = Widget;
 		};
-		68744C1B1BB1A9F700FE6542 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = D08805A3156E8F3600311537 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 68744C181BB1A9F700FE6542;
-			remoteInfo = "watchkitapp Extension";
-		};
 		68744C2C1BB1A9F800FE6542 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D08805A3156E8F3600311537 /* Project object */;
@@ -5777,6 +5772,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 69F842361E67540700C110F7;
 			remoteInfo = libtgvoip;
+		};
+		724B53811F86897B002819C0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D08805A3156E8F3600311537 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 68744C181BB1A9F700FE6542;
+			remoteInfo = "watchkitapp Extension";
 		};
 		D020FAE31D99466A00F279AA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -5928,26 +5930,26 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		68744C321BB1A9F800FE6542 /* Embed App Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				68744C1A1BB1A9F700FE6542 /* watchkitapp Extension.appex in Embed App Extensions */,
-			);
-			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		6879BEE41B43683E007C9800 /* Embed Watch Content */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				68744C2E1BB1A9F800FE6542 /* watchkitapp.app in Embed Watch Content */,
+				68744C2E1BB1A9F800FE6542 /* Cloud Veil Messenger watchkitapp.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		724B53831F86897C002819C0 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				724B53961F86A1AC002819C0 /* Cloud Veil Messenger watchkitapp Extension.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D020FB161D99637200F279AA /* Embed Frameworks */ = {
@@ -5968,9 +5970,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D061F2FF1A9290F80031BCBE /* Share.appex in Embed App Extensions */,
-				099120CC1EEAA63400F1366E /* Widget.appex in Embed App Extensions */,
-				D020FAE51D99466A00F279AA /* SiriIntents.appex in Embed App Extensions */,
+				D061F2FF1A9290F80031BCBE /* Cloud Veil Messenger Share.appex in Embed App Extensions */,
+				099120CC1EEAA63400F1366E /* Cloud Veil Messenger Widget.appex in Embed App Extensions */,
+				D020FAE51D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6150,7 +6152,7 @@
 		0981B08F1E9574E600A55F6A /* TGRoundMessageRingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGRoundMessageRingView.m; sourceTree = "<group>"; };
 		0981B0971E96387000A55F6A /* TGVideoMessagePIPController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGVideoMessagePIPController.h; sourceTree = "<group>"; };
 		0981B0981E96387000A55F6A /* TGVideoMessagePIPController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGVideoMessagePIPController.m; sourceTree = "<group>"; };
-		099120C01EEAA63400F1366E /* Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Widget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		099120C01EEAA63400F1366E /* Cloud Veil Messenger Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Cloud Veil Messenger Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		099120C91EEAA63400F1366E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		099120D41EEAA6AF00F1366E /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = InfoPlist.strings; sourceTree = "<group>"; };
 		099120D71EEAA6AF00F1366E /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = InfoPlist.strings; sourceTree = "<group>"; };
@@ -6784,8 +6786,8 @@
 		686ED31D1BF3CBB8001F2F96 /* StickerPanelPopupLeftDark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "StickerPanelPopupLeftDark@2x.png"; path = "Resources/StickerPanelPopupLeftDark@2x.png"; sourceTree = "<group>"; };
 		686ED31E1BF3CBB8001F2F96 /* StickerPanelPopupMiddleDark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "StickerPanelPopupMiddleDark@2x.png"; path = "Resources/StickerPanelPopupMiddleDark@2x.png"; sourceTree = "<group>"; };
 		686ED31F1BF3CBB8001F2F96 /* StickerPanelPopupRightDark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "StickerPanelPopupRightDark@2x.png"; path = "Resources/StickerPanelPopupRightDark@2x.png"; sourceTree = "<group>"; };
-		68744C0D1BB1A9F700FE6542 /* watchkitapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = watchkitapp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		68744C191BB1A9F700FE6542 /* watchkitapp Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "watchkitapp Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		68744C0D1BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cloud Veil Messenger watchkitapp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		68744C191BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Cloud Veil Messenger watchkitapp Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6875C8521BBD27DF0061D94C /* TGMenuSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGMenuSheetController.h; sourceTree = "<group>"; };
 		6875C8531BBD27DF0061D94C /* TGMenuSheetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGMenuSheetController.m; sourceTree = "<group>"; };
 		6875C8561BBD28000061D94C /* TGMenuSheetView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGMenuSheetView.h; sourceTree = "<group>"; };
@@ -7736,6 +7738,14 @@
 		68F9A7751D89E65C00BCBE31 /* CameraLargeFlipButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "CameraLargeFlipButton@2x.png"; path = "Resources/Camera/CameraLargeFlipButton@2x.png"; sourceTree = "<group>"; };
 		69F842411E67546900C110F7 /* libtgvoip.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = libtgvoip.xcodeproj; path = ../submodules/libtgvoip/libtgvoip.xcodeproj; sourceTree = "<group>"; };
 		69F8429E1E67589900C110F7 /* libtgvoip.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = libtgvoip.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		724B53971F86AD81002819C0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		7276C03D1F82984D002B2D12 /* URLOpener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = URLOpener.h; sourceTree = "<group>"; };
+		7276C03E1F82984E002B2D12 /* URLOpener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = URLOpener.m; sourceTree = "<group>"; };
+		72FB0C291F8D135700759A67 /* Cloud Veil Messenger Share.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cloud Veil Messenger Share.entitlements"; sourceTree = "<group>"; };
+		72FB0C2A1F8D14F700759A67 /* Cloud Veil Messenger watchkitapp.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cloud Veil Messenger watchkitapp.entitlements"; sourceTree = "<group>"; };
+		72FB0C2B1F8D150200759A67 /* Cloud Veil Messenger watchkitapp Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cloud Veil Messenger watchkitapp Extension.entitlements"; sourceTree = "<group>"; };
+		72FB0C2C1F8D150D00759A67 /* Cloud Veil Messenger SiriIntents.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cloud Veil Messenger SiriIntents.entitlements"; sourceTree = "<group>"; };
+		72FB0C2D1F8D151900759A67 /* Cloud Veil Messenger Widget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Cloud Veil Messenger Widget.entitlements"; sourceTree = "<group>"; };
 		9302CA2A171B581200C8559D /* VideoSliderBackground@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "VideoSliderBackground@2x.png"; path = "Resources/VideoSliderBackground@2x.png"; sourceTree = "<group>"; };
 		9302CA2C171B581200C8559D /* VideoSliderForeground@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "VideoSliderForeground@2x.png"; path = "Resources/VideoSliderForeground@2x.png"; sourceTree = "<group>"; };
 		9302CA2E171B581200C8559D /* VideoSliderHandle@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "VideoSliderHandle@2x.png"; path = "Resources/VideoSliderHandle@2x.png"; sourceTree = "<group>"; };
@@ -8909,7 +8919,7 @@
 		D020B75B18B4F6740026DB24 /* ModernConversationSecretAccessoryTimer@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ModernConversationSecretAccessoryTimer@2x.png"; path = "Resources/ModernConversationSecretAccessoryTimer@2x.png"; sourceTree = "<group>"; };
 		D020B75D18B509C50026DB24 /* ModernConversationMicButton_Highlighted@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ModernConversationMicButton_Highlighted@2x.png"; path = "Resources/ModernConversationMicButton_Highlighted@2x.png"; sourceTree = "<group>"; };
 		D020B75E18B509C50026DB24 /* ModernConversationMicButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ModernConversationMicButton@2x.png"; path = "Resources/ModernConversationMicButton@2x.png"; sourceTree = "<group>"; };
-		D020FADD1D99466A00F279AA /* SiriIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SiriIntents.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D020FADD1D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Cloud Veil Messenger SiriIntents.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D020FADF1D99466A00F279AA /* IntentHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IntentHandler.h; sourceTree = "<group>"; };
 		D020FAE01D99466A00F279AA /* IntentHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IntentHandler.m; sourceTree = "<group>"; };
 		D020FAE21D99466A00F279AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -9247,7 +9257,7 @@
 		D02566AE1AD2C2A2007C19C1 /* TLRPCmessages_sendMedia_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TLRPCmessages_sendMedia_manual.h; sourceTree = "<group>"; };
 		D02566AF1AD2C2A2007C19C1 /* TLRPCmessages_sendMedia_manual.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TLRPCmessages_sendMedia_manual.mm; sourceTree = "<group>"; };
 		D02601D01A54F10000716290 /* libx265.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libx265.a; path = thirdparty/libbpg/libx265.a; sourceTree = "<group>"; };
-		D02601D71A55CA2300716290 /* Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = Share.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		D02601D71A55CA2300716290 /* Cloud Veil Messenger Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Cloud Veil Messenger Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D02601DA1A55CA2300716290 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D026205C18A8E95200A41CC8 /* TGUpdateMessageService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGUpdateMessageService.h; sourceTree = "<group>"; };
 		D026205D18A8E95200A41CC8 /* TGUpdateMessageService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGUpdateMessageService.m; sourceTree = "<group>"; };
@@ -11130,7 +11140,7 @@
 		D0876FE5196F4C33005740CE /* TGGenericPeerMediaGalleryModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGGenericPeerMediaGalleryModel.m; sourceTree = "<group>"; };
 		D0876FE719702474005740CE /* TGModernGalleryZoomableScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGModernGalleryZoomableScrollView.h; sourceTree = "<group>"; };
 		D0876FE819702474005740CE /* TGModernGalleryZoomableScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGModernGalleryZoomableScrollView.m; sourceTree = "<group>"; };
-		D08805AC156E8F3600311537 /* Telegram.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Telegram.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D08805AC156E8F3600311537 /* Cloud Veil Messenger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cloud Veil Messenger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D08805B0156E8F3600311537 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		D08805B2156E8F3600311537 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D08805B4156E8F3600311537 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -11752,7 +11762,6 @@
 		D0B2C8D1195B14EA00CA9F1E /* MP4Atom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP4Atom.h; sourceTree = "<group>"; };
 		D0B2C8D2195B14EA00CA9F1E /* MP4Atom.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MP4Atom.m; sourceTree = "<group>"; };
 		D0B33C66159CAC3400451700 /* ImageIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ImageIO.framework; path = System/Library/Frameworks/ImageIO.framework; sourceTree = SDKROOT; };
-		D0B3942B1A56237E00D9AB97 /* Share.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Share.entitlements; sourceTree = "<group>"; };
 		D0B3942C1A56561E00D9AB97 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D0B3942E1A57055D00D9AB97 /* LocalAuthentication.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = LocalAuthentication.framework; path = System/Library/Frameworks/LocalAuthentication.framework; sourceTree = SDKROOT; };
 		D0B7ED181B94C5EB0006408E /* TGQueuedDeleteChannelMessages.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGQueuedDeleteChannelMessages.h; sourceTree = "<group>"; };
@@ -12878,6 +12887,7 @@
 		099120C21EEAA63400F1366E /* Widget */ = {
 			isa = PBXGroup;
 			children = (
+				72FB0C2D1F8D151900759A67 /* Cloud Veil Messenger Widget.entitlements */,
 				099121041EEAA9FE00F1366E /* Widget.entitlements */,
 				099120D21EEAA6AF00F1366E /* ar.lproj */,
 				099120D51EEAA6AF00F1366E /* de.lproj */,
@@ -17266,6 +17276,7 @@
 		D020FADE1D99466A00F279AA /* SiriIntents */ = {
 			isa = PBXGroup;
 			children = (
+				72FB0C2C1F8D150D00759A67 /* Cloud Veil Messenger SiriIntents.entitlements */,
 				D00EA0EC1D99A9A100F29663 /* SiriIntents.entitlements */,
 				D020FADF1D99466A00F279AA /* IntentHandler.h */,
 				D020FAE01D99466A00F279AA /* IntentHandler.m */,
@@ -17722,10 +17733,10 @@
 		D02601D81A55CA2300716290 /* Share */ = {
 			isa = PBXGroup;
 			children = (
+				72FB0C291F8D135700759A67 /* Cloud Veil Messenger Share.entitlements */,
 				D0E0B8AE1ADE825300435821 /* Signals */,
 				D0E0B8B51ADE840B00435821 /* Views */,
 				D0E0B8AD1ADE824600435821 /* Controllers */,
-				D0B3942B1A56237E00D9AB97 /* Share.entitlements */,
 				D0B3942C1A56561E00D9AB97 /* Images.xcassets */,
 				D02601D91A55CA2300716290 /* Supporting Files */,
 			);
@@ -20527,6 +20538,8 @@
 		D08805A1156E8F3600311537 = {
 			isa = PBXGroup;
 			children = (
+				72FB0C2B1F8D150200759A67 /* Cloud Veil Messenger watchkitapp Extension.entitlements */,
+				72FB0C2A1F8D14F700759A67 /* Cloud Veil Messenger watchkitapp.entitlements */,
 				D0B9B19419CA324D0020C9CF /* LaunchScreen.xib */,
 				D0DAA484197496240036E709 /* Icon-76.png */,
 				D0C6748E1CB8640400183765 /* Icon-167.png */,
@@ -20572,13 +20585,13 @@
 		D08805AD156E8F3600311537 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D08805AC156E8F3600311537 /* Telegram.app */,
-				D02601D71A55CA2300716290 /* Share.appex */,
-				68744C0D1BB1A9F700FE6542 /* watchkitapp.app */,
-				68744C191BB1A9F700FE6542 /* watchkitapp Extension.appex */,
-				D020FADD1D99466A00F279AA /* SiriIntents.appex */,
+				D08805AC156E8F3600311537 /* Cloud Veil Messenger.app */,
+				D02601D71A55CA2300716290 /* Cloud Veil Messenger Share.appex */,
+				68744C0D1BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp.app */,
+				68744C191BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp Extension.appex */,
+				D020FADD1D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex */,
 				D020FB0A1D99637100F279AA /* LegacyDatabase.framework */,
-				099120C01EEAA63400F1366E /* Widget.appex */,
+				099120C01EEAA63400F1366E /* Cloud Veil Messenger Widget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -20649,7 +20662,6 @@
 		D08805B6156E8F3600311537 /* Telegraph */ = {
 			isa = PBXGroup;
 			children = (
-				D0DB57CB1E5C6FC50071854C /* Enterprise.entitlements */,
 				D089689D1A78600200784CE8 /* Telegram.entitlements */,
 				D0880632156EAEA300311537 /* AppResources */,
 				D0983BE319CB936B00CE5BB0 /* Legacy */,
@@ -20659,6 +20671,7 @@
 				D052F0EA1576E83200D51E59 /* Elements */,
 				D08805D1156E8F7400311537 /* Core */,
 				68744C0A1BB1A87900FE6542 /* Bridge */,
+				724B53971F86AD81002819C0 /* Images.xcassets */,
 				D08805B7156E8F3600311537 /* Supporting Files */,
 			);
 			path = Telegraph;
@@ -20667,6 +20680,8 @@
 		D08805B7156E8F3600311537 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				7276C03D1F82984D002B2D12 /* URLOpener.h */,
+				7276C03E1F82984E002B2D12 /* URLOpener.m */,
 				9351565D18686E9D00621293 /* Localization */,
 				D08805B8156E8F3600311537 /* Telegraph-Info.plist */,
 				D08805BC156E8F3600311537 /* main.m */,
@@ -20838,6 +20853,7 @@
 		D0880627156EA82600311537 /* App Delegate */ = {
 			isa = PBXGroup;
 			children = (
+				D0DB57CB1E5C6FC50071854C /* Enterprise.entitlements */,
 				D08805BF156E8F3600311537 /* TGAppDelegate.h */,
 				D08805C0156E8F3600311537 /* TGAppDelegate.mm */,
 				937BBDEF164858DC003CF5F0 /* TGApplication.h */,
@@ -24105,6 +24121,7 @@
 				D0249ABA1ABCA73F0076ECBF /* TGLocationMapModeControl.h in Headers */,
 				D0F680071EE70227000E5906 /* TGModernConversationRestrictedInputPanel.h in Headers */,
 				D0DCF58A1AEDCE2300D5B7A1 /* TGGroupInfoShareLinkLinkItemView.h in Headers */,
+				7276C03F1F82984F002B2D12 /* URLOpener.h in Headers */,
 				D08C712D1C4D186D00779C0F /* TGNetworkOverridesController.h in Headers */,
 				D053B1D71F1509EA00E2D58A /* TLPostAddress.h in Headers */,
 				D053B3171F1509ED00E2D58A /* TLRPCmessages_getStickerSet.h in Headers */,
@@ -25936,7 +25953,7 @@
 			);
 			name = Widget;
 			productName = Widget;
-			productReference = 099120C01EEAA63400F1366E /* Widget.appex */;
+			productReference = 099120C01EEAA63400F1366E /* Cloud Veil Messenger Widget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		68744C0C1BB1A9F700FE6542 /* watchkitapp */ = {
@@ -25944,16 +25961,16 @@
 			buildConfigurationList = 68744C331BB1A9F800FE6542 /* Build configuration list for PBXNativeTarget "watchkitapp" */;
 			buildPhases = (
 				68744C0B1BB1A9F700FE6542 /* Resources */,
-				68744C321BB1A9F800FE6542 /* Embed App Extensions */,
+				724B53831F86897C002819C0 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				68744C1C1BB1A9F700FE6542 /* PBXTargetDependency */,
+				724B53821F86897B002819C0 /* PBXTargetDependency */,
 			);
 			name = watchkitapp;
 			productName = watchkitapp;
-			productReference = 68744C0D1BB1A9F700FE6542 /* watchkitapp.app */;
+			productReference = 68744C0D1BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp.app */;
 			productType = "com.apple.product-type.application.watchapp2";
 		};
 		68744C181BB1A9F700FE6542 /* watchkitapp Extension */ = {
@@ -25970,7 +25987,7 @@
 			);
 			name = "watchkitapp Extension";
 			productName = "watchkitapp Extension";
-			productReference = 68744C191BB1A9F700FE6542 /* watchkitapp Extension.appex */;
+			productReference = 68744C191BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp Extension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
 		};
 		D020FADC1D99466A00F279AA /* SiriIntents */ = {
@@ -25988,7 +26005,7 @@
 			);
 			name = SiriIntents;
 			productName = SiriIntents;
-			productReference = D020FADD1D99466A00F279AA /* SiriIntents.appex */;
+			productReference = D020FADD1D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		D020FB091D99637100F279AA /* LegacyDatabase */ = {
@@ -26026,7 +26043,7 @@
 			);
 			name = Share;
 			productName = Share;
-			productReference = D02601D71A55CA2300716290 /* Share.appex */;
+			productReference = D02601D71A55CA2300716290 /* Cloud Veil Messenger Share.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		D08805AB156E8F3600311537 /* Telegraph */ = {
@@ -26056,7 +26073,7 @@
 			);
 			name = Telegraph;
 			productName = Telegraph;
-			productReference = D08805AC156E8F3600311537 /* Telegram.app */;
+			productReference = D08805AC156E8F3600311537 /* Cloud Veil Messenger.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -26070,8 +26087,8 @@
 				TargetAttributes = {
 					099120BF1EEAA63400F1366E = {
 						CreatedOnToolsVersion = 8.3;
-						DevelopmentTeam = X834Q8SBVP;
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = L95C8867HX;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -26080,8 +26097,8 @@
 					};
 					68744C0C1BB1A9F700FE6542 = {
 						CreatedOnToolsVersion = 7.1;
-						DevelopmentTeam = X834Q8SBVP;
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = L95C8867HX;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -26090,8 +26107,8 @@
 					};
 					68744C181BB1A9F700FE6542 = {
 						CreatedOnToolsVersion = 7.1;
-						DevelopmentTeam = X834Q8SBVP;
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = L95C8867HX;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -26100,8 +26117,8 @@
 					};
 					D020FADC1D99466A00F279AA = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = X834Q8SBVP;
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = L95C8867HX;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -26110,13 +26127,13 @@
 					};
 					D020FB091D99637100F279AA = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = X834Q8SBVP;
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = L95C8867HX;
+						ProvisioningStyle = Automatic;
 					};
 					D02601D61A55CA2300716290 = {
 						CreatedOnToolsVersion = 6.1.1;
-						DevelopmentTeam = X834Q8SBVP;
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = L95C8867HX;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
 								enabled = 1;
@@ -26124,8 +26141,8 @@
 						};
 					};
 					D08805AB156E8F3600311537 = {
-						DevelopmentTeam = X834Q8SBVP;
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = L95C8867HX;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplePay = {
 								enabled = 1;
@@ -26334,7 +26351,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				68B639CF1BB2514700205AC3 /* MediaVideo@2x.png in Resources */,
 				D0EDC5A51C0D030000271E13 /* Localizable.strings in Resources */,
 				68B639CC1BB2514700205AC3 /* MediaDocument@2x.png in Resources */,
 				D0EDC5A71C0D030900271E13 /* Localizable.strings in Resources */,
@@ -27085,6 +27101,7 @@
 				090C24691E77412300AF4DFC /* ModernWallpaperSelectedIndicator@3x.png in Resources */,
 				6886256F1C999F8000F7E860 /* VimeoPlayer.html in Resources */,
 				D058B6411AC229FE00C995C3 /* ModernMessageLocationPin@2x.png in Resources */,
+				724B53981F86AD81002819C0 /* Images.xcassets in Resources */,
 				D0A3F30B195D90AD009E0ACD /* EmptyBroadcastListsIcon@2x.png in Resources */,
 				0929AA651E9BD34300AA97C0 /* StickerPanelPopupLeft@3x.png in Resources */,
 				09C05D891E84F9DE00ACD425 /* VideoMessage.fsh in Resources */,
@@ -29440,6 +29457,7 @@
 				D0CB14AB199DF1E900EBCEA7 /* TGUpdateMediaHistoryActor.m in Sources */,
 				D093D8121BE27B0000B24A14 /* TGMessageEntityBotCommand.m in Sources */,
 				D06BE8561B8F4BCF00F394CF /* TGHoleMessageViewModel.m in Sources */,
+				7276C0401F82984F002B2D12 /* URLOpener.m in Sources */,
 				930F9BC21891B7CB00D3D7C1 /* TGMessageImageView.m in Sources */,
 				D01D7D6719DEE85900955BDE /* TGModernConversationTitleActivityIndicator.m in Sources */,
 				93C1AF6216C4641A00710640 /* TGSynchronizeContactsActor.mm in Sources */,
@@ -30272,11 +30290,6 @@
 			target = 099120BF1EEAA63400F1366E /* Widget */;
 			targetProxy = 099120CA1EEAA63400F1366E /* PBXContainerItemProxy */;
 		};
-		68744C1C1BB1A9F700FE6542 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 68744C181BB1A9F700FE6542 /* watchkitapp Extension */;
-			targetProxy = 68744C1B1BB1A9F700FE6542 /* PBXContainerItemProxy */;
-		};
 		68744C2D1BB1A9F800FE6542 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 68744C0C1BB1A9F700FE6542 /* watchkitapp */;
@@ -30285,6 +30298,11 @@
 		68B22D071C11F32400EE8FF9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = pop;
+		};
+		724B53821F86897B002819C0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 68744C181BB1A9F700FE6542 /* watchkitapp Extension */;
+			targetProxy = 724B53811F86897B002819C0 /* PBXContainerItemProxy */;
 		};
 		D020FAE41D99466A00F279AA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -30687,11 +30705,12 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CODE_SIGN_ENTITLEMENTS = Widget/Widget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Widget/Cloud Veil Messenger Widget.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ilya Laktyushin (7K5L5BWX3Z)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_TESTABILITY = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -30699,10 +30718,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "750e4e9c-1916-45fa-9658-d0e552c1e71d";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Widget Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Widget;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -30721,11 +30740,12 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CODE_SIGN_ENTITLEMENTS = Widget/Widget.appstore.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Widget/Cloud Veil Messenger Widget.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: David Neff (SGA99XHTJ6)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: David Neff (SGA99XHTJ6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_TESTABILITY = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -30733,8 +30753,8 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Widget;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 			};
@@ -30754,12 +30774,13 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CODE_SIGN_ENTITLEMENTS = Widget/Widget.appstore.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Widget/Cloud Veil Messenger Widget.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -30767,10 +30788,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "0b3595f4-c0c4-41f7-922a-b2d0d725b59c";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Widget AppStore";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Widget;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
@@ -30789,12 +30810,13 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CODE_SIGN_ENTITLEMENTS = Widget/Widget.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Widget/Cloud Veil Messenger Widget.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: TELEGRAM MESSENGER LLP";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: TELEGRAM MESSENGER LLP";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -30802,10 +30824,10 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "6b2780f5-377b-4756-b4b5-e2779a743e40";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Widget InHouse";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Widget;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Hockeyapp;
@@ -30819,12 +30841,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_ENTITLEMENTS = "Watch/Extension/watchkitapp Extension.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Cloud Veil Messenger watchkitapp Extension.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ilya Laktyushin (7K5L5BWX3Z)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_TESTABILITY = YES;
 				GCC_PREFIX_HEADER = "Watch/Extension/WatchExtension-Prefix.pch";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -30833,13 +30856,14 @@
 				INFOPLIST_FILE = Watch/Extension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				LIBRARY_SEARCH_PATHS = thirdparty/SSignalKit;
+				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE = "fa3a73e6-2790-4b55-bb6e-29d31e7d9266";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "910eaeba-2d88-4938-8365-24f49cad7234";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enteprise Watch Extension Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp.watchkitextension;
+				PRODUCT_NAME = "Cloud Veil Messenger ${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -30856,13 +30880,14 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_ENTITLEMENTS = "Watch/Extension/watchkitapp Extension appstore.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
+				CODE_SIGN_ENTITLEMENTS = "Cloud Veil Messenger watchkitapp Extension.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_PREFIX_HEADER = "Watch/Extension/WatchExtension-Prefix.pch";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -30871,13 +30896,14 @@
 				INFOPLIST_FILE = Watch/Extension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				LIBRARY_SEARCH_PATHS = thirdparty/SSignalKit;
+				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE = "00ea86d7-b098-48f0-b8ac-8e9f9b222c05";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "00ea86d7-b098-48f0-b8ac-8e9f9b222c05";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Watch Extension AppStore";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp.watchkitextension;
+				PRODUCT_NAME = "Cloud Veil Messenger ${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -30895,23 +30921,24 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_ENTITLEMENTS = Watch/App/watchkitapp.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Cloud Veil Messenger watchkitapp.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ilya Laktyushin (7K5L5BWX3Z)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Peter Iakovlev (9J4EJ3F97G)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_TESTABILITY = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBSC_MODULE = watchkitapp_Extension;
 				INFOPLIST_FILE = Watch/App/Info.plist;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "fdcbd773-556c-4626-8f18-3f577682fdd5";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "fdcbd773-556c-4626-8f18-3f577682fdd5";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Watch App Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -30929,24 +30956,25 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_ENTITLEMENTS = Watch/App/watchkitapp_appstore.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
+				CODE_SIGN_ENTITLEMENTS = "Cloud Veil Messenger watchkitapp.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBSC_MODULE = watchkitapp_Extension;
 				INFOPLIST_FILE = Watch/App/Info.plist;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "8ef52063-eee0-494c-bba5-fa20b6c2dd0f";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "8ef52063-eee0-494c-bba5-fa20b6c2dd0f";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegraph Watch App Appstore";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -30970,6 +30998,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ilya Laktyushin (L583WTN9J2)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Ilya Laktyushin (L583WTN9J2)";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -30987,7 +31016,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -31006,6 +31035,8 @@
 			baseConfigurationReference = D064421C1E4E2A3600394D5F /* AppStore.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
@@ -31016,9 +31047,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = Telegraph/Telegram.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer: David Neff (SGA99XHTJ6)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: David Neff (SGA99XHTJ6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -31055,7 +31087,7 @@
 					submodules/libtgvoip,
 				);
 				INFOPLIST_FILE = "Telegraph/Telegraph-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -31078,10 +31110,11 @@
 					"-DINTERNAL_RELEASE",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Telegram;
-				PROVISIONING_PROFILE = "a20bcd5d-df04-44fb-9a71-0e28da1332ba";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "a20bcd5d-df04-44fb-9a71-0e28da1332ba";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger;
+				PRODUCT_NAME = "Cloud Veil Messenger";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -31105,10 +31138,11 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = "Share/Share appstore.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Share/Cloud Veil Messenger Share.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: David Neff (SGA99XHTJ6)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: David Neff (SGA99XHTJ6)";
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -31134,10 +31168,11 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "5298703b-95a8-4ff3-8619-68821ca01fe1";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "2c5cfefd-460c-4c3f-937c-6de5c41c4099";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Share Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Share;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 			};
 			name = "Debug AppStore";
@@ -31152,23 +31187,24 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_ENTITLEMENTS = Watch/App/watchkitapp_appstore.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Cloud Veil Messenger watchkitapp.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: David Neff (SGA99XHTJ6)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: David Neff (SGA99XHTJ6)";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer: David Neff (SGA99XHTJ6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_TESTABILITY = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBSC_MODULE = watchkitapp_Extension;
 				INFOPLIST_FILE = Watch/App/Info.plist;
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "6d8ba905-2f88-4bb4-a75d-0755c934f39c";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "6d8ba905-2f88-4bb4-a75d-0755c934f39c";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Watch App Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -31185,12 +31221,13 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_ENTITLEMENTS = "Watch/Extension/watchkitapp Extension appstore.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Cloud Veil Messenger watchkitapp Extension.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: David Neff (SGA99XHTJ6)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: David Neff (SGA99XHTJ6)";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer: David Neff (SGA99XHTJ6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_TESTABILITY = YES;
 				GCC_PREFIX_HEADER = "Watch/Extension/WatchExtension-Prefix.pch";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -31199,13 +31236,14 @@
 				INFOPLIST_FILE = Watch/Extension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				LIBRARY_SEARCH_PATHS = thirdparty/SSignalKit;
+				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE = "944f892d-83e1-43dc-94b6-4fe8e74a9014";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "944f892d-83e1-43dc-94b6-4fe8e74a9014";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Watch Extension Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp.watchkitextension;
+				PRODUCT_NAME = "Cloud Veil Messenger ${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -31226,24 +31264,26 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
-				CODE_SIGN_ENTITLEMENTS = "SiriIntents/SiriIntents appstore.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "SiriIntents/Cloud Veil Messenger SiriIntents.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: David Neff (SGA99XHTJ6)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: David Neff (SGA99XHTJ6)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_TESTABILITY = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = SiriIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(TELEGRAPH_INTENTS_BUNDLE_ID)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "b6641f00-c09b-4acb-808d-8c4dd21f3107";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "b6641f00-c09b-4acb-808d-8c4dd21f3107";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Siri Intents Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.SiriIntents;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = "Debug AppStore";
 		};
@@ -31263,10 +31303,11 @@
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Peter Iakovlev (9J4EJ3F97G)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -31288,8 +31329,9 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.telegram.LegacyDatabase;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.LegacyDatabase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -31310,23 +31352,25 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
-				CODE_SIGN_ENTITLEMENTS = SiriIntents/SiriIntents.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "SiriIntents/Cloud Veil Messenger SiriIntents.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ilya Laktyushin (7K5L5BWX3Z)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_TESTABILITY = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = SiriIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(TELEGRAPH_INTENTS_BUNDLE_ID)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "0dae6d23-2f4a-4d6c-a827-c60b1a0d3790";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Siri Intents Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.SiriIntents;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -31343,25 +31387,27 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
-				CODE_SIGN_ENTITLEMENTS = "SiriIntents/SiriIntents appstore.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "SiriIntents/Cloud Veil Messenger SiriIntents.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = SiriIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(TELEGRAPH_INTENTS_BUNDLE_ID)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "fa209923-cdfb-4776-981e-839408d7c617";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "fa209923-cdfb-4776-981e-839408d7c617";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegraph Siri Intents AppStore";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.SiriIntents;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -31381,10 +31427,11 @@
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ilya Laktyushin (7K5L5BWX3Z)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -31406,8 +31453,9 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.telegram.LegacyDatabase;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.LegacyDatabase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -31430,7 +31478,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: TELEGRAM MESSENGER LLP";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -31458,8 +31507,10 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.telegram.LegacyDatabase;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.LegacyDatabase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -31481,10 +31532,11 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = Share/Share.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Share/Cloud Veil Messenger Share.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ilya Laktyushin (7K5L5BWX3Z)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -31510,10 +31562,11 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "761707fe-6e26-48ac-ade2-535450bdc05d";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "fbef160a-0fa6-4140-aaa6-f54e7aecf152";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Share Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Share;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -31532,10 +31585,11 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = "Share/Share appstore.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Share/Cloud Veil Messenger Share.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -31558,10 +31612,11 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "1df6ae0e-83f6-4477-a8d8-74f1ed282e81";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "1df6ae0e-83f6-4477-a8d8-74f1ed282e81";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegraph Share AppStore";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Share;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 			};
 			name = Release;
@@ -31582,6 +31637,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
 				COPY_PHASE_STRIP = YES;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -31592,10 +31648,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				PROVISIONING_PROFILE = "3d288e61-4eb7-41c0-87cc-4cb24f2b7517";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "3d288e61-4eb7-41c0-87cc-4cb24f2b7517";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 				WARNING_CFLAGS = (
@@ -31612,6 +31668,8 @@
 			baseConfigurationReference = 93EFBF0E173DC6DA00F7B89E /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
@@ -31622,9 +31680,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = Telegraph/Enterprise.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: TELEGRAM MESSENGER LLP";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: TELEGRAM MESSENGER LLP";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -31660,7 +31719,7 @@
 					submodules/libtgvoip,
 				);
 				INFOPLIST_FILE = "Telegraph/Telegraph-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -31683,10 +31742,11 @@
 					"-DINTERNAL_RELEASE",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Telegram;
-				PROVISIONING_PROFILE = "c5e1c959-2f86-41ce-9cc1-b885a30c8da1";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "637d0234-7d69-4419-9638-dafd538acd89";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise InHouse";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger;
+				PRODUCT_NAME = "Cloud Veil Messenger";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -31710,10 +31770,11 @@
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CODE_SIGN_ENTITLEMENTS = Share/Share.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "Share/Cloud Veil Messenger Share.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: TELEGRAM MESSENGER LLP";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: TELEGRAM MESSENGER LLP";
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -31736,10 +31797,11 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "25f82627-bca3-44f9-8108-ea51af08a059";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "7405c401-c1ea-4de1-965f-c4695051d431";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Share InHouse";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Share;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 			};
 			name = Hockeyapp;
@@ -31754,24 +31816,25 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_ENTITLEMENTS = Watch/App/watchkitapp.entitlements;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				CODE_SIGN_ENTITLEMENTS = "Cloud Veil Messenger watchkitapp.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: TELEGRAM MESSENGER LLP";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBSC_MODULE = watchkitapp_Extension;
 				INFOPLIST_FILE = Watch/App/Info.plist;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "01d1e98d-6f55-42ee-b8cf-a2da5e4e438e";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "cec1b79c-0570-4cb8-8974-3454294e1eb9";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Watch App InHouse";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -31788,13 +31851,14 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CODE_SIGN_ENTITLEMENTS = "Watch/Extension/watchkitapp Extension.entitlements";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
-				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Distribution";
+				CODE_SIGN_ENTITLEMENTS = "Cloud Veil Messenger watchkitapp Extension.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Distribution: TELEGRAM MESSENGER LLP";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_PREFIX_HEADER = "Watch/Extension/WatchExtension-Prefix.pch";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -31803,13 +31867,14 @@
 				INFOPLIST_FILE = Watch/Extension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				LIBRARY_SEARCH_PATHS = thirdparty/SSignalKit;
+				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = "";
-				PRODUCT_NAME = "${TARGET_NAME}";
-				PROVISIONING_PROFILE = "8055198b-f533-42f9-a336-3d1fc27ee913";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "d2dcafba-2f65-4b5b-803e-fa45d7726083";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Watch Extension InHouse";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp.watchkitextension;
+				PRODUCT_NAME = "Cloud Veil Messenger ${TARGET_NAME}";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 4;
@@ -31830,24 +31895,26 @@
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
-				CODE_SIGN_ENTITLEMENTS = SiriIntents/SiriIntents.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "SiriIntents/Cloud Veil Messenger SiriIntents.entitlements";
 				CODE_SIGN_IDENTITY = "iPhone Distribution: TELEGRAM MESSENGER LLP";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: TELEGRAM MESSENGER LLP";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				INFOPLIST_FILE = SiriIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(TELEGRAPH_INTENTS_BUNDLE_ID)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "0fc7b1d6-f2a6-412f-b0bb-f711b07304b5";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Siri Intents InHouse";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.SiriIntents;
+				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Hockeyapp;
 		};
@@ -31866,7 +31933,8 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: TELEGRAM MESSENGER LLP";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -31894,8 +31962,10 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = org.telegram.LegacyDatabase;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.LegacyDatabase;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -31919,6 +31989,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ilya Laktyushin (L583WTN9J2)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Ilya Laktyushin (L583WTN9J2)";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -31936,7 +32007,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -31966,6 +32037,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
 				COPY_PHASE_STRIP = YES;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -31976,10 +32048,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
-				PROVISIONING_PROFILE = "3d288e61-4eb7-41c0-87cc-4cb24f2b7517";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "3d288e61-4eb7-41c0-87cc-4cb24f2b7517";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 				WARNING_CFLAGS = (
@@ -31996,6 +32068,8 @@
 			baseConfigurationReference = 93EFBF0E173DC6DA00F7B89E /* Config.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
@@ -32007,8 +32081,9 @@
 				CODE_SIGN_ENTITLEMENTS = Telegraph/Enterprise.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Ilya Laktyushin (7K5L5BWX3Z)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = X834Q8SBVP;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -32045,7 +32120,7 @@
 					submodules/libtgvoip,
 				);
 				INFOPLIST_FILE = "Telegraph/Telegraph-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -32068,10 +32143,11 @@
 					"-DINTERNAL_RELEASE",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Telegram;
-				PROVISIONING_PROFILE = "39141dd6-8416-444b-b2f6-1674137bdef0";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "39141dd6-8416-444b-b2f6-1674137bdef0";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegram Enterprise Development";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger;
+				PRODUCT_NAME = "Cloud Veil Messenger";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -32086,6 +32162,8 @@
 			baseConfigurationReference = D064421C1E4E2A3600394D5F /* AppStore.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_OBJC_IMPLICIT_ATOMIC_PROPERTIES = YES;
@@ -32096,9 +32174,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_ENTITLEMENTS = Telegraph/Telegram.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Digital Fortress LLC (C67CF9S4VU)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = YES;
-				DEVELOPMENT_TEAM = C67CF9S4VU;
+				DEVELOPMENT_TEAM = L95C8867HX;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -32134,7 +32213,7 @@
 					submodules/libtgvoip,
 				);
 				INFOPLIST_FILE = "Telegraph/Telegraph-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -32156,10 +32235,11 @@
 					"-DTGVOIP_USE_AUDIO_SESSION",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = Telegram;
-				PROVISIONING_PROFILE = "c393746a-d8b4-4397-9863-67776ec1184d";
-				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "c393746a-d8b4-4397-9863-67776ec1184d";
-				PROVISIONING_PROFILE_SPECIFIER = "Telegraph AppStore";
+				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger;
+				PRODUCT_NAME = "Cloud Veil Messenger";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";

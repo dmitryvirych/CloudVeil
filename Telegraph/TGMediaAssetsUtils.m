@@ -29,6 +29,12 @@
         _collectionView = collectionView;
         _scrollDirection = scrollDirection;
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

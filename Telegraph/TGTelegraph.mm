@@ -397,8 +397,11 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
             {
                 [ActionStageInstance() dispatchResource:@"/as/updateRelativeTimestamps" resource:nil];
             } queue:[ActionStageInstance() globalStageDispatchQueue]];
-            if ([UIApplication sharedApplication] != nil && [[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground)
-                [_updateRelativeTimestampsTimer start];
+            
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                if ([UIApplication sharedApplication] != nil && [[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground)
+                    [_updateRelativeTimestampsTimer start];
+            });
             
             _typingUserRecordsByConversation = [[NSMutableDictionary alloc] init];
             _usersTypingServiceTimer = [[TGTimer alloc] initWithTimeout:1.0 repeat:false completion:^

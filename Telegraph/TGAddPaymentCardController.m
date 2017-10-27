@@ -199,7 +199,7 @@
         STPPaymentConfiguration *configuration = [[STPPaymentConfiguration sharedConfiguration] copy];
         configuration.smsAutofillDisabled = true;
         configuration.publishableKey = _publishableKey;
-        configuration.appleMerchantIdentifier = @"merchant.ph.telegra.Telegraph";
+        configuration.appleMerchantIdentifier = @"com.cloudveil.CloudVeilMessenger";
         
         _apiClient = [[STPAPIClient alloc] initWithConfiguration:configuration];
         

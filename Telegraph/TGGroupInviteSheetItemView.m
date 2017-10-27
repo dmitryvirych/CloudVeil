@@ -94,6 +94,12 @@
         [_collectionView registerClass:[TGGroupInviteSheetMoreCell class] forCellWithReuseIdentifier:@"TGGroupInviteSheetMoreCell"];
         [self addSubview:_collectionView];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

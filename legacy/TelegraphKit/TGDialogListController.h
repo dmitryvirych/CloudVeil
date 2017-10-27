@@ -28,6 +28,9 @@ extern NSString *authorNameYou;
 
 @property (nonatomic) bool isDisplayingSearch;
 
+@property (nonatomic) bool ignoreBots;
+
+
 + (void)setLastAppearedConversationId:(int64_t)conversationId;
 
 + (void)setDebugDoNotJump:(bool)debugDoNotJump;

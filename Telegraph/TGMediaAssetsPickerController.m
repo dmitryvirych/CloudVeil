@@ -115,6 +115,11 @@
         
         return [strongSelf _itemAtIndexPath:indexPath];
     };
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
 }
 
 - (void)viewDidLoad

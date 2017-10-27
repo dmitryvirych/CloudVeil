@@ -192,6 +192,7 @@ typedef enum {
         _gifsCollectionView.opaque = false;
         _gifsCollectionView.showsHorizontalScrollIndicator = false;
         _gifsCollectionView.showsVerticalScrollIndicator = false;
+        _gifsCollectionView.hidden=true; // always hide this GIF panels in search
         _gifsCollectionView.alwaysBounceVertical = true;
         _gifsCollectionView.delaysContentTouches = false;
         _gifsCollectionView.contentInset = UIEdgeInsetsMake(tabPanelHeight + gifInset, 0.0f, gifInset, 0.0f);
@@ -467,6 +468,12 @@ typedef enum {
             return controller;
         }];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

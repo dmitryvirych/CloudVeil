@@ -635,24 +635,24 @@ bool debugShowMessageIds = false;
             _webPageFooterModel.boundToContainer = _boundToContainer;
             [_contentModel addSubmodel:_webPageFooterModel];
         } else {
-            _webPageFooterModel = [[TGArticleWebpageFooterModel alloc] initWithContext:_context incoming:_incomingAppearance webPage:webPage imageInText:imageInText invoice:invoice];
-            _webPageFooterModel.mediaIsAvailable = _mediaIsAvailable;
-            [_webPageFooterModel updateMediaProgressVisible:_mediaProgressVisible mediaProgress:_mediaProgress animated:false];
-            _webPageFooterModel.boundToContainer = _boundToContainer;
-            __weak TGContentBubbleViewModel *weakSelf = self;
-            ((TGArticleWebpageFooterModel *)_webPageFooterModel).instantPagePressed = ^{
-                __strong TGContentBubbleViewModel *strongSelf = weakSelf;
-                if (strongSelf != nil) {
-                    [strongSelf instantPageButtonPressed];
-                }
-            };
-            ((TGArticleWebpageFooterModel *)_webPageFooterModel).viewGroupPressed = ^{
-                __strong TGContentBubbleViewModel *strongSelf = weakSelf;
-                if (strongSelf != nil && webPage.url != nil) {
-                    [strongSelf->_context.companionHandle requestAction:@"openLinkRequested" options:@{@"url": webPage.url}];
-                }
-            };
-            [_contentModel addSubmodel:_webPageFooterModel];
+//            _webPageFooterModel = [[TGArticleWebpageFooterModel alloc] initWithContext:_context incoming:_incomingAppearance webPage:webPage imageInText:imageInText invoice:invoice];
+//            _webPageFooterModel.mediaIsAvailable = _mediaIsAvailable;
+//            [_webPageFooterModel updateMediaProgressVisible:_mediaProgressVisible mediaProgress:_mediaProgress animated:false];
+//            _webPageFooterModel.boundToContainer = _boundToContainer;
+//            __weak TGContentBubbleViewModel *weakSelf = self;
+//            ((TGArticleWebpageFooterModel *)_webPageFooterModel).instantPagePressed = ^{
+//                __strong TGContentBubbleViewModel *strongSelf = weakSelf;
+//                if (strongSelf != nil) {
+//                    [strongSelf instantPageButtonPressed];
+//                }
+//            };
+//            ((TGArticleWebpageFooterModel *)_webPageFooterModel).viewGroupPressed = ^{
+//                __strong TGContentBubbleViewModel *strongSelf = weakSelf;
+//                if (strongSelf != nil && webPage.url != nil) {
+//                    [strongSelf->_context.companionHandle requestAction:@"openLinkRequested" options:@{@"url": webPage.url}];
+//                }
+//            };
+//            [_contentModel addSubmodel:_webPageFooterModel];
         }
     }
     

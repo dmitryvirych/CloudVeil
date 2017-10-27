@@ -134,7 +134,7 @@
     {
         _backgroundContainerView = [[UIView alloc] initWithFrame:CGRectMake(0, -backgroundOverflow, self.bounds.size.width, backgroundOverflow + self.bounds.size.height)];
         _backgroundContainerView.userInteractionEnabled = false;
-        [super insertSubview:_backgroundContainerView atIndex:0];
+        //[super insertSubview:_backgroundContainerView atIndex:0];
     
         _barBackgroundView = [TGBackdropView viewWithLightNavigationBarStyle];
         if ([self isKindOfClass:[TGWhiteNavigationBar class]])
@@ -354,13 +354,13 @@
     }
 }
 
-- (void)insertSubview:(UIView *)view atIndex:(NSInteger)index
-{
-    if (view != self.additionalView)
-        [super insertSubview:view atIndex:MIN((int)self.subviews.count, MAX(index, 2))];
-    else
-        [super insertSubview:view atIndex:index];
-}
+//- (void)insertSubview:(UIView *)view atIndex:(NSInteger)index
+//{
+//    if (view != self.additionalView)
+//        [super insertSubview:view atIndex:MIN((int)self.subviews.count, MAX(index, 2))];
+//    else
+//        [super insertSubview:view atIndex:index];
+//}
 
 - (bool)shouldAddBackdropBackground
 {

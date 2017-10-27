@@ -145,6 +145,12 @@
             return [strongSelf presentPreviewForResultIfAvailable:result immediately:false];
         }];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

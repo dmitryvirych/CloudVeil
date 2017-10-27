@@ -69,6 +69,12 @@ static void TGModernConversationCollectionViewUpdate0(id self, SEL _cmd, BOOL ne
         
         self.exclusiveTouch = true;
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

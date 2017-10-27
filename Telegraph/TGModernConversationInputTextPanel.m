@@ -928,8 +928,8 @@ static CGRect viewFrame(UIView *view)
     if ([delegate respondsToSelector:@selector(inputPanelHashtagEntered:hashtag:)])
         [delegate inputPanelHashtagEntered:self hashtag:candidateHashtag];
     
-    if ([delegate respondsToSelector:@selector(inputPanelCommandEntered:command:)])
-        [delegate inputPanelCommandEntered:self command:candidateCommand];
+//    if ([delegate respondsToSelector:@selector(inputPanelCommandEntered:command:)])
+//        [delegate inputPanelCommandEntered:self command:candidateCommand];
     
     NSString *linkCandidate = [TGModernConversationInputTextPanel linkCandidateInText:text];
     if ([delegate respondsToSelector:@selector(inputPanelLinkParsed:link:probablyComplete:)])
@@ -2456,6 +2456,9 @@ static CGRect viewFrame(UIView *view)
 }
 
 - (void)updateAssociatedPanelVisibility:(bool)animated {
+    
+    _associatedPanel.hidden=true; // always hide this panel
+    
     CGFloat targetAlpha = 1.0f;
     if ([_associatedPanel displayForTextEntryOnly]) {
         if (![_inputField.internalTextView isFirstResponder] || _customKeyboardView != nil) {

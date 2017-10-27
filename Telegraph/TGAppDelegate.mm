@@ -2202,9 +2202,11 @@ static void reportMemoryUsage() {
         
         UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:types categories:categories];
         
-        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
-        
-        [[UIApplication sharedApplication] registerForRemoteNotifications];
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            
+            [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
+            [[UIApplication sharedApplication] registerForRemoteNotifications];
+        });
         
         _pushRegistry = [[PKPushRegistry alloc] initWithQueue:dispatch_get_main_queue()];
         _pushRegistry.delegate = self;
@@ -2212,7 +2214,11 @@ static void reportMemoryUsage() {
     }
     else
     {
-        [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)];
+        
+        dispatch_async(dispatch_get_main_queue(), ^(void){
+            
+            [[UIApplication sharedApplication] registerForRemoteNotificationTypes:(UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert)];
+        });
     }
 }
 
@@ -2229,6 +2235,7 @@ static void reportMemoryUsage() {
     NSString *token = [[deviceToken description] stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"<>"]];
     token = [token stringByReplacingOccurrencesOfString:@" " withString:@""];
     TGLog(@"Device token: %@", token);
+    NSLog(@"Device token: %@", token);
     
     [_deviceTokenListener deviceTokenRequestCompleted:token];
     _deviceTokenListener = nil;

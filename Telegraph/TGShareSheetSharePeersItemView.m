@@ -119,6 +119,12 @@
         
         _searchDisposable = [[SMetaDisposable alloc] init];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

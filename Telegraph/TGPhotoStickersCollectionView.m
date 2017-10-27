@@ -22,6 +22,12 @@
         _sectionHeaderViewQueue = [[NSMutableArray alloc] init];
         _visibleSectionHeaderViews = [[NSMutableArray alloc] init];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

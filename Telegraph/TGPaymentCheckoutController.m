@@ -586,7 +586,7 @@ static NSTimeInterval passwordSaveDuration() {
         if ([paymentMethod isKindOfClass:[TGPaymentMethodApplePay class]]) {
             PKPaymentRequest *request = [[PKPaymentRequest alloc] init];
             
-            request.merchantIdentifier = @"merchant.ph.telegra.Telegraph";
+            request.merchantIdentifier = @"com.cloudveil.CloudVeilMessenger";
             request.supportedNetworks = @[PKPaymentNetworkVisa, PKPaymentNetworkAmex, PKPaymentNetworkMasterCard];
             request.merchantCapabilities = PKMerchantCapability3DS;
             request.countryCode = @"US";
@@ -979,7 +979,7 @@ static NSTimeInterval passwordSaveDuration() {
     STPPaymentConfiguration *configuration = [[STPPaymentConfiguration sharedConfiguration] copy];
     configuration.smsAutofillDisabled = true;
     configuration.publishableKey = publishableKey;
-    configuration.appleMerchantIdentifier = @"merchant.ph.telegra.Telegraph";
+    configuration.appleMerchantIdentifier = @"com.cloudveil.CloudVeilMessenger";
     
     _apiClient = [[STPAPIClient alloc] initWithConfiguration:configuration];
     

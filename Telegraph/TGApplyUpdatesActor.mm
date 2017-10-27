@@ -1928,7 +1928,11 @@ static int64_t extractMessageConversationId(T concreteMessage, int &outFromUid)
                         }
                         
                         if (text != nil)
-                            [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+                            
+                            dispatch_async(dispatch_get_main_queue(), ^(void){
+                                
+                                [[UIApplication sharedApplication] presentLocalNotificationNow:localNotification];
+                            });
                     }
                 }
                 @catch (NSException *e)

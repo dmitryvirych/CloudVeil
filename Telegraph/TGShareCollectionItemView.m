@@ -120,6 +120,12 @@ const CGFloat TGShareCollectionRegularSizeClassHeight = 360.0f;
         _selectedPeerIds = [[NSMutableArray alloc] init];
         _peers = [[NSMutableDictionary alloc] init];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

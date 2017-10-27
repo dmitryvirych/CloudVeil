@@ -193,6 +193,11 @@ typedef enum {
             _collectionView.headerTextColor = UIColorRGB(0x787878);
         [_collectionWrapperView addSubview:_collectionView];
         
+        if (@available(iOS 11.0, *))
+        {
+            _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
+        
         _headersView = [[UIView alloc] init];
         _headersView.userInteractionEnabled = false;
         [_wrapperView addSubview:_headersView];

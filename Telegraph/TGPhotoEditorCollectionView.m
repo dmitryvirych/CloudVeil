@@ -44,6 +44,12 @@ const CGPoint TGPhotoEditorEdgeScrollTriggerOffset = { 100, 150 };
         [self registerClass:[TGPhotoFilterCell class] forCellWithReuseIdentifier:TGPhotoFilterCellKind];
         [self registerClass:[TGPhotoToolCell class] forCellWithReuseIdentifier:TGPhotoToolCellKind];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

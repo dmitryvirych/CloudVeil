@@ -17,8 +17,8 @@
 "Share.Select" = "Select";
 "Share.Done" = "Done";
 
-"Share.AuthTitle" = "Log in to Telegram";
-"Share.AuthText" = "Open Telegram and log in to share.";
+"Share.AuthTitle" = "Log in to CloudVeil Messenger";
+"Share.AuthText" = "Open CloudVeil Messenger and log in to share.";
 
 "Share.ChoosePhoneNumber" = "Choose a phone number to share";
 

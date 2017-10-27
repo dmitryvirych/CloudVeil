@@ -262,6 +262,9 @@
 #import "TGSecretPeerMediaGalleryImageItem.h"
 #import "TGSecretPeerMediaGalleryVideoItem.h"
 
+#import "URLOpener.h"
+
+
 #if TARGET_IPHONE_SIMULATOR
 NSInteger TGModernConversationControllerUnloadHistoryLimit = 500;
 NSInteger TGModernConversationControllerUnloadHistoryThreshold = 200;
@@ -1039,6 +1042,11 @@ typedef enum {
         [_previewNavigationBar setItems:@[ [self navigationItem] ]];
 
         [_titleView disableUnreadCount];
+    }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }
 }
 
@@ -4638,7 +4646,24 @@ typedef enum {
 
 - (void)openBrowserFromMessage:(int32_t)__unused messageId url:(NSString *)url
 {
-    [(TGApplication *)[TGApplication sharedApplication] openURL:[NSURL URLWithString:url] forceNative:true];
+    // this method calls from popup menu
+ 
+    //[(TGApplication *)[TGApplication sharedApplication] openURL:[NSURL URLWithString:url] forceNative:true];
+    
+    NSString * userAgent = BROWSER_ICAB;
+    URLOpener * opener = [[URLOpener alloc] initWithURLString:url browser:userAgent];
+    bool res = [opener openURL];
+    if(res==false)
+    {
+        //[(TGApplication *)[TGApplication sharedApplication] openURL:[NSURL URLWithString:url] forceNative:true];
+        NSDictionary *options = [[NSDictionary alloc] init];
+        
+        NSString *urlString = [NSString stringWithFormat:@"%@", url];
+        NSURL *url = [NSURL URLWithString:[urlString stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        
+        [[UIApplication sharedApplication] openURL:url options:options completionHandler:^(BOOL success){
+        }];
+    }
 }
 
 - (void)showActionsMenuForUnsentMessage:(int32_t)messageId
@@ -5108,7 +5133,7 @@ typedef enum {
         {
             if ([action isEqualToString:@"open"])
             {
-                [controller openBrowserFromMessage:0 url:url];
+                 [controller openBrowserFromMessage:0 url:url];
             }
             else if ([action isEqualToString:@"openIn"])
             {
@@ -6392,7 +6417,7 @@ typedef enum {
                                     }
                                 } else if ([result isKindOfClass:[TGBotContextExternalResult class]]) {
                                     TGBotContextExternalResult *concreteResult = (TGBotContextExternalResult *)result;
-                                    if ([concreteResult.type isEqualToString:@"gif"]) {
+                                    /* if ([concreteResult.type isEqualToString:@"gif"]) {
                                         TGExternalGifSearchResult *externalGifSearchResult = [[TGExternalGifSearchResult alloc] initWithUrl:concreteResult.url originalUrl:concreteResult.originalUrl thumbnailUrl:concreteResult.thumbUrl size:concreteResult.size];
                                         id description = [strongSelf->_companion documentDescriptionFromExternalGifSearchResult:externalGifSearchResult text:concreteMessage.caption botContextResult:botContextResult];
                                         if (description != nil) {
@@ -6400,7 +6425,7 @@ typedef enum {
                                             [strongSelf->_inputTextPanel.inputField setText:@"" animated:true];
                                             [TGRecentContextBotsSignal addRecentBot:results.userId];
                                         }
-                                    } else if ([concreteResult.type isEqualToString:@"photo"]) {
+                                    } else */ if ([concreteResult.type isEqualToString:@"photo"]) {
                                         TGExternalImageSearchResult *externalImageSearchResult = [[TGExternalImageSearchResult alloc] initWithUrl:concreteResult.url originalUrl:concreteResult.originalUrl thumbnailUrl:concreteResult.thumbUrl title:concreteResult.title size:concreteResult.size];
                                         id description = [strongSelf->_companion imageDescriptionFromExternalImageSearchResult:externalImageSearchResult text:concreteMessage.caption botContextResult:botContextResult];
                                         if (description != nil) {
@@ -6658,7 +6683,7 @@ typedef enum {
     
     if (!TGStringCompare(_currentLinkParseLink, link))
     {
-        _disableLinkPreviewsForMessage = false;
+        _disableLinkPreviewsForMessage = true;
         if (link.length == 0)
         {
             _currentLinkParseLink = link;
@@ -6698,27 +6723,27 @@ typedef enum {
                     }
                     else
                     {
-                        TGModernConversationWebPreviewInputPanel *panel = nil;
-                        if ([[strongSelf->_inputTextPanel secondaryExtendedPanel] isKindOfClass:[TGModernConversationWebPreviewInputPanel class]])
-                        {
-                            panel = (TGModernConversationWebPreviewInputPanel *)[strongSelf->_inputTextPanel secondaryExtendedPanel];
-                        }
-                        else
-                        {
-                            panel = [[TGModernConversationWebPreviewInputPanel alloc] init];
-                            panel.dismiss = ^
-                            {
-                                __strong TGModernConversationController *strongSelf = weakSelf;
-                                if (strongSelf != nil)
-                                {
-                                    [strongSelf->_inputTextPanel setSecondaryExtendedPanel:nil animated:true];
-                                    strongSelf->_disableLinkPreviewsForMessage = true;
-                                }
-                            };
-                            [strongSelf->_inputTextPanel setSecondaryExtendedPanel:panel animated:true];
-                        }
-                        
-                        [panel setLink:link webPage:webPage];
+//                        TGModernConversationWebPreviewInputPanel *panel = nil;
+//                        if ([[strongSelf->_inputTextPanel secondaryExtendedPanel] isKindOfClass:[TGModernConversationWebPreviewInputPanel class]])
+//                        {
+//                            panel = (TGModernConversationWebPreviewInputPanel *)[strongSelf->_inputTextPanel secondaryExtendedPanel];
+//                        }
+//                        else
+//                        {
+//                            panel = [[TGModernConversationWebPreviewInputPanel alloc] init];
+//                            panel.dismiss = ^
+//                            {
+//                                __strong TGModernConversationController *strongSelf = weakSelf;
+//                                if (strongSelf != nil)
+//                                {
+//                                    [strongSelf->_inputTextPanel setSecondaryExtendedPanel:nil animated:true];
+//                                    strongSelf->_disableLinkPreviewsForMessage = true;
+//                                }
+//                            };
+//                            [strongSelf->_inputTextPanel setSecondaryExtendedPanel:panel animated:true];
+//                        }
+//
+//                        [panel setLink:link webPage:webPage];
                     }
                 }
             }]];
@@ -6816,10 +6841,10 @@ typedef enum {
                 [strongSelf endMessageEditing:true];
             }
         }]];
-        _disableLinkPreviewsForMessage = false;
+        _disableLinkPreviewsForMessage = true;
     } else {
         [_companion controllerWantsToSendTextMessage:text entities:entities asReplyToMessageId:[self currentReplyMessageId] withAttachedMessages:[self currentForwardMessages] disableLinkPreviews:_disableLinkPreviewsForMessage botContextResult:nil botReplyMarkup:nil];
-        _disableLinkPreviewsForMessage = false;
+        _disableLinkPreviewsForMessage = true;
     }
 }
 
@@ -6927,7 +6952,7 @@ typedef enum {
         id description = [self.companion imageDescriptionFromBingSearchResult:item caption:caption];
         return description;
     }
-    else if ([item isKindOfClass:[TGGiphySearchResultItem class]])
+    else /* if ([item isKindOfClass:[TGGiphySearchResultItem class]])
     {
         id description = [self.companion documentDescriptionFromGiphySearchResult:item caption:caption];
         return description;
@@ -6938,7 +6963,7 @@ typedef enum {
     else if ([item isKindOfClass:[TGInternalGifSearchResult class]]) {
         return [self.companion documentDescriptionFromRemoteDocument:((TGInternalGifSearchResult *)item).document];
     }
-    else if ([item isKindOfClass:[TGWebSearchInternalImageResult class]])
+    else */ if ([item isKindOfClass:[TGWebSearchInternalImageResult class]])
     {
         id description = [self.companion imageDescriptionFromInternalSearchImageResult:item caption:caption];
         return description;
@@ -8022,7 +8047,7 @@ typedef enum {
         NSString *filePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[[NSString alloc] initWithFormat:@"%x%x", (int)arc4random(), (int)arc4random()]];
         [data writeToFile:filePath atomically:true];
         
-        [_companion controllerWantsToSendDocumentWithTempFileUrl:[NSURL fileURLWithPath:filePath] fileName:@"animation.gif" mimeType:@"image/gif" asReplyToMessageId:[self currentReplyMessageId]];
+//        [_companion controllerWantsToSendDocumentWithTempFileUrl:[NSURL fileURLWithPath:filePath] fileName:@"animation.gif" mimeType:@"image/gif" asReplyToMessageId:[self currentReplyMessageId]];
     }
 }
 
@@ -10541,17 +10566,17 @@ static UIView *_findBackArrow(UIView *view)
                         previewingContext.sourceRect = CGRectMake(location.x, location.y, 1.0f, 1.0f);
                         
                         if ([[link lowercaseString] hasPrefix:@"http://"] || [[link lowercaseString] hasPrefix:@"https://"] || [link rangeOfString:@"://"].location == NSNotFound) {
-                            NSURL *url = nil;
-                            @try {
-                                 url = [NSURL URLWithString:link];
-                            } @catch (NSException *e) {}
-                            if (url != nil && [[url.scheme lowercaseString] hasPrefix:@"http"]) {
-                                if (_inputTextPanel.isActive)
-                                    _collectionViewIgnoresNextKeyboardHeightChange = true;
-                                
-                                SFSafariViewController *controller = [[SFSafariViewController alloc] initWithURL:url];
-                                return controller;
-                            }
+//                            NSURL *url = nil;
+//                            @try {
+//                                 url = [NSURL URLWithString:link];
+//                            } @catch (NSException *e) {}
+//                            if (url != nil && [[url.scheme lowercaseString] hasPrefix:@"http"]) {
+//                                if (_inputTextPanel.isActive)
+//                                    _collectionViewIgnoresNextKeyboardHeightChange = true;
+//
+//                                SFSafariViewController *controller = [[SFSafariViewController alloc] initWithURL:url];
+//                                return controller;
+//                            }
                         }
                     }
                     else if ([(TGMessageViewModel *)item.viewModel isPreviewableAtPoint:[_collectionView convertPoint:collectionPoint toView:[cell contentViewForBinding]]])

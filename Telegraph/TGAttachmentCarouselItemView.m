@@ -274,6 +274,12 @@ const NSUInteger TGAttachmentDisplayedAssetLimit = 500;
         _pivotInItemIndex = NSNotFound;
         _pivotOutItemIndex = NSNotFound;
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

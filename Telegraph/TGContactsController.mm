@@ -384,6 +384,8 @@ static bool TGContactListSectionComparator(std::shared_ptr<TGContactListSection>
         
         _contactsMode = contactsMode;
         
+        self.ignoreBots = true;
+        
         _reusableSectionHeaders = [[NSArray alloc] initWithObjects:[[NSMutableArray alloc] init], [[NSMutableArray alloc] init], nil];
         
         [ActionStageInstance() watchForPath:@"/tg/phonebookAccessStatus" watcher:self];
@@ -1914,6 +1916,12 @@ static inline NSString *subtitleStringForUser(TGUser *user, bool &subtitleActive
 {
     if ((_contactsMode & TGContactsModeInvite) != TGContactsModeInvite)
     {
+        
+        if (user.isContextBot)
+        {
+            return;
+        }
+        
         if (user.uid > 0)
         {
             [[TGInterfaceManager instance] navigateToConversationWithId:user.uid conversation:nil performActions:nil atMessage:nil clearStack:true openKeyboard:(_contactsMode & TGContactsModeCreateGroupOption) canOpenKeyboardWhileInTransition:false animated:true];
@@ -2584,6 +2592,7 @@ static inline NSString *subtitleStringForUser(TGUser *user, bool &subtitleActive
     {
         TGContactsController *contactsController = [[TGContactsController alloc] initWithContactsMode:TGContactsModeInvite | TGContactsModeModalInvite | TGContactsModeModalInviteWithBack | TGContactsModeSortByImporters];
         contactsController.loginStyle = false;
+        contactsController.ignoreBots = true;
         contactsController.customTitle = TGLocalized(@"Contacts.InviteFriends");
         contactsController.watcherHandle = _actionHandle;
         [self.navigationController pushViewController:contactsController animated:true];
@@ -2595,6 +2604,7 @@ static inline NSString *subtitleStringForUser(TGUser *user, bool &subtitleActive
     TGContactsController *contactsController = [[TGContactsController alloc] initWithContactsMode:TGContactsModeInvite | TGContactsModeModalInvite];
     contactsController.customTitle = TGLocalized(@"Contacts.InviteFriends");
     contactsController.watcherHandle = _actionHandle;
+    contactsController.ignoreBots = true;
     
     TGNavigationController *navigationController = [TGNavigationController navigationControllerWithRootController:contactsController];
     

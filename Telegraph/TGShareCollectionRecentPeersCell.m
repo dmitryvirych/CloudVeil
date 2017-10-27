@@ -73,6 +73,12 @@ NSString *const TGShareCollectionRecentPeersCellIdentifier = @"TGShareCollection
         [_collectionView registerClass:[TGShareCollectionCell class] forCellWithReuseIdentifier:TGShareCollectionCellIdentifier];
         [self addSubview:_collectionView];
     }
+    
+    if (@available(iOS 11.0, *))
+    {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    
     return self;
 }
 

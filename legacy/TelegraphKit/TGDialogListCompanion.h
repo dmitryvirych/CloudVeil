@@ -27,6 +27,7 @@
 @property (nonatomic) bool showSecretInForwardMode;
 @property (nonatomic) bool showGroupsOnly;
 @property (nonatomic) bool botStartMode;
+@property (nonatomic) bool ignoreBots;
 
 @property (nonatomic) int unreadCount;
 

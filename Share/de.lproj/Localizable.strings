@@ -17,8 +17,8 @@
 "Share.Select" = "Auswählen";
 "Share.Done" = "Fertig";
 
-"Share.AuthTitle" = "Bei Telegram anmelden";
-"Share.AuthText" = "Um zu teilen, Telegram öffnen und anmelden.";
+"Share.AuthTitle" = "Bei CloudVeil Messenger anmelden";
+"Share.AuthText" = "Um zu teilen, CloudVeil Messenger öffnen und anmelden.";
 
 "Share.ChoosePhoneNumber" = "Wähle eine Telefonnummer um zu teilen";
 
