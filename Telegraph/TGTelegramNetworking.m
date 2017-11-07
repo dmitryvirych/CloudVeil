@@ -431,8 +431,11 @@ static void TGTelegramLoggingFunction(NSString *format, va_list args)
                 dict[@"data"] = data;
             
             NSData *storedData = [NSKeyedArchiver archivedDataWithRootObject:dict];
-            if ([self sharedAuthInfoPath] != nil)
-                [storedData writeToURL:[self sharedAuthInfoPath] atomically:true];
+            if ([self sharedAuthInfoPath] != nil) {
+            
+                NSURL *sharedURL = [self sharedAuthInfoPath];
+                [storedData writeToURL:sharedURL atomically: true];
+            }
         }
     }];
 }
