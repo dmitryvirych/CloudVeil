@@ -275,6 +275,7 @@ static CGRect viewFrame(UIView *view)
         [_stickerModeButton addTarget:self action:@selector(stickerModeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         _stickerModeButton.adjustsImageWhenHighlighted = false;
         _stickerModeButton.alpha = 0.0f;
+        _stickerModeButton.hidden = true;
         _stickerModeButton.userInteractionEnabled = false;
         
         UIImage *commandModeImage = TGTintedImage([UIImage imageNamed:@"ConversationInputFieldActionsIcon.png"], modeIconColor);
