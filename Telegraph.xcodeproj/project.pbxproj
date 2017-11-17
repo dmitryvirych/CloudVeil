@@ -187,7 +187,7 @@
 		0981B0991E96387000A55F6A /* TGVideoMessagePIPController.h in Headers */ = {isa = PBXBuildFile; fileRef = 0981B0971E96387000A55F6A /* TGVideoMessagePIPController.h */; };
 		0981B09A1E96387000A55F6A /* TGVideoMessagePIPController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0981B0981E96387000A55F6A /* TGVideoMessagePIPController.m */; };
 		099120C11EEAA63400F1366E /* NotificationCenter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6869F8C81D96D33C00D5AA92 /* NotificationCenter.framework */; };
-		099120CC1EEAA63400F1366E /* Cloud Veil Messenger Widget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 099120C01EEAA63400F1366E /* Cloud Veil Messenger Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		099120CC1EEAA63400F1366E /* CloudVeil Messenger Widget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 099120C01EEAA63400F1366E /* CloudVeil Messenger Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		099120F61EEAA6AF00F1366E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 099120D31EEAA6AF00F1366E /* InfoPlist.strings */; };
 		099120F71EEAA6AF00F1366E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 099120D61EEAA6AF00F1366E /* InfoPlist.strings */; };
 		099120F81EEAA6AF00F1366E /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 099120D91EEAA6AF00F1366E /* InfoPlist.strings */; };
@@ -842,7 +842,7 @@
 		686ED3201BF3CBB8001F2F96 /* StickerPanelPopupLeftDark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 686ED31D1BF3CBB8001F2F96 /* StickerPanelPopupLeftDark@2x.png */; };
 		686ED3211BF3CBB8001F2F96 /* StickerPanelPopupMiddleDark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 686ED31E1BF3CBB8001F2F96 /* StickerPanelPopupMiddleDark@2x.png */; };
 		686ED3221BF3CBB8001F2F96 /* StickerPanelPopupRightDark@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 686ED31F1BF3CBB8001F2F96 /* StickerPanelPopupRightDark@2x.png */; };
-		68744C2E1BB1A9F800FE6542 /* Cloud Veil Messenger watchkitapp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 68744C0D1BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp.app */; };
+		68744C2E1BB1A9F800FE6542 /* CloudVeil Messenger watchkitapp.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 68744C0D1BB1A9F700FE6542 /* CloudVeil Messenger watchkitapp.app */; };
 		6875C8541BBD27DF0061D94C /* TGMenuSheetController.h in Headers */ = {isa = PBXBuildFile; fileRef = 6875C8521BBD27DF0061D94C /* TGMenuSheetController.h */; };
 		6875C8551BBD27DF0061D94C /* TGMenuSheetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6875C8531BBD27DF0061D94C /* TGMenuSheetController.m */; };
 		6875C8581BBD28000061D94C /* TGMenuSheetView.h in Headers */ = {isa = PBXBuildFile; fileRef = 6875C8561BBD28000061D94C /* TGMenuSheetView.h */; };
@@ -1605,7 +1605,7 @@
 		68F7D3C61CADF1FB00265D0A /* TGPreviewWebPageItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 68F7D3C41CADF1FB00265D0A /* TGPreviewWebPageItemView.m */; };
 		68F9A7761D89E65C00BCBE31 /* CameraLargeFlipButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 68F9A7751D89E65C00BCBE31 /* CameraLargeFlipButton@2x.png */; };
 		69F8429F1E67589900C110F7 /* libtgvoip.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F8429E1E67589900C110F7 /* libtgvoip.framework */; };
-		724B53961F86A1AC002819C0 /* Cloud Veil Messenger watchkitapp Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 68744C191BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		724B53961F86A1AC002819C0 /* CloudVeil Messenger watchkitapp Extension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 68744C191BB1A9F700FE6542 /* CloudVeil Messenger watchkitapp Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		724B53981F86AD81002819C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 724B53971F86AD81002819C0 /* Images.xcassets */; };
 		7276C03F1F82984F002B2D12 /* URLOpener.h in Headers */ = {isa = PBXBuildFile; fileRef = 7276C03D1F82984D002B2D12 /* URLOpener.h */; };
 		7276C0401F82984F002B2D12 /* URLOpener.m in Sources */ = {isa = PBXBuildFile; fileRef = 7276C03E1F82984E002B2D12 /* URLOpener.m */; };
@@ -2445,7 +2445,7 @@
 		D020B75F18B509C50026DB24 /* ModernConversationMicButton_Highlighted@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D020B75D18B509C50026DB24 /* ModernConversationMicButton_Highlighted@2x.png */; };
 		D020B76018B509C50026DB24 /* ModernConversationMicButton@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D020B75E18B509C50026DB24 /* ModernConversationMicButton@2x.png */; };
 		D020FAE11D99466A00F279AA /* IntentHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = D020FAE01D99466A00F279AA /* IntentHandler.m */; };
-		D020FAE51D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D020FADD1D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D020FAE51D99466A00F279AA /* CloudVeil Messenger SiriIntents.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D020FADD1D99466A00F279AA /* CloudVeil Messenger SiriIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D020FB021D995E9000F279AA /* MtProtoKitDynamic.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0EE3B301C7C86B200DD5E83 /* MtProtoKitDynamic.framework */; };
 		D020FB0E1D99637200F279AA /* LegacyDatabase.h in Headers */ = {isa = PBXBuildFile; fileRef = D020FB0C1D99637200F279AA /* LegacyDatabase.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D020FB121D99637200F279AA /* LegacyDatabase.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D020FB0A1D99637100F279AA /* LegacyDatabase.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -4296,7 +4296,7 @@
 		D061F2F81A9290420031BCBE /* TGCameraTimeCodeView.m in Sources */ = {isa = PBXBuildFile; fileRef = D061F2DA1A9290420031BCBE /* TGCameraTimeCodeView.m */; };
 		D061F2F91A9290420031BCBE /* TGCameraZoomView.h in Headers */ = {isa = PBXBuildFile; fileRef = D061F2DB1A9290420031BCBE /* TGCameraZoomView.h */; };
 		D061F2FA1A9290420031BCBE /* TGCameraZoomView.m in Sources */ = {isa = PBXBuildFile; fileRef = D061F2DC1A9290420031BCBE /* TGCameraZoomView.m */; };
-		D061F2FF1A9290F80031BCBE /* Cloud Veil Messenger Share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D02601D71A55CA2300716290 /* Cloud Veil Messenger Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D061F2FF1A9290F80031BCBE /* CloudVeil Messenger Share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D02601D71A55CA2300716290 /* CloudVeil Messenger Share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D06232B21B39D544006A4140 /* ConversationInputFieldActionsIcon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D06232AF1B39D544006A4140 /* ConversationInputFieldActionsIcon@2x.png */; };
 		D06232B31B39D544006A4140 /* ConversationInputFieldActionsIcon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = D06232B01B39D544006A4140 /* ConversationInputFieldActionsIcon@3x.png */; };
 		D06232B41B39D544006A4140 /* ConversationInputFieldActionsIcon@1x.png in Resources */ = {isa = PBXBuildFile; fileRef = D06232B11B39D544006A4140 /* ConversationInputFieldActionsIcon@1x.png */; };
@@ -5936,7 +5936,7 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
 			dstSubfolderSpec = 16;
 			files = (
-				68744C2E1BB1A9F800FE6542 /* Cloud Veil Messenger watchkitapp.app in Embed Watch Content */,
+				68744C2E1BB1A9F800FE6542 /* CloudVeil Messenger watchkitapp.app in Embed Watch Content */,
 			);
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5947,7 +5947,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				724B53961F86A1AC002819C0 /* Cloud Veil Messenger watchkitapp Extension.appex in Embed App Extensions */,
+				724B53961F86A1AC002819C0 /* CloudVeil Messenger watchkitapp Extension.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5970,9 +5970,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D061F2FF1A9290F80031BCBE /* Cloud Veil Messenger Share.appex in Embed App Extensions */,
-				099120CC1EEAA63400F1366E /* Cloud Veil Messenger Widget.appex in Embed App Extensions */,
-				D020FAE51D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex in Embed App Extensions */,
+				D061F2FF1A9290F80031BCBE /* CloudVeil Messenger Share.appex in Embed App Extensions */,
+				099120CC1EEAA63400F1366E /* CloudVeil Messenger Widget.appex in Embed App Extensions */,
+				D020FAE51D99466A00F279AA /* CloudVeil Messenger SiriIntents.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6152,7 +6152,7 @@
 		0981B08F1E9574E600A55F6A /* TGRoundMessageRingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGRoundMessageRingView.m; sourceTree = "<group>"; };
 		0981B0971E96387000A55F6A /* TGVideoMessagePIPController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGVideoMessagePIPController.h; sourceTree = "<group>"; };
 		0981B0981E96387000A55F6A /* TGVideoMessagePIPController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGVideoMessagePIPController.m; sourceTree = "<group>"; };
-		099120C01EEAA63400F1366E /* Cloud Veil Messenger Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Cloud Veil Messenger Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		099120C01EEAA63400F1366E /* CloudVeil Messenger Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "CloudVeil Messenger Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		099120C91EEAA63400F1366E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		099120D41EEAA6AF00F1366E /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = InfoPlist.strings; sourceTree = "<group>"; };
 		099120D71EEAA6AF00F1366E /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = InfoPlist.strings; sourceTree = "<group>"; };
@@ -6786,8 +6786,8 @@
 		686ED31D1BF3CBB8001F2F96 /* StickerPanelPopupLeftDark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "StickerPanelPopupLeftDark@2x.png"; path = "Resources/StickerPanelPopupLeftDark@2x.png"; sourceTree = "<group>"; };
 		686ED31E1BF3CBB8001F2F96 /* StickerPanelPopupMiddleDark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "StickerPanelPopupMiddleDark@2x.png"; path = "Resources/StickerPanelPopupMiddleDark@2x.png"; sourceTree = "<group>"; };
 		686ED31F1BF3CBB8001F2F96 /* StickerPanelPopupRightDark@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "StickerPanelPopupRightDark@2x.png"; path = "Resources/StickerPanelPopupRightDark@2x.png"; sourceTree = "<group>"; };
-		68744C0D1BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cloud Veil Messenger watchkitapp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		68744C191BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Cloud Veil Messenger watchkitapp Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		68744C0D1BB1A9F700FE6542 /* CloudVeil Messenger watchkitapp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CloudVeil Messenger watchkitapp.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		68744C191BB1A9F700FE6542 /* CloudVeil Messenger watchkitapp Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "CloudVeil Messenger watchkitapp Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6875C8521BBD27DF0061D94C /* TGMenuSheetController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGMenuSheetController.h; sourceTree = "<group>"; };
 		6875C8531BBD27DF0061D94C /* TGMenuSheetController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGMenuSheetController.m; sourceTree = "<group>"; };
 		6875C8561BBD28000061D94C /* TGMenuSheetView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGMenuSheetView.h; sourceTree = "<group>"; };
@@ -8919,7 +8919,7 @@
 		D020B75B18B4F6740026DB24 /* ModernConversationSecretAccessoryTimer@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ModernConversationSecretAccessoryTimer@2x.png"; path = "Resources/ModernConversationSecretAccessoryTimer@2x.png"; sourceTree = "<group>"; };
 		D020B75D18B509C50026DB24 /* ModernConversationMicButton_Highlighted@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ModernConversationMicButton_Highlighted@2x.png"; path = "Resources/ModernConversationMicButton_Highlighted@2x.png"; sourceTree = "<group>"; };
 		D020B75E18B509C50026DB24 /* ModernConversationMicButton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "ModernConversationMicButton@2x.png"; path = "Resources/ModernConversationMicButton@2x.png"; sourceTree = "<group>"; };
-		D020FADD1D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Cloud Veil Messenger SiriIntents.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D020FADD1D99466A00F279AA /* CloudVeil Messenger SiriIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "CloudVeil Messenger SiriIntents.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D020FADF1D99466A00F279AA /* IntentHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IntentHandler.h; sourceTree = "<group>"; };
 		D020FAE01D99466A00F279AA /* IntentHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = IntentHandler.m; sourceTree = "<group>"; };
 		D020FAE21D99466A00F279AA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -9257,7 +9257,7 @@
 		D02566AE1AD2C2A2007C19C1 /* TLRPCmessages_sendMedia_manual.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TLRPCmessages_sendMedia_manual.h; sourceTree = "<group>"; };
 		D02566AF1AD2C2A2007C19C1 /* TLRPCmessages_sendMedia_manual.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TLRPCmessages_sendMedia_manual.mm; sourceTree = "<group>"; };
 		D02601D01A54F10000716290 /* libx265.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libx265.a; path = thirdparty/libbpg/libx265.a; sourceTree = "<group>"; };
-		D02601D71A55CA2300716290 /* Cloud Veil Messenger Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Cloud Veil Messenger Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D02601D71A55CA2300716290 /* CloudVeil Messenger Share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "CloudVeil Messenger Share.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D02601DA1A55CA2300716290 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D026205C18A8E95200A41CC8 /* TGUpdateMessageService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGUpdateMessageService.h; sourceTree = "<group>"; };
 		D026205D18A8E95200A41CC8 /* TGUpdateMessageService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGUpdateMessageService.m; sourceTree = "<group>"; };
@@ -11140,7 +11140,7 @@
 		D0876FE5196F4C33005740CE /* TGGenericPeerMediaGalleryModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGGenericPeerMediaGalleryModel.m; sourceTree = "<group>"; };
 		D0876FE719702474005740CE /* TGModernGalleryZoomableScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGModernGalleryZoomableScrollView.h; sourceTree = "<group>"; };
 		D0876FE819702474005740CE /* TGModernGalleryZoomableScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGModernGalleryZoomableScrollView.m; sourceTree = "<group>"; };
-		D08805AC156E8F3600311537 /* Cloud Veil Messenger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cloud Veil Messenger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D08805AC156E8F3600311537 /* CloudVeil Messenger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CloudVeil Messenger.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D08805B0156E8F3600311537 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		D08805B2156E8F3600311537 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D08805B4156E8F3600311537 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -20585,13 +20585,13 @@
 		D08805AD156E8F3600311537 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D08805AC156E8F3600311537 /* Cloud Veil Messenger.app */,
-				D02601D71A55CA2300716290 /* Cloud Veil Messenger Share.appex */,
-				68744C0D1BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp.app */,
-				68744C191BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp Extension.appex */,
-				D020FADD1D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex */,
+				D08805AC156E8F3600311537 /* CloudVeil Messenger.app */,
+				D02601D71A55CA2300716290 /* CloudVeil Messenger Share.appex */,
+				68744C0D1BB1A9F700FE6542 /* CloudVeil Messenger watchkitapp.app */,
+				68744C191BB1A9F700FE6542 /* CloudVeil Messenger watchkitapp Extension.appex */,
+				D020FADD1D99466A00F279AA /* CloudVeil Messenger SiriIntents.appex */,
 				D020FB0A1D99637100F279AA /* LegacyDatabase.framework */,
-				099120C01EEAA63400F1366E /* Cloud Veil Messenger Widget.appex */,
+				099120C01EEAA63400F1366E /* CloudVeil Messenger Widget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -25953,7 +25953,7 @@
 			);
 			name = Widget;
 			productName = Widget;
-			productReference = 099120C01EEAA63400F1366E /* Cloud Veil Messenger Widget.appex */;
+			productReference = 099120C01EEAA63400F1366E /* CloudVeil Messenger Widget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		68744C0C1BB1A9F700FE6542 /* watchkitapp */ = {
@@ -25970,7 +25970,7 @@
 			);
 			name = watchkitapp;
 			productName = watchkitapp;
-			productReference = 68744C0D1BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp.app */;
+			productReference = 68744C0D1BB1A9F700FE6542 /* CloudVeil Messenger watchkitapp.app */;
 			productType = "com.apple.product-type.application.watchapp2";
 		};
 		68744C181BB1A9F700FE6542 /* watchkitapp Extension */ = {
@@ -25987,7 +25987,7 @@
 			);
 			name = "watchkitapp Extension";
 			productName = "watchkitapp Extension";
-			productReference = 68744C191BB1A9F700FE6542 /* Cloud Veil Messenger watchkitapp Extension.appex */;
+			productReference = 68744C191BB1A9F700FE6542 /* CloudVeil Messenger watchkitapp Extension.appex */;
 			productType = "com.apple.product-type.watchkit2-extension";
 		};
 		D020FADC1D99466A00F279AA /* SiriIntents */ = {
@@ -26005,7 +26005,7 @@
 			);
 			name = SiriIntents;
 			productName = SiriIntents;
-			productReference = D020FADD1D99466A00F279AA /* Cloud Veil Messenger SiriIntents.appex */;
+			productReference = D020FADD1D99466A00F279AA /* CloudVeil Messenger SiriIntents.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		D020FB091D99637100F279AA /* LegacyDatabase */ = {
@@ -26043,7 +26043,7 @@
 			);
 			name = Share;
 			productName = Share;
-			productReference = D02601D71A55CA2300716290 /* Cloud Veil Messenger Share.appex */;
+			productReference = D02601D71A55CA2300716290 /* CloudVeil Messenger Share.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		D08805AB156E8F3600311537 /* Telegraph */ = {
@@ -26073,7 +26073,7 @@
 			);
 			name = Telegraph;
 			productName = Telegraph;
-			productReference = D08805AC156E8F3600311537 /* Cloud Veil Messenger.app */;
+			productReference = D08805AC156E8F3600311537 /* CloudVeil Messenger.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -30719,7 +30719,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Widget;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -30754,7 +30754,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Widget;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
 			};
@@ -30789,7 +30789,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Widget;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -30825,7 +30825,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Widget;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -30860,7 +30860,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp.watchkitextension;
-				PRODUCT_NAME = "Cloud Veil Messenger ${TARGET_NAME}";
+				PRODUCT_NAME = "CloudVeil Messenger ${TARGET_NAME}";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -30900,7 +30900,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp.watchkitextension;
-				PRODUCT_NAME = "Cloud Veil Messenger ${TARGET_NAME}";
+				PRODUCT_NAME = "CloudVeil Messenger ${TARGET_NAME}";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -30935,7 +30935,7 @@
 				INFOPLIST_FILE = Watch/App/Info.plist;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -30971,7 +30971,7 @@
 				INFOPLIST_FILE = Watch/App/Info.plist;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31111,7 +31111,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger;
-				PRODUCT_NAME = "Cloud Veil Messenger";
+				PRODUCT_NAME = "CloudVeil Messenger";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31169,7 +31169,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Share;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31201,7 +31201,7 @@
 				INFOPLIST_FILE = Watch/App/Info.plist;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31240,7 +31240,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp.watchkitextension;
-				PRODUCT_NAME = "Cloud Veil Messenger ${TARGET_NAME}";
+				PRODUCT_NAME = "CloudVeil Messenger ${TARGET_NAME}";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31278,7 +31278,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.SiriIntents;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31366,7 +31366,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.SiriIntents;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -31402,7 +31402,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.SiriIntents;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31563,7 +31563,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Share;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31613,7 +31613,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Share;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31743,7 +31743,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger;
-				PRODUCT_NAME = "Cloud Veil Messenger";
+				PRODUCT_NAME = "CloudVeil Messenger";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31798,7 +31798,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.Share;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31831,7 +31831,7 @@
 				INFOPLIST_FILE = Watch/App/Info.plist;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31871,7 +31871,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.watchkitapp.watchkitextension;
-				PRODUCT_NAME = "Cloud Veil Messenger ${TARGET_NAME}";
+				PRODUCT_NAME = "CloudVeil Messenger ${TARGET_NAME}";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -31910,7 +31910,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger.SiriIntents;
-				PRODUCT_NAME = "Cloud Veil Messenger $(TARGET_NAME)";
+				PRODUCT_NAME = "CloudVeil Messenger $(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -32144,7 +32144,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger;
-				PRODUCT_NAME = "Cloud Veil Messenger";
+				PRODUCT_NAME = "CloudVeil Messenger";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -32236,7 +32236,7 @@
 				);
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cloudveil.CloudVeilMessenger;
-				PRODUCT_NAME = "Cloud Veil Messenger";
+				PRODUCT_NAME = "CloudVeil Messenger";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
