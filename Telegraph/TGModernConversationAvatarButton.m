@@ -146,12 +146,12 @@
     CGFloat scaling = 1.0f;
     if (UIInterfaceOrientationIsPortrait(_orientation) || TGIsPad())
     {
-        CGFloat rtlOffset = -23.0f;
+        CGFloat rtlOffset = 0;
         if (TGAppDelegateInstance.rootController.isRTL) {
             rtlOffset = 10.0f;
         }
         
-        _avatarView.frame = CGRectMake(rtlOffset + _horizontalOffset, -17, 37, 37);
+        _avatarView.frame = CGRectMake(rtlOffset + _horizontalOffset, 0, 37, 37);
         
         if (TGAppDelegateInstance.rootController.isRTL) {
             CGRect frame = _avatarView.frame;
