@@ -84,7 +84,7 @@
         _titleStatusLabel = [[UILabel alloc] init];
         _titleStatusLabel.clipsToBounds = false;
         _titleStatusLabel.backgroundColor = [UIColor clearColor];
-        _titleStatusLabel.textColor = [UIColor blackColor];
+        _titleStatusLabel.textColor = [UIColor whiteColor];
         _titleStatusLabel.font = TGBoldSystemFontOfSize(16.0f);
         _titleStatusLabel.text = TGLocalized(@"State.Updating");
         _titleStatusLabel.hidden = true;
