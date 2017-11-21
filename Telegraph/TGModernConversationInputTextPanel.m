@@ -277,6 +277,7 @@ static CGRect viewFrame(UIView *view)
         _stickerModeButton.alpha = 0.0f;
         _stickerModeButton.hidden = true;
         _stickerModeButton.userInteractionEnabled = false;
+        _stickerModeButton.hidden = true;
         
         UIImage *commandModeImage = TGTintedImage([UIImage imageNamed:@"ConversationInputFieldActionsIcon.png"], modeIconColor);
         _commandModeButton = [[TGModernButton alloc] initWithFrame:CGRectMake(0.0f, 0.0f, modeWidth, 33.0f)];

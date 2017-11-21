@@ -94,7 +94,7 @@ const NSTimeInterval typingIntervalSecond = 0.14;
     {
         _statusLabel = [[UILabel alloc] init];
         _statusLabel.backgroundColor = [UIColor clearColor];
-        _statusLabel.textColor = UIColorRGB(0x787878);
+        _statusLabel.textColor = [UIColor whiteColor];
         _statusLabel.font = TGSystemFontOfSize(13.0f);
         [self addSubview:_statusLabel];
     }
@@ -106,7 +106,7 @@ const NSTimeInterval typingIntervalSecond = 0.14;
     if (_toggleLabel == nil) {
         _toggleLabel = [[UILabel alloc] init];
         _toggleLabel.backgroundColor = [UIColor clearColor];
-        _toggleLabel.textColor = UIColorRGB(0x787878);
+        _toggleLabel.textColor = [UIColor whiteColor];
         _toggleLabel.font = TGSystemFontOfSize(13.0f);
         [self addSubview:_toggleLabel];
     }
@@ -138,6 +138,7 @@ const NSTimeInterval typingIntervalSecond = 0.14;
     {
         _title = title;
         [self titleLabel].text = title;
+        [self titleLabel].textColor = [UIColor whiteColor];
         [self setNeedsLayout];
     }
 }
@@ -381,7 +382,7 @@ const NSTimeInterval typingIntervalSecond = 0.14;
             _titleModalProgressLabel = [[UILabel alloc] init];
             _titleModalProgressLabel.clipsToBounds = false;
             _titleModalProgressLabel.backgroundColor = [UIColor clearColor];
-            _titleModalProgressLabel.textColor = [UIColor blackColor];
+            _titleModalProgressLabel.textColor = [UIColor whiteColor];
             _titleModalProgressLabel.font = TGBoldSystemFontOfSize(16.0f);
             
             _titleModalProgressIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];

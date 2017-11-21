@@ -576,7 +576,7 @@ NSString *authorNameYou = @"  __TGLocalized__YOU";
     
     _titleLabel = [[UILabel alloc] init];
     _titleLabel.backgroundColor = [UIColor clearColor];
-    _titleLabel.textColor = [UIColor blackColor];
+    _titleLabel.textColor = [UIColor whiteColor];
     _titleLabel.font = TGBoldSystemFontOfSize(17.0f);
     _titleLabel.text = TGLocalized(@"DialogList.Title");
     [_titleLabel sizeToFit];
