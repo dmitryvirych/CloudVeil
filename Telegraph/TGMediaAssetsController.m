@@ -680,10 +680,10 @@
         TGModernBarButton *searchButton = [[TGModernBarButton alloc] initWithImage:[UIImage imageNamed:@"NavigationSearchIcon.png"]];
         searchButton.portraitAdjustment = CGPointMake(-7, -5);
         [searchButton addTarget:self action:@selector(searchButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        return [[UIBarButtonItem alloc] initWithCustomView:searchButton];
+        return nil;//[[UIBarButtonItem alloc] initWithCustomView:searchButton];
     }
     
-    return [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(searchButtonPressed)];
+    return nil;//[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSearch target:self action:@selector(searchButtonPressed)];
 }
 
 - (void)searchButtonPressed
