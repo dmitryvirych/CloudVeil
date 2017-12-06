@@ -922,7 +922,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
             [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
             [[UIApplication sharedApplication] cancelAllLocalNotifications];
             
-            [TGAppDelegateInstance presentLoginController:true animated:false showWelcomeScreen:false phoneNumber:presetPhoneNumber phoneCode:nil phoneCodeHash:nil codeSentToTelegram:false codeSentViaPhone:false profileFirstName:nil profileLastName:nil resetAccountState:nil];
+            [TGAppDelegateInstance presentLoginController:true animated:false showWelcomeScreen:false phoneNumber:presetPhoneNumber phoneCode:nil phoneCodeHash:nil codeSentToCloudVeil:false codeSentViaPhone:false profileFirstName:nil profileLastName:nil resetAccountState:nil];
         });
         
         [_channelTasksDisposable dispose];
@@ -1440,7 +1440,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
         TGUser *user = [[TGUser alloc] init];
         user.uid = [self serviceUserUid];
         user.phoneNumber = @"42777";
-        user.firstName = @"Telegram";
+        user.firstName = @"CloudVeil";
         user.lastName = @"";
         
         [TGDatabaseInstance() storeUsers:[[NSArray alloc] initWithObjects:user, nil]];
@@ -1650,9 +1650,9 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
                 TGDispatchOnMainThread(^
                 {
                     NSUbiquitousKeyValueStore *store = [NSUbiquitousKeyValueStore defaultStore];
-                    if (!TGStringCompare(user.phoneNumber, [store objectForKey:@"telegram_currentPhoneNumber"]))
+                    if (!TGStringCompare(user.phoneNumber, [store objectForKey:@"CloudVeil_currentPhoneNumber"]))
                     {
-                        [store setObject:user.phoneNumber forKey:@"telegram_currentPhoneNumber"];
+                        [store setObject:user.phoneNumber forKey:@"CloudVeil_currentPhoneNumber"];
                         [store synchronize];
                     }
                 });

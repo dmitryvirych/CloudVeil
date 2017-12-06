@@ -5206,8 +5206,6 @@
 		D0C925CC194A024000E629CA /* start_arrow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D0C92595194A024000E629CA /* start_arrow@2x.png */; };
 		D0C925CD194A024000E629CA /* start_arrow_ipad.png in Resources */ = {isa = PBXBuildFile; fileRef = D0C92596194A024000E629CA /* start_arrow_ipad.png */; };
 		D0C925CE194A024000E629CA /* start_arrow_ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D0C92597194A024000E629CA /* start_arrow_ipad@2x.png */; };
-		D0C925CF194A024000E629CA /* telegram_plane@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D0C92598194A024000E629CA /* telegram_plane@2x.png */; };
-		D0C925D0194A024000E629CA /* telegram_sphere@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D0C92599194A024000E629CA /* telegram_sphere@2x.png */; };
 		D0C925D1194A024000E629CA /* RMGeometry.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C9259B194A024000E629CA /* RMGeometry.m */; };
 		D0C925D3194A024000E629CA /* RMIntroPageView.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C9259F194A024000E629CA /* RMIntroPageView.m */; };
 		D0C925D4194A024000E629CA /* RMIntroViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0C925A1194A024000E629CA /* RMIntroViewController.m */; };
@@ -5742,6 +5740,8 @@
 		D0FD89A3156FD4FC00CC3714 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0FD89A2156FD4FB00CC3714 /* Security.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		D0FFBDDF1BAB0E7300F532C9 /* TGChannelMembersController.h in Headers */ = {isa = PBXBuildFile; fileRef = D0FFBDDD1BAB0E7300F532C9 /* TGChannelMembersController.h */; };
 		D0FFBDE01BAB0E7300F532C9 /* TGChannelMembersController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FFBDDE1BAB0E7300F532C9 /* TGChannelMembersController.m */; };
+		EDBDFEF11FD8284E00977259 /* CloudVeil_plane@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EDBDFEEF1FD8284900977259 /* CloudVeil_plane@2x.png */; };
+		EDBDFEF21FD8284E00977259 /* CloudVeil_sphere@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EDBDFEF01FD8284C00977259 /* CloudVeil_sphere@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -12052,8 +12052,6 @@
 		D0C92595194A024000E629CA /* start_arrow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "start_arrow@2x.png"; sourceTree = "<group>"; };
 		D0C92596194A024000E629CA /* start_arrow_ipad.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = start_arrow_ipad.png; sourceTree = "<group>"; };
 		D0C92597194A024000E629CA /* start_arrow_ipad@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "start_arrow_ipad@2x.png"; sourceTree = "<group>"; };
-		D0C92598194A024000E629CA /* telegram_plane@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "telegram_plane@2x.png"; sourceTree = "<group>"; };
-		D0C92599194A024000E629CA /* telegram_sphere@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "telegram_sphere@2x.png"; sourceTree = "<group>"; };
 		D0C9259A194A024000E629CA /* RMGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMGeometry.h; sourceTree = "<group>"; };
 		D0C9259B194A024000E629CA /* RMGeometry.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMGeometry.m; sourceTree = "<group>"; };
 		D0C9259E194A024000E629CA /* RMIntroPageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMIntroPageView.h; sourceTree = "<group>"; };
@@ -12690,6 +12688,8 @@
 		D0FD89A2156FD4FB00CC3714 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D0FFBDDD1BAB0E7300F532C9 /* TGChannelMembersController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TGChannelMembersController.h; sourceTree = "<group>"; };
 		D0FFBDDE1BAB0E7300F532C9 /* TGChannelMembersController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TGChannelMembersController.m; sourceTree = "<group>"; };
+		EDBDFEEF1FD8284900977259 /* CloudVeil_plane@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CloudVeil_plane@2x.png"; sourceTree = "<group>"; };
+		EDBDFEF01FD8284C00977259 /* CloudVeil_sphere@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "CloudVeil_sphere@2x.png"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -23087,8 +23087,8 @@
 				D0C92595194A024000E629CA /* start_arrow@2x.png */,
 				D0C92596194A024000E629CA /* start_arrow_ipad.png */,
 				D0C92597194A024000E629CA /* start_arrow_ipad@2x.png */,
-				D0C92598194A024000E629CA /* telegram_plane@2x.png */,
-				D0C92599194A024000E629CA /* telegram_sphere@2x.png */,
+				EDBDFEEF1FD8284900977259 /* CloudVeil_plane@2x.png */,
+				EDBDFEF01FD8284C00977259 /* CloudVeil_sphere@2x.png */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -26494,7 +26494,6 @@
 				93080913185BC39600E62B42 /* ModernUserInfoPhoneEditingSeparator@2x.png in Resources */,
 				93EB7ABA184F90FC00891DBF /* ModernConversationTitleIconLock@2x.png in Resources */,
 				0937A5A11E9678F00093D4DA /* ConversationInputFieldBroadcastIconInactive@3x.png in Resources */,
-				D0C925CF194A024000E629CA /* telegram_plane@2x.png in Resources */,
 				D03FECD119CC559D004866D6 /* SecretPhotoFire@2x.png in Resources */,
 				68AA94931D365CC90089EB94 /* Paint_BlitWithMask.fsh in Resources */,
 				0929AA7B1E9E325A00AA97C0 /* VideoRecordPositionSwitch@2x.png in Resources */,
@@ -26625,6 +26624,7 @@
 				936219DE186460F600C52870 /* 106.m4a in Resources */,
 				68D177B61CA1E84C00C55617 /* YoutubeWatermark@2x.png in Resources */,
 				096DA4341F0D135B00ED5658 /* StickersTabArrow@3x.png in Resources */,
+				EDBDFEF21FD8284E00977259 /* CloudVeil_sphere@2x.png in Resources */,
 				934134BD18551FF500480294 /* builtin-wallpaper-2.jpg in Resources */,
 				68521C891BCE80A100B8A6FA /* MediaPhoto@3x.png in Resources */,
 				D0C8FCAB1C5BAB8B0028C27F /* TempAudioPreviewPause.png in Resources */,
@@ -27122,6 +27122,7 @@
 				68A2FC3A1C22F9CB0061D67B /* AttachmentTipIcons@2x.png in Resources */,
 				934134C018551FF500480294 /* builtin-wallpaper-4-thumbnail.jpg in Resources */,
 				D0984E42189BC5C40042E1BD /* InfoPlist.strings in Resources */,
+				EDBDFEF11FD8284E00977259 /* CloudVeil_plane@2x.png in Resources */,
 				936AA9581720708E007389A3 /* LinearProgressForeground@2x.png in Resources */,
 				D061F28A1A928F580031BCBE /* CameraFocusCrosshairs.png in Resources */,
 				D0C925C4194A024000E629CA /* powerful_infinity_white@2x.png in Resources */,
@@ -27255,7 +27256,6 @@
 				09361CED1E726023007ED29C /* ModernConversationListIconDelivered@3x.png in Resources */,
 				D06989AB1BA5D770000CBE06 /* MessageInlineViewCountIconOutgoing@3x.png in Resources */,
 				68521C821BCE80A100B8A6FA /* MediaContact@2x.png in Resources */,
-				D0C925D0194A024000E629CA /* telegram_sphere@2x.png in Resources */,
 				688B73BB1A3CF62B00ACE286 /* PhotoEditorBlurLinear@3x.png in Resources */,
 				68D167F91DB77E7400509032 /* CallPhoneIcon@2x.png in Resources */,
 				D0249B041ABCAC280076ECBF /* TrackingHeading@2x.png in Resources */,

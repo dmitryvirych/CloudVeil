@@ -193,10 +193,10 @@ static NSString *expandedTextAndAttributes(NSString *text, NSArray *textChecking
     if (isUnsupported)
     {
         _textModel.text = TGLocalized(@"Conversation.UnsupportedMedia");
-        NSRange range = [_textModel.text rangeOfString:@"http://telegram.org/update"];
+        NSRange range = [_textModel.text rangeOfString:@"http://CloudVeil.org/update"];
         if (range.location != NSNotFound)
         {
-            _textModel.textCheckingResults = @[[NSTextCheckingResult linkCheckingResultWithRange:range URL:[NSURL URLWithString:@"http://telegram.org/update"]]];
+            _textModel.textCheckingResults = @[[NSTextCheckingResult linkCheckingResultWithRange:range URL:[NSURL URLWithString:@"http://CloudVeil.org/update"]]];
         }
     }
 }
@@ -317,7 +317,7 @@ static NSString *expandedTextAndAttributes(NSString *text, NSArray *textChecking
                 }
             }
             
-            if (hiddenLink && ([linkCandidate hasPrefix:@"http://telegram.me/"] || [linkCandidate hasPrefix:@"http://t.me/"] || [linkCandidate hasPrefix:@"https://telegram.me/"] || [linkCandidate hasPrefix:@"https://t.me/"])) {
+            if (hiddenLink && ([linkCandidate hasPrefix:@"http://CloudVeil.me/"] || [linkCandidate hasPrefix:@"http://t.me/"] || [linkCandidate hasPrefix:@"https://CloudVeil.me/"] || [linkCandidate hasPrefix:@"https://t.me/"])) {
                 hiddenLink = false;
             }
             

@@ -510,9 +510,9 @@ static UIImage *durationGameBackgroundImage()
         NSString *buttonType = nil;
         if (_webPage.instantPage != nil)
             buttonType = @"instantPage";
-        else if ([_webPage.pageType isEqualToString:@"telegram_channel"])
+        else if ([_webPage.pageType isEqualToString:@"CloudVeil_channel"])
             buttonType = @"viewChannel";
-        else if ([_webPage.pageType isEqualToString:@"telegram_chat"] || [_webPage.pageType isEqualToString:@"telegram_megagroup"])
+        else if ([_webPage.pageType isEqualToString:@"CloudVeil_chat"] || [_webPage.pageType isEqualToString:@"CloudVeil_megagroup"])
             buttonType = @"viewGroup";
         
         if (buttonType != nil) {

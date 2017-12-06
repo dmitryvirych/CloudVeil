@@ -13855,7 +13855,7 @@ static bool checkMember(TGCachedConversationData *data) {
 }
 
 - (NSString *)spotlightIndexDomain {
-    return @"org.telegram.Telegram.conversations";
+    return @"org.CloudVeil.CloudVeil.conversations";
 }
 
 - (void)clearSpotlightIndex:(void (^)())completion {

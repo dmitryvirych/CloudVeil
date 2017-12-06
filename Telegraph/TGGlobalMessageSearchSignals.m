@@ -19,7 +19,7 @@
 #import "TGRemoteRecentPeerSet.h"
 #import "TGRemoteRecentPeerCategories.h"
 
-NSString *const TGRecentSearchDefaultsKey = @"Telegram_recentSearch_peers";
+NSString *const TGRecentSearchDefaultsKey = @"CloudVeil_recentSearch_peers";
 const NSInteger TGRecentSearchLimit = 20;
 
 @implementation TGGlobalMessageSearchSignals

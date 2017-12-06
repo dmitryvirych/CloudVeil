@@ -232,7 +232,7 @@
 
 + (SSignal *)fetchBackupIpsGoogle:(bool)isTesting {
     return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
-        NSDictionary *headers = @{@"Host": @"dns-telegram.appspot.com"};
+        NSDictionary *headers = @{@"Host": @"dns-CloudVeil.appspot.com"};
         
         TGFetchHttpHelper *helper = [[TGFetchHttpHelper alloc] initWithCompletion:^(NSData *data) {
             NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];

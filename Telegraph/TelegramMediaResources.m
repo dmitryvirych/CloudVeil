@@ -33,7 +33,7 @@
 }
 
 - (NSString *)uniqueId {
-    return [[NSString alloc] initWithFormat:@"telegram-cloud-file-%d-%lld-%d-%lld", _datacenterId, _volumeId, _localId, _secret];
+    return [[NSString alloc] initWithFormat:@"CloudVeil-cloud-file-%d-%lld-%d-%lld", _datacenterId, _volumeId, _localId, _secret];
 }
 
 - (instancetype)copyWithZone:(NSZone *)__unused zone {
@@ -102,7 +102,7 @@
 }
 
 - (NSString *)uniqueId {
-    return [[NSString alloc] initWithFormat:@"telegram-cloud-document-%lld", _fileId];
+    return [[NSString alloc] initWithFormat:@"CloudVeil-cloud-document-%lld", _fileId];
 }
 
 - (instancetype)copyWithZone:(NSZone *)__unused zone {

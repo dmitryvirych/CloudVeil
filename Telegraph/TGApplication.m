@@ -38,9 +38,9 @@
     return _gameShareDict;
 }
 
-- (NSString *)telegramMeLinkFromText:(NSString *)text startPrivatePayload:(__autoreleasing NSString **)startPrivatePayload startGroupPayload:(__autoreleasing NSString **)startGroupPayload gamePayload:(__autoreleasing NSString **)gamePayload
+- (NSString *)CloudVeilMeLinkFromText:(NSString *)text startPrivatePayload:(__autoreleasing NSString **)startPrivatePayload startGroupPayload:(__autoreleasing NSString **)startGroupPayload gamePayload:(__autoreleasing NSString **)gamePayload
 {
-    NSString *pattern = @"https?:\\/\\/telegram\\.me\\/([a-zA-Z0-9_\\/]+)(\\?.*)?$";
+    NSString *pattern = @"https?:\\/\\/CloudVeil\\.me\\/([a-zA-Z0-9_\\/]+)(\\?.*)?$";
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:NSRegularExpressionCaseInsensitive error:NULL];
     NSTextCheckingResult *match = [regex firstMatchInString:text options:0 range:NSMakeRange(0, [text length])];
     if (match != nil)
@@ -93,7 +93,7 @@
 }
 
 - (NSString *)shareLinkFromText:(NSString *)text {
-    NSString *pattern = @"https?:\\/\\/telegram\\.me\\/share\\/url\\?(.*)$";
+    NSString *pattern = @"https?:\\/\\/CloudVeil\\.me\\/share\\/url\\?(.*)$";
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:NULL];
     NSTextCheckingResult *match = [regex firstMatchInString:text options:0 range:NSMakeRange(0, [text length])];
     if (match != nil) {
@@ -129,9 +129,9 @@
         return true;
     }
     
-    if ([absolutePrefixString hasPrefix:@"http://telegram.me/addstickers/"])
+    if ([absolutePrefixString hasPrefix:@"http://CloudVeil.me/addstickers/"])
     {
-        NSString *stickerPackHash = [rawAbsoluteString substringFromIndex:@"http://telegram.me/addstickers/".length];
+        NSString *stickerPackHash = [rawAbsoluteString substringFromIndex:@"http://CloudVeil.me/addstickers/".length];
         NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://addstickers?set=%@", stickerPackHash];
         [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
         return true;
@@ -145,9 +145,9 @@
         return true;
     }
     
-    if ([absolutePrefixString hasPrefix:@"https://telegram.me/addstickers/"])
+    if ([absolutePrefixString hasPrefix:@"https://CloudVeil.me/addstickers/"])
     {
-        NSString *stickerPackHash = [rawAbsoluteString substringFromIndex:@"https://telegram.me/addstickers/".length];
+        NSString *stickerPackHash = [rawAbsoluteString substringFromIndex:@"https://CloudVeil.me/addstickers/".length];
         NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://addstickers?set=%@", stickerPackHash];
         [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
         return true;
@@ -161,9 +161,9 @@
         return true;
     }
     
-    if ([absolutePrefixString hasPrefix:@"http://telegram.me/joinchat/"])
+    if ([absolutePrefixString hasPrefix:@"http://CloudVeil.me/joinchat/"])
     {
-        NSString *groupHash = [rawAbsoluteString substringFromIndex:@"http://telegram.me/joinchat/".length];
+        NSString *groupHash = [rawAbsoluteString substringFromIndex:@"http://CloudVeil.me/joinchat/".length];
         NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://join?invite=%@", groupHash];
         [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
         return true;
@@ -177,9 +177,9 @@
         return true;
     }
     
-    if ([absolutePrefixString hasPrefix:@"https://telegram.me/joinchat/"])
+    if ([absolutePrefixString hasPrefix:@"https://CloudVeil.me/joinchat/"])
     {
-        NSString *groupHash = [rawAbsoluteString substringFromIndex:@"https://telegram.me/joinchat/".length];
+        NSString *groupHash = [rawAbsoluteString substringFromIndex:@"https://CloudVeil.me/joinchat/".length];
         NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://join?invite=%@", groupHash];
         [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
         return true;
@@ -193,9 +193,9 @@
         return true;
     }
     
-    if ([absolutePrefixString hasPrefix:@"https://telegram.me/confirmphone?"])
+    if ([absolutePrefixString hasPrefix:@"https://CloudVeil.me/confirmphone?"])
     {
-        NSString *arguments = [rawAbsoluteString substringFromIndex:@"https://telegram.me/confirmphone?".length];
+        NSString *arguments = [rawAbsoluteString substringFromIndex:@"https://CloudVeil.me/confirmphone?".length];
         NSString *internalUrl = [[NSString alloc] initWithFormat:@"tg://confirmphone?%@", arguments];
         [(TGAppDelegate *)self.delegate handleOpenDocument:[NSURL URLWithString:internalUrl] animated:true];
         return true;
@@ -212,15 +212,15 @@
     NSString *startPrivatePayload = nil;
     NSString *startGroupPayload = nil;
     NSString *gamePayload = nil;
-    NSString *telegramMeLink = [self telegramMeLinkFromText:rawAbsoluteString startPrivatePayload:&startPrivatePayload startGroupPayload:&startGroupPayload gamePayload:&gamePayload];
-    if (telegramMeLink.length != 0)
+    NSString *CloudVeilMeLink = [self CloudVeilMeLinkFromText:rawAbsoluteString startPrivatePayload:&startPrivatePayload startGroupPayload:&startGroupPayload gamePayload:&gamePayload];
+    if (CloudVeilMeLink.length != 0)
     {
-        NSString *domainName = telegramMeLink;
+        NSString *domainName = CloudVeilMeLink;
         NSString *postId = nil;
-        NSRange slashRange = [telegramMeLink rangeOfString:@"/"];
+        NSRange slashRange = [CloudVeilMeLink rangeOfString:@"/"];
         if (slashRange.location != NSNotFound) {
-            domainName = [telegramMeLink substringToIndex:slashRange.location];
-            postId = [telegramMeLink substringFromIndex:slashRange.location + 1];
+            domainName = [CloudVeilMeLink substringToIndex:slashRange.location];
+            postId = [CloudVeilMeLink substringFromIndex:slashRange.location + 1];
         }
         NSMutableString *internalUrl = nil;
         if (postId.length == 0) {

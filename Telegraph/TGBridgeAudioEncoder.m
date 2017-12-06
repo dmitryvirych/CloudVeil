@@ -84,7 +84,7 @@ const NSInteger TGBridgeAudioEncoderSampleRate = 16000;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
     {
-        queue = [[ATQueue alloc] initWithName:@"org.telegram.opusAudioEncoderQueue"];
+        queue = [[ATQueue alloc] initWithName:@"org.CloudVeil.opusAudioEncoderQueue"];
     });
     
     return queue;

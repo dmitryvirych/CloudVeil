@@ -52,7 +52,7 @@ typedef enum {
 	self = [super init];
 	if (self != nil)
 	{
-		_writingQueue = dispatch_queue_create("org.telegram.movierecorder.writing", DISPATCH_QUEUE_SERIAL);
+		_writingQueue = dispatch_queue_create("org.CloudVeil.movierecorder.writing", DISPATCH_QUEUE_SERIAL);
 		_videoTrackTransform = CGAffineTransformIdentity;
 		_url = URL;
 		_delegate = delegate;

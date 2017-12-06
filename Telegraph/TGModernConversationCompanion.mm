@@ -1,5 +1,5 @@
 /*
- * This is the source code of Telegram for iOS v. 1.1
+ * This is the source code of CloudVeil for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -2324,7 +2324,7 @@ static void dispatchOnMessageQueue(dispatch_block_t block, bool synchronous)
             NSString *youtubeVideoId = [self youtubeVideoIdFromText:options[@"url"]];
             if (youtubeVideoId.length != 0)
             {
-                NSURL *clientUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithFormat:@"youtube-x-callback://watch?v=%@&x-success=telegram://1&x-source=Telegram", youtubeVideoId]];
+                NSURL *clientUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithFormat:@"youtube-x-callback://watch?v=%@&x-success=CloudVeil://1&x-source=CloudVeil", youtubeVideoId]];
                 if ([[UIApplication sharedApplication] canOpenURL:clientUrl])
                 {
                     [[UIApplication sharedApplication] openURL:clientUrl];

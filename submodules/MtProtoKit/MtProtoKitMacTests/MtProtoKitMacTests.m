@@ -3,7 +3,7 @@
 //  MtProtoKitMacTests
 //
 //  Created by Peter on 01/05/15.
-//  Copyright (c) 2015 Telegram. All rights reserved.
+//  Copyright (c) 2015 CloudVeil. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

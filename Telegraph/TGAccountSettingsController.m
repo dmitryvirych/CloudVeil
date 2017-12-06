@@ -647,7 +647,7 @@
     //[self.navigationController pushViewController:[[TGFaqController alloc] init] animated:true];
     NSString *faqUrl = TGLocalized(@"Settings.FAQ_URL");
     if (faqUrl.length == 0)
-        faqUrl = @"http://telegram.org/faq#general";
+        faqUrl = @"http://CloudVeil.org/faq#general";
     
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:faqUrl]];
 }

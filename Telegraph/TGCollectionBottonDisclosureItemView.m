@@ -69,7 +69,7 @@
                     }
                     else if ([link hasPrefix:@"/"])
                     {
-                        link = [[NSString alloc] initWithFormat:@"https://telegram.org/%@", link];
+                        link = [[NSString alloc] initWithFormat:@"https://CloudVeil.org/%@", link];
                         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:link]];
                     }
                     else

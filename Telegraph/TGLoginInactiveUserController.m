@@ -203,7 +203,7 @@
         
         [attributedString addAttributes:@{NSParagraphStyleAttributeName: style} range:NSMakeRange(0, attributedString.length)];
         
-        NSRange range = [text rangeOfString:@"Telegram"];
+        NSRange range = [text rangeOfString:@"CloudVeil"];
         if (range.location != NSNotFound)
             [attributedString addAttributes:@{NSFontAttributeName: TGMediumSystemFontOfSize(17.0f)} range:range];
         noticeLabel.attributedText = attributedString;

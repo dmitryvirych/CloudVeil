@@ -1,5 +1,5 @@
 /*
- * This is the source code of Telegram for iOS v. 1.1
+ * This is the source code of CloudVeil for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -954,7 +954,7 @@ static UIView *_findBackArrow(UIView *view)
         
             if (_supportsCalls)
             {
-                TGMenuSheetButtonItemView *telegramItem = [[TGMenuSheetButtonItemView alloc] initWithTitle:TGLocalized(@"UserInfo.TelegramCall") type:TGMenuSheetButtonTypeDefault action:^
+                TGMenuSheetButtonItemView *CloudVeilItem = [[TGMenuSheetButtonItemView alloc] initWithTitle:TGLocalized(@"UserInfo.CloudVeilCall") type:TGMenuSheetButtonTypeDefault action:^
                 {
                     __strong TGTelegraphUserInfoController *strongSelf = weakSelf;
                     if (strongSelf != nil)
@@ -973,7 +973,7 @@ static UIView *_findBackArrow(UIView *view)
                         [strongController dismissAnimated:true];
                 }];
                 
-                [controller setItemViews:@[ titleItem, telegramItem, phoneItem, cancelItem ]];
+                [controller setItemViews:@[ titleItem, CloudVeilItem, phoneItem, cancelItem ]];
             }
             else
             {

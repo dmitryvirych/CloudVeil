@@ -2178,7 +2178,7 @@ NSArray *TGBlurredBackgroundImages(UIImage *source, CGSize sourceSize)
     return array;
 }
 
-void telegramFastBlur(int imageWidth, int imageHeight, int imageStride, void *pixels)
+void CloudVeilFastBlur(int imageWidth, int imageHeight, int imageStride, void *pixels)
 {
     uint8_t *pix = (uint8_t *)pixels;
     const int w = imageWidth;

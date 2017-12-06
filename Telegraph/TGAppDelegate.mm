@@ -716,7 +716,7 @@ static void reportMemoryUsage() {
                          if (!TGTelegraphInstance.clientIsActivated)
                          {
                              TGLog(@"===== User is not activated, presenting welcome screen");
-                             [self presentLoginController:false animated:false showWelcomeScreen:true phoneNumber:nil phoneCode:nil phoneCodeHash:nil codeSentToTelegram:false codeSentViaPhone:false profileFirstName:nil profileLastName:nil resetAccountState:nil];
+                             [self presentLoginController:false animated:false showWelcomeScreen:true phoneNumber:nil phoneCode:nil phoneCodeHash:nil codeSentToCloudVeil:false codeSentViaPhone:false profileFirstName:nil profileLastName:nil resetAccountState:nil];
                          }
                          else if (launchOptions[UIApplicationLaunchOptionsURLKey] != nil)
                          {
@@ -794,7 +794,7 @@ static void reportMemoryUsage() {
                                  [self resetLoginState];
                              }
                              
-                             [self presentLoginController:false animated:false showWelcomeScreen:false phoneNumber:stateDict[@"phoneNumber"] phoneCode:stateDict[@"phoneCode"] phoneCodeHash:stateDict[@"phoneCodeHash"] codeSentToTelegram:[stateDict[@"codeSentToTelegram"] boolValue] codeSentViaPhone:[stateDict[@"codeSentViaPhone"] boolValue] profileFirstName:stateDict[@"firstName"] profileLastName:stateDict[@"lastName"] resetAccountState:blockStateDict[@"resetAccountState"]];
+                             [self presentLoginController:false animated:false showWelcomeScreen:false phoneNumber:stateDict[@"phoneNumber"] phoneCode:stateDict[@"phoneCode"] phoneCodeHash:stateDict[@"phoneCodeHash"] codeSentToCloudVeil:[stateDict[@"codeSentToCloudVeil"] boolValue] codeSentViaPhone:[stateDict[@"codeSentViaPhone"] boolValue] profileFirstName:stateDict[@"firstName"] profileLastName:stateDict[@"lastName"] resetAccountState:blockStateDict[@"resetAccountState"]];
                              
                              if (!TGIsPad())
                              {
@@ -1296,13 +1296,13 @@ static void reportMemoryUsage() {
     [(TGApplication *)[TGApplication sharedApplication] nativeOpenURL:realUrl];
 }
 
-- (void)presentLoginController:(bool)clearControllerStates animated:(bool)animated showWelcomeScreen:(bool)showWelcomeScreen phoneNumber:(NSString *)phoneNumber phoneCode:(NSString *)phoneCode phoneCodeHash:(NSString *)phoneCodeHash codeSentToTelegram:(bool)codeSentToTelegram codeSentViaPhone:(bool)codeSentViaPhone profileFirstName:(NSString *)profileFirstName profileLastName:(NSString *)profileLastName resetAccountState:(TGResetAccountState *)resetAccountState
+- (void)presentLoginController:(bool)clearControllerStates animated:(bool)animated showWelcomeScreen:(bool)showWelcomeScreen phoneNumber:(NSString *)phoneNumber phoneCode:(NSString *)phoneCode phoneCodeHash:(NSString *)phoneCodeHash codeSentToCloudVeil:(bool)codeSentToCloudVeil codeSentViaPhone:(bool)codeSentViaPhone profileFirstName:(NSString *)profileFirstName profileLastName:(NSString *)profileLastName resetAccountState:(TGResetAccountState *)resetAccountState
 {
     if (![[NSThread currentThread] isMainThread])
     {
         dispatch_async(dispatch_get_main_queue(), ^
         {
-            [self presentLoginController:clearControllerStates animated:animated showWelcomeScreen:showWelcomeScreen phoneNumber:phoneNumber phoneCode:phoneCode phoneCodeHash:phoneCodeHash codeSentToTelegram:codeSentToTelegram codeSentViaPhone:codeSentViaPhone profileFirstName:profileFirstName profileLastName:profileLastName resetAccountState:resetAccountState];
+            [self presentLoginController:clearControllerStates animated:animated showWelcomeScreen:showWelcomeScreen phoneNumber:phoneNumber phoneCode:phoneCode phoneCodeHash:phoneCodeHash codeSentToCloudVeil:codeSentToCloudVeil codeSentViaPhone:codeSentViaPhone profileFirstName:profileFirstName profileLastName:profileLastName resetAccountState:resetAccountState];
         });
         
         return;
@@ -1347,7 +1347,7 @@ static void reportMemoryUsage() {
                 }
                 else if (phoneCodeHash.length != 0)
                 {
-                    TGLoginCodeController *codeController = [[TGLoginCodeController alloc] initWithShowKeyboard:true phoneNumber:cleanPhone phoneCodeHash:phoneCodeHash phoneTimeout:60.0 messageSentToTelegram:codeSentToTelegram messageSentViaPhone:codeSentViaPhone];
+                    TGLoginCodeController *codeController = [[TGLoginCodeController alloc] initWithShowKeyboard:true phoneNumber:cleanPhone phoneCodeHash:phoneCodeHash phoneTimeout:60.0 messageSentToCloudVeil:codeSentToCloudVeil messageSentViaPhone:codeSentViaPhone];
                     [viewControllers addObject:codeController];
                 }
             }
@@ -1537,7 +1537,7 @@ static void reportMemoryUsage() {
         
         if (version >= 1)
         {
-            dict[@"codeSentToTelegram"] = @([is readInt32] != 0);
+            dict[@"codeSentToCloudVeil"] = @([is readInt32] != 0);
             
             if (version >= 2) {
                 dict[@"codeSentViaPhone"] = @([is readInt32] != 0);
@@ -1566,7 +1566,7 @@ static void reportMemoryUsage() {
     [[NSFileManager defaultManager] removeItemAtPath:[documentsDirectory stringByAppendingPathComponent:@"state.data"] error:nil];
 }
 
-- (void)saveLoginStateWithDate:(int)date phoneNumber:(NSString *)phoneNumber phoneCode:(NSString *)phoneCode phoneCodeHash:(NSString *)phoneCodeHash codeSentToTelegram:(bool)codeSentToTelegram codeSentViaPhone:(bool)codeSentViaPhone firstName:(NSString *)firstName lastName:(NSString *)lastName photo:(NSData *)photo resetAccountState:(TGResetAccountState *)resetAccountState
+- (void)saveLoginStateWithDate:(int)date phoneNumber:(NSString *)phoneNumber phoneCode:(NSString *)phoneCode phoneCodeHash:(NSString *)phoneCodeHash codeSentToCloudVeil:(bool)codeSentToCloudVeil codeSentViaPhone:(bool)codeSentViaPhone firstName:(NSString *)firstName lastName:(NSString *)lastName photo:(NSData *)photo resetAccountState:(TGResetAccountState *)resetAccountState
 {
     NSOutputStream *os = [[NSOutputStream alloc] initToMemory];
     [os open];
@@ -1582,7 +1582,7 @@ static void reportMemoryUsage() {
     [os writeString:firstName];
     [os writeString:lastName];
     [os writeBytes:photo];
-    [os writeInt32:codeSentToTelegram ? 1 : 0];
+    [os writeInt32:codeSentToCloudVeil ? 1 : 0];
     [os writeInt32:codeSentViaPhone ? 1 : 0];
     
     if (resetAccountState != nil) {
@@ -2761,7 +2761,7 @@ static void reportMemoryUsage() {
 - (void)handleOpenDocument:(NSURL *)url animated:(bool)__unused animated keepStack:(bool)keepStack
 {
     bool isSocks = false;
-    if ([url.scheme isEqualToString:@"telegram"] || [url.scheme isEqualToString:@"tg"]) {
+    if ([url.scheme isEqualToString:@"CloudVeil"] || [url.scheme isEqualToString:@"tg"]) {
         if ([url.resourceSpecifier hasPrefix:@"//socks?"]) {
             isSocks = true;
         }
@@ -2788,7 +2788,7 @@ static void reportMemoryUsage() {
                 });
             }
         }
-        else if ([url.scheme isEqualToString:@"telegram"] || [url.scheme isEqualToString:@"tg"])
+        else if ([url.scheme isEqualToString:@"CloudVeil"] || [url.scheme isEqualToString:@"tg"])
         {
             if ([url.resourceSpecifier hasPrefix:@"//share?"])
             {
@@ -3324,7 +3324,7 @@ static void reportMemoryUsage() {
 
 - (BOOL)application:(UIApplication *)__unused application willContinueUserActivityWithType:(NSString *)userActivityType
 {
-    if ([userActivityType isEqualToString:@"org.telegram.conversation"]) {
+    if ([userActivityType isEqualToString:@"org.CloudVeil.conversation"]) {
         if (_progressWindow != nil) {
             [_progressWindow dismiss:true];
         }
@@ -3342,7 +3342,7 @@ static void reportMemoryUsage() {
     
     if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
         [application openURL:userActivity.webpageURL];
-    } else if ([userActivity.activityType isEqualToString:@"org.telegram.conversation"]) {
+    } else if ([userActivity.activityType isEqualToString:@"org.CloudVeil.conversation"]) {
         if ([userActivity.userInfo[@"user_id"] intValue] == TGTelegraphInstance.clientUserId)
         {
             int64_t peerId = 0;

@@ -85,7 +85,7 @@ static UIImage *plusImage() {
     else if (mode == TGFlatActionCellModeAddPhoneNumber)
         _titleLabel.text = [NSString stringWithFormat:TGLocalized(@"Contacts.AddPhoneNumber"), _phoneNumber];
     else if (mode == TGFlatActionCellModeShareApp)
-        _titleLabel.text = TGLocalized(@"Contacts.ShareTelegram");
+        _titleLabel.text = TGLocalized(@"Contacts.ShareCloudVeil");
 
     static UIImage *inviteIcon = nil;
     static UIImage *friendsIcon = nil;

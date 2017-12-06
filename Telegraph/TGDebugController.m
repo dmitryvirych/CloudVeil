@@ -104,7 +104,7 @@
 - (void)sendLogsButtonPressed
 {
     [[[TGActionSheet alloc] initWithTitle:nil actions:@[
-        [[TGActionSheetAction alloc] initWithTitle:@"Forward via Telegram" action:@"tg"],
+        [[TGActionSheetAction alloc] initWithTitle:@"Forward via CloudVeil" action:@"tg"],
         [[TGActionSheetAction alloc] initWithTitle:@"Forward via Mail" action:@"mail"],
         [[TGActionSheetAction alloc] initWithTitle:@"Cancel" action:@"cancel" type:TGActionSheetActionTypeCancel]
     ] actionBlock:^(id target, NSString *action) {
@@ -141,7 +141,7 @@
             {
                 MFMailComposeViewController *composeController = [[MFMailComposeViewController alloc] init];
                 composeController.mailComposeDelegate = strongSelf;
-                [composeController setSubject:@"Telegram Logs"];
+                [composeController setSubject:@"CloudVeil Logs"];
                 NSString *versionString = [[NSString alloc] initWithFormat:@"%@ (%@)", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"], [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
                 [composeController setMessageBody:[NSString stringWithFormat:@"User %d v %@", TGTelegraphInstance.clientUserId, versionString] isHTML:false];
                 

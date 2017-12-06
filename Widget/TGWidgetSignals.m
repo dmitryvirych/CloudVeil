@@ -6,7 +6,7 @@
 #import "TGWidget.h"
 #import <LegacyDatabase/LegacyDatabase.h>
 
-NSString *const TGWidgetSyncIdentifier = @"org.telegram.WidgetUpdate";
+NSString *const TGWidgetSyncIdentifier = @"org.CloudVeil.WidgetUpdate";
 const CGSize TGWidgetAvatarSize = { 56.0f, 56.0f };
 const NSTimeInterval TGWidgetUpdateThrottleInterval = 20.0;
 

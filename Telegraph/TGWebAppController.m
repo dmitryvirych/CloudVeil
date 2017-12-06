@@ -194,11 +194,11 @@
         WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
         
         WKUserContentController *userController = [[WKUserContentController alloc] init];
-        NSString *js = @"var TelegramWebviewProxyProto = function() {}; \
-        TelegramWebviewProxyProto.prototype.postEvent = function(eventName, eventData) { \
+        NSString *js = @"var CloudVeilWebviewProxyProto = function() {}; \
+        CloudVeilWebviewProxyProto.prototype.postEvent = function(eventName, eventData) { \
         window.webkit.messageHandlers.performAction.postMessage({'eventName': eventName, 'eventData': eventData}); \
         };\
-        var TelegramWebviewProxy = new TelegramWebviewProxyProto();";
+        var CloudVeilWebviewProxy = new CloudVeilWebviewProxyProto();";
         
         WKUserScript *userScript = [[WKUserScript alloc] initWithSource:js injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:false];
         [userController addUserScript:userScript];
@@ -234,17 +234,17 @@
                 if (strongSelf != nil) {
                     TGLog(@"legacy event received: %@", event);
                 }
-            }] forKey:@"TelegramEventProxy"];
+            }] forKey:@"CloudVeilEventProxy"];
         }*/
         _webView = webView;
         if ([[_url.absoluteString lowercaseString] hasPrefix:@"http://"] || [[_url.absoluteString lowercaseString] hasPrefix:@"https://"]) {
             [webView loadRequest:[NSURLRequest requestWithURL:_url]];
             
-            NSString *js = @"var TelegramWebviewProxyProto = function() {}; \
-            TelegramWebviewProxyProto.prototype.postEvent = function(eventName, eventData) { \
-            window.TelegramEventProxy.postMessage({'eventName': eventName, 'eventData': eventData}); \
+            NSString *js = @"var CloudVeilWebviewProxyProto = function() {}; \
+            CloudVeilWebviewProxyProto.prototype.postEvent = function(eventName, eventData) { \
+            window.CloudVeilEventProxy.postMessage({'eventName': eventName, 'eventData': eventData}); \
             };\
-            var TelegramWebviewProxy = new TelegramWebviewProxyProto();";
+            var CloudVeilWebviewProxy = new CloudVeilWebviewProxyProto();";
             [webView stringByEvaluatingJavaScriptFromString:js];
         }
     }

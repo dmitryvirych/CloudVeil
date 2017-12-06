@@ -54,7 +54,7 @@ static GDCredentialManager *sharedCredentialManager;
 - (id)init
 {
     if ((self = [super init])) {
-        self.isolationQueue = dispatch_queue_create("org.telegram.KeychainCredentialManager", DISPATCH_QUEUE_CONCURRENT);
+        self.isolationQueue = dispatch_queue_create("org.CloudVeil.KeychainCredentialManager", DISPATCH_QUEUE_CONCURRENT);
         self.keyedClientCredentials = [NSDictionary new];
         
     }

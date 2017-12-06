@@ -55,7 +55,7 @@
 			<string>org.telegram.TelegramHD</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>telegram</string>
+				<string>CloudVeil</string>
 			</array>
 		</dict>
 		<dict>
@@ -80,7 +80,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>64341</string>
+	<string>64342</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>ITSAppUsesNonExemptEncryption </key>

@@ -296,7 +296,7 @@
             NSUbiquitousKeyValueStore *store = [NSUbiquitousKeyValueStore defaultStore];
             _keyValueStoreChangeProxy = [[TGObserverProxy alloc] initWithTarget:self targetSelector:@selector(keyValueStoreChanged:) name:NSUbiquitousKeyValueStoreDidChangeExternallyNotification object:store];
             
-            NSString *phoneNumber = [TGPhoneUtils cleanPhone:[store objectForKey:@"telegram_currentPhoneNumber"]];
+            NSString *phoneNumber = [TGPhoneUtils cleanPhone:[store objectForKey:@"CloudVeil_currentPhoneNumber"]];
             if (phoneNumber.length != 0)
             {
                 for (int i = 0; i < (int)phoneNumber.length; i++)
@@ -321,7 +321,7 @@
     if (iosMajorVersion() >= 7)// && !_editedText)
     {
         NSUbiquitousKeyValueStore *store = [NSUbiquitousKeyValueStore defaultStore];
-        NSString *phoneNumber = [TGPhoneUtils cleanPhone:[store objectForKey:@"telegram_currentPhoneNumber"]];
+        NSString *phoneNumber = [TGPhoneUtils cleanPhone:[store objectForKey:@"CloudVeil_currentPhoneNumber"]];
         if (phoneNumber.length != 0)
         {
             for (int i = 0; i < (int)phoneNumber.length; i++)
@@ -989,12 +989,12 @@
                 
                 NSTimeInterval phoneTimeout = (((SGraphObjectNode *)result).object)[@"callTimeout"] == nil ? 60 : [(((SGraphObjectNode *)result).object)[@"callTimeout"] intValue];
                 
-                bool messageSentToTelegram = [(((SGraphObjectNode *)result).object)[@"messageSentToTelegram"] intValue];
+                bool messageSentToCloudVeil = [(((SGraphObjectNode *)result).object)[@"messageSentToCloudVeil"] intValue];
                 bool messageSentViaPhone = [(((SGraphObjectNode *)result).object)[@"messageSentViaPhone"] intValue];
                 
-                [TGAppDelegateInstance saveLoginStateWithDate:(int)CFAbsoluteTimeGetCurrent() phoneNumber:[[NSString alloc] initWithFormat:@"%@|%@", _countryCodeField.text, _phoneField.text] phoneCode:nil phoneCodeHash:phoneCodeHash codeSentToTelegram:messageSentToTelegram codeSentViaPhone:messageSentViaPhone firstName:nil lastName:nil photo:nil resetAccountState:nil];
+                [TGAppDelegateInstance saveLoginStateWithDate:(int)CFAbsoluteTimeGetCurrent() phoneNumber:[[NSString alloc] initWithFormat:@"%@|%@", _countryCodeField.text, _phoneField.text] phoneCode:nil phoneCodeHash:phoneCodeHash codeSentToCloudVeil:messageSentToCloudVeil codeSentViaPhone:messageSentViaPhone firstName:nil lastName:nil photo:nil resetAccountState:nil];
                 
-                TGLoginCodeController *loginCodeController = [[TGLoginCodeController alloc] initWithShowKeyboard:(_countryCodeField.isFirstResponder || _phoneField.isFirstResponder) phoneNumber:_phoneNumber phoneCodeHash:phoneCodeHash phoneTimeout:phoneTimeout messageSentToTelegram:messageSentToTelegram messageSentViaPhone:messageSentViaPhone];
+                TGLoginCodeController *loginCodeController = [[TGLoginCodeController alloc] initWithShowKeyboard:(_countryCodeField.isFirstResponder || _phoneField.isFirstResponder) phoneNumber:_phoneNumber phoneCodeHash:phoneCodeHash phoneTimeout:phoneTimeout messageSentToCloudVeil:messageSentToCloudVeil messageSentViaPhone:messageSentViaPhone];
                 [self.navigationController pushViewController:loginCodeController animated:true];
             }
             else

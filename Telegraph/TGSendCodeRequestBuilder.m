@@ -107,7 +107,7 @@
         [dict setObject:sendCode.phone_code_hash forKey:@"phoneCodeHash"];
         [dict setObject:[NSNumber numberWithBool:sendCode.phone_registered] forKey:@"phoneRegistered"];
         dict[@"callTimeout"] = @(sendCode.timeout);
-        dict[@"messageSentToTelegram"] = @true;
+        dict[@"messageSentToCloudVeil"] = @true;
     } else {
         [dict setObject:sendCode.phone_code_hash forKey:@"phoneCodeHash"];
         [dict setObject:[NSNumber numberWithBool:sendCode.phone_registered] forKey:@"phoneRegistered"];
@@ -166,7 +166,7 @@
             [dict setObject:sendCode.phone_code_hash forKey:@"phoneCodeHash"];
             [dict setObject:[NSNumber numberWithBool:sendCode.phone_registered] forKey:@"phoneRegistered"];
             dict[@"callTimeout"] = @(sendCode.timeout);
-            dict[@"messageSentToTelegram"] = @true;
+            dict[@"messageSentToCloudVeil"] = @true;
         } else {
             [dict setObject:sendCode.phone_code_hash forKey:@"phoneCodeHash"];
             [dict setObject:[NSNumber numberWithBool:sendCode.phone_registered] forKey:@"phoneRegistered"];

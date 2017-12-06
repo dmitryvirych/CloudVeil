@@ -1127,9 +1127,9 @@ typedef enum {
         NSMutableDictionary *mutableUserActivityData = [[NSMutableDictionary alloc] initWithDictionary:userActivityData];
         if (_inputTextPanel.maybeInputField.text.length != 0)
             mutableUserActivityData[@"text"] = _inputTextPanel.maybeInputField.text;
-        _currentActivity = [[NSUserActivity alloc] initWithActivityType:@"org.telegram.conversation"];
+        _currentActivity = [[NSUserActivity alloc] initWithActivityType:@"org.CloudVeil.conversation"];
         _currentActivity.userInfo = mutableUserActivityData;
-        _currentActivity.webpageURL = [NSURL URLWithString:@"https://telegram.org/dl"];
+        _currentActivity.webpageURL = [NSURL URLWithString:@"https://CloudVeil.org/dl"];
         _currentActivity.delegate = self;
         _currentActivity.supportsContinuationStreams = true;
         [_currentActivity becomeCurrent];
@@ -5178,7 +5178,7 @@ typedef enum {
     
     if (contact.uid > 0) {
         [actions addObject:[[TGActionSheetAction alloc] initWithTitle:TGLocalized(@"Conversation.SendMessage") action:@"sendMessage"]];
-        [actions addObject:[[TGActionSheetAction alloc] initWithTitle:TGLocalized(@"UserInfo.TelegramCall") action:@"telegramCall"]];
+        [actions addObject:[[TGActionSheetAction alloc] initWithTitle:TGLocalized(@"UserInfo.CloudVeilCall") action:@"CloudVeilCall"]];
     }
     
     [actions addObject:[[TGActionSheetAction alloc] initWithTitle:TGLocalized(@"UserInfo.PhoneCall") action:@"call"]];
@@ -5195,7 +5195,7 @@ typedef enum {
             NSString *url = [[NSString alloc] initWithFormat:@"tel:%@", [TGPhoneUtils formatPhoneUrl:contact.phoneNumber]];
             [TGAppDelegateInstance performPhoneCall:[NSURL URLWithString:url]];
         }
-        else if ([action isEqualToString:@"telegramCall"])
+        else if ([action isEqualToString:@"CloudVeilCall"])
         {
             [[TGInterfaceManager instance] callPeerWithId:contact.uid];
         }
@@ -7688,7 +7688,7 @@ typedef enum {
      @"public.video",
      @"public.movie",
      @"public.font",
-     @"org.telegram.Telegram.webp",
+     @"org.CloudVeil.CloudVeil.webp",
      @"com.apple.iwork.pages.pages",
      @"com.apple.iwork.numbers.numbers",
      @"com.apple.iwork.keynote.key"

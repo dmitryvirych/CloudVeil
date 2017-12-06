@@ -195,7 +195,7 @@ const CGFloat TGPhotoCropRotationViewMaximumAngle = 45;
         _animating = true;
         
         POPSpringAnimation *animation = [POPSpringAnimation animation];
-        POPAnimatableProperty *angleProperty = [POPAnimatableProperty propertyWithName:@"org.telegram.rotationAngle" initializer:^(POPMutableAnimatableProperty *prop)
+        POPAnimatableProperty *angleProperty = [POPAnimatableProperty propertyWithName:@"org.CloudVeil.rotationAngle" initializer:^(POPMutableAnimatableProperty *prop)
         {
             prop.readBlock = ^(id obj, CGFloat values[])
             {
@@ -243,7 +243,7 @@ const CGFloat TGPhotoCropRotationViewMaximumAngle = 45;
             self.didBeginChanging();
         
         POPSpringAnimation *animation = [POPSpringAnimation animation];
-        POPAnimatableProperty *angleProperty = [POPAnimatableProperty propertyWithName:@"org.telegram.rotationAngle" initializer:^(POPMutableAnimatableProperty *prop)
+        POPAnimatableProperty *angleProperty = [POPAnimatableProperty propertyWithName:@"org.CloudVeil.rotationAngle" initializer:^(POPMutableAnimatableProperty *prop)
         {
             prop.readBlock = ^(id obj, CGFloat values[])
             {

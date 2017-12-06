@@ -502,7 +502,7 @@
     {
         _displayedStillLogo = true;
         
-        _stillLogoView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"telegram_logo_still.png"]];
+        _stillLogoView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"CloudVeil_logo_still.png"]];
         _stillLogoView.contentMode = UIViewContentModeCenter;
         _stillLogoView.bounds = CGRectMake(0, 0, 200, 200);
         
@@ -604,7 +604,7 @@
     [EAGLContext setCurrentContext:_glkView.context];
     
     
-    set_telegram_textures(setup_texture(@"telegram_sphere.png"), setup_texture(@"telegram_plane.png"));
+    set_CloudVeil_textures(setup_texture(@"CloudVeil_sphere.png"), setup_texture(@"CloudVeil_plane.png"));
     
     set_ic_textures(setup_texture(@"ic_bubble_dot.png"), setup_texture(@"ic_bubble.png"), setup_texture(@"ic_cam_lens.png"), setup_texture(@"ic_cam.png"), setup_texture(@"ic_pencil.png"), setup_texture(@"ic_pin.png"), setup_texture(@"ic_smile_eye.png"), setup_texture(@"ic_smile.png"), setup_texture(@"ic_videocam.png"));
     

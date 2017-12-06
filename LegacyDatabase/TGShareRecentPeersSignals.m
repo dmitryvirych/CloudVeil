@@ -9,7 +9,7 @@
 #import "TGChatModel.h"
 #import "TGPrivateChatModel.h"
 
-NSString *const TGRecentSearchDefaultsKey = @"Telegram_recentSearch_peers";
+NSString *const TGRecentSearchDefaultsKey = @"CloudVeil_recentSearch_peers";
 const NSInteger TGRecentSearchLimit = 20;
 
 @implementation TGShareRecentPeersSignals

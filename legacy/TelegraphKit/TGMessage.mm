@@ -12,16 +12,16 @@
 
 #include <unordered_map>
 
-static void *NSTextCheckingResultTelegramHiddenLinkKey = &NSTextCheckingResultTelegramHiddenLinkKey;
+static void *NSTextCheckingResultCloudVeilHiddenLinkKey = &NSTextCheckingResultCloudVeilHiddenLinkKey;
 
 @implementation NSTextCheckingResult (TGMessage)
 
-- (void)setIsTelegramHiddenLink:(bool)value {
-    objc_setAssociatedObject(self, NSTextCheckingResultTelegramHiddenLinkKey, @(value), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setIsCloudVeilHiddenLink:(bool)value {
+    objc_setAssociatedObject(self, NSTextCheckingResultCloudVeilHiddenLinkKey, @(value), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (bool)isTelegramHiddenLink {
-    return [objc_getAssociatedObject(self, NSTextCheckingResultTelegramHiddenLinkKey) boolValue];
+- (bool)isCloudVeilHiddenLink {
+    return [objc_getAssociatedObject(self, NSTextCheckingResultCloudVeilHiddenLinkKey) boolValue];
 }
 
 @end
@@ -348,7 +348,7 @@ typedef enum {
                 [textCheckingResults addObject:[[TGTextCheckingResult alloc] initWithRange:entity.range type:TGTextCheckingResultTypeCode contents:@""]];
             } else if ([entity isKindOfClass:[TGMessageEntityTextUrl class]]) {
                 NSTextCheckingResult *result = [NSTextCheckingResult linkCheckingResultWithRange:entity.range URL:[NSURL URLWithString:((TGMessageEntityTextUrl *)entity).url]];
-                [result setIsTelegramHiddenLink:true];
+                [result setIsCloudVeilHiddenLink:true];
                 [textCheckingResults addObject:result];
             } else if ([entity isKindOfClass:[TGMessageEntityUrl class]]) {
                 NSString *link = [text substringWithRange:entity.range];
@@ -744,7 +744,7 @@ typedef enum {
                     } else if ([entity isKindOfClass:[TGMessageEntityTextUrl class]]) {
                         //NSTextCheckingResult *result = [NSTextCheckingResult linkCheckingResultWithRange:entity.range URL:[NSURL URLWithString:((TGMessageEntityTextUrl *)entity).url]];
                         TGTextCheckingResult *result = [[TGTextCheckingResult alloc] initWithRange:entity.range type:TGTextCheckingResultTypeLink contents:((TGMessageEntityTextUrl *)entity).url value:nil highlightAsLink:true];
-                        //[result setIsTelegramHiddenLink:true];
+                        //[result setIsCloudVeilHiddenLink:true];
                         [textCheckingResults addObject:result];
                     } else if ([entity isKindOfClass:[TGMessageEntityUrl class]]) {
                         NSString *link = [_text substringWithRange:entity.range];

@@ -65,7 +65,7 @@ const NSInteger TGYTPlayerStateBufferingCode = 3;
     
     NSString *videoId =  _playerParams[@"videoId"];
     
-    NSURL *appUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithFormat:@"youtube-x-callback://watch?v=%@&x-success=telegram://1&x-source=Telegram", videoId]];
+    NSURL *appUrl = [[NSURL alloc] initWithString:[[NSString alloc] initWithFormat:@"youtube-x-callback://watch?v=%@&x-success=CloudVeil://1&x-source=CloudVeil", videoId]];
     
     if ([[UIApplication sharedApplication] canOpenURL:appUrl])
     {

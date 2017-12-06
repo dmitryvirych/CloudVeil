@@ -1,5 +1,5 @@
 /*
- * This is the source code of Telegram for iOS v. 1.1
+ * This is the source code of CloudVeil for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -130,7 +130,7 @@ extern NSString *TGDeviceProximityStateChangedNotification;
 
 - (void)presentMainController;
 
-- (void)presentLoginController:(bool)clearControllerStates animated:(bool)animated showWelcomeScreen:(bool)showWelcomeScreen phoneNumber:(NSString *)phoneNumber phoneCode:(NSString *)phoneCode phoneCodeHash:(NSString *)phoneCodeHash codeSentToTelegram:(bool)codeSentToTelegram codeSentViaPhone:(bool)codeSentViaPhone profileFirstName:(NSString *)profileFirstName profileLastName:(NSString *)profileLastName resetAccountState:(TGResetAccountState *)resetAccountState;
+- (void)presentLoginController:(bool)clearControllerStates animated:(bool)animated showWelcomeScreen:(bool)showWelcomeScreen phoneNumber:(NSString *)phoneNumber phoneCode:(NSString *)phoneCode phoneCodeHash:(NSString *)phoneCodeHash codeSentToCloudVeil:(bool)codeSentToCloudVeil codeSentViaPhone:(bool)codeSentViaPhone profileFirstName:(NSString *)profileFirstName profileLastName:(NSString *)profileLastName resetAccountState:(TGResetAccountState *)resetAccountState;
 - (void)presentContentController:(UIViewController *)controller;
 - (void)dismissContentController;
 
@@ -139,7 +139,7 @@ extern NSString *TGDeviceProximityStateChangedNotification;
 
 - (NSDictionary *)loadLoginState;
 - (void)resetLoginState;
-- (void)saveLoginStateWithDate:(int)date phoneNumber:(NSString *)phoneNumber phoneCode:(NSString *)phoneCode phoneCodeHash:(NSString *)phoneCodeHash codeSentToTelegram:(bool)codeSentToTelegram codeSentViaPhone:(bool)codeSentViaPhone firstName:(NSString *)firstName lastName:(NSString *)lastName photo:(NSData *)photo resetAccountState:(TGResetAccountState *)resetAccountState;
+- (void)saveLoginStateWithDate:(int)date phoneNumber:(NSString *)phoneNumber phoneCode:(NSString *)phoneCode phoneCodeHash:(NSString *)phoneCodeHash codeSentToCloudVeil:(bool)codeSentToCloudVeil codeSentViaPhone:(bool)codeSentViaPhone firstName:(NSString *)firstName lastName:(NSString *)lastName photo:(NSData *)photo resetAccountState:(TGResetAccountState *)resetAccountState;
 
 - (NSArray *)classicAlertSoundTitles;
 - (NSArray *)modernAlertSoundTitles;

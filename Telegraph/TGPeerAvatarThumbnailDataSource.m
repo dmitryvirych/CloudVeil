@@ -36,7 +36,7 @@ static ASQueue *taskManagementQueue()
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
     {
-        queue = [[ASQueue alloc] initWithName:"org.telegram.peerAvatarThumbnailTaskManagementQueue"];
+        queue = [[ASQueue alloc] initWithName:"org.CloudVeil.peerAvatarThumbnailTaskManagementQueue"];
     });
     
     return queue;

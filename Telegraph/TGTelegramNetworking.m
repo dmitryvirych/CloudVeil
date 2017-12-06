@@ -1,5 +1,5 @@
 /*
- * This is the source code of Telegram for iOS v. 1.1
+ * This is the source code of CloudVeil for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -156,11 +156,11 @@ static void TGTelegramLoggingFunction(NSString *format, va_list args)
         
         _currentWakeUpCompletions = [[NSMutableArray alloc] init];
         
-        _settingsKeychain = [MTFileBasedKeychain keychainWithName:@"Telegram-Settings" documentsPath:[TGAppDelegate documentsPath]];
+        _settingsKeychain = [MTFileBasedKeychain keychainWithName:@"CloudVeil-Settings" documentsPath:[TGAppDelegate documentsPath]];
         NSString *environmentId = [_settingsKeychain objectForKey:@"environmentId" group:@"environment"];
         _isTestingEnvironment = environmentId != nil && [environmentId isEqualToString:@"testing"];
         
-        NSString *keychainName = _isTestingEnvironment ? @"Telegram-Testing" : @"Telegram";
+        NSString *keychainName = _isTestingEnvironment ? @"CloudVeil-Testing" : @"CloudVeil";
         _keychain = [MTFileBasedKeychain keychainWithName:keychainName documentsPath:[TGAppDelegate documentsPath]];
         
         _cdnDatas = [[NSMutableDictionary alloc] init];

@@ -244,7 +244,7 @@
                             int32_t waitSeconds = [[errorType substringFromIndex:@"2FA_CONFIRM_WAIT_".length] intValue];
                             int stateDate = [[TGAppDelegateInstance loadLoginState][@"date"] intValue];
                             NSTimeInterval protectedUntilDate = CFAbsoluteTimeGetCurrent() + waitSeconds;
-                            [TGAppDelegateInstance saveLoginStateWithDate:stateDate phoneNumber:_phoneNumber phoneCode:_phoneCode phoneCodeHash:_phoneCodeHash codeSentToTelegram:false codeSentViaPhone:false firstName:nil lastName:nil photo:nil resetAccountState:[[TGResetAccountState alloc] initWithPhoneNumber:_phoneNumber protectedUntilDate:protectedUntilDate]];
+                            [TGAppDelegateInstance saveLoginStateWithDate:stateDate phoneNumber:_phoneNumber phoneCode:_phoneCode phoneCodeHash:_phoneCodeHash codeSentToCloudVeil:false codeSentViaPhone:false firstName:nil lastName:nil photo:nil resetAccountState:[[TGResetAccountState alloc] initWithPhoneNumber:_phoneNumber protectedUntilDate:protectedUntilDate]];
                             [strongSelf.navigationController pushViewController:[[TGLoginResetAccountProtectedController alloc] initWithPhoneNumber:_phoneNumber protectedUntilDate:protectedUntilDate] animated:true];
                         } else if ([errorType isEqualToString:@"2FA_RECENT_CONFIRM"]) {
                             [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Login.ResetAccountProtected.LimitExceeded") cancelButtonTitle:TGLocalized(@"Common.OK") okButtonTitle:nil completionBlock:nil] show];

@@ -295,7 +295,7 @@ SSignal *imageMediaTransform(MediaBox *mediaBox, TGImageMediaAttachment *image, 
                     CGContextSetBlendMode(context, kCGBlendModeCopy);
                     CGContextDrawImage(context, CGRectMake(0.0f, 0.0f, thumbnailImage.size.width, thumbnailImage.size.height), thumbnailImage.CGImage);
                 }];
-                telegramFastBlur((int32_t)blurContextSize.width, (int32_t)blurContextSize.height, (int32_t)blurContext.bytesPerRow, blurContext.bytes);
+                CloudVeilFastBlur((int32_t)blurContextSize.width, (int32_t)blurContextSize.height, (int32_t)blurContext.bytesPerRow, blurContext.bytes);
                 blurredThumbnailImage = [blurContext generateImage];
             }
             
@@ -375,7 +375,7 @@ SSignal *videoMediaTransform(MediaBox *mediaBox, TGVideoMediaAttachment *video) 
                     CGContextSetBlendMode(context, kCGBlendModeCopy);
                     CGContextDrawImage(context, CGRectMake(0.0f, 0.0f, thumbnailImage.size.width, thumbnailImage.size.height), thumbnailImage.CGImage);
                 }];
-                telegramFastBlur((int32_t)blurContextSize.width, (int32_t)blurContextSize.height, (int32_t)blurContext.bytesPerRow, blurContext.bytes);
+                CloudVeilFastBlur((int32_t)blurContextSize.width, (int32_t)blurContextSize.height, (int32_t)blurContext.bytesPerRow, blurContext.bytes);
                 blurredThumbnailImage = [blurContext generateImage];
             }
             

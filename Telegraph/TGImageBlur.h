@@ -1,5 +1,5 @@
 /*
- * This is the source code of Telegram for iOS v. 1.1
+ * This is the source code of CloudVeil for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -42,4 +42,4 @@ NSArray *TGBlurredBackgroundImages(UIImage *source, CGSize size);
 
 void TGAddImageCorners(void *memory, const unsigned int width, const unsigned int height, const unsigned int stride, int radius);
 
-void telegramFastBlur(int imageWidth, int imageHeight, int imageStride, void *pixels);
+void CloudVeilFastBlur(int imageWidth, int imageHeight, int imageStride, void *pixels);
