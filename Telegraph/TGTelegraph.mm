@@ -1,21 +1,21 @@
 #import "TGTelegraph.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGTelegramNetworking.h"
 #import <MTProtoKit/MTProtoKit.h>
 
 #import <Intents/Intents.h>
 
-#import "TGPeerIdAdapter.h"
-
 #import "TGAppDelegate.h"
 
-#import "UIDevice+PlatformInfo.h"
+#import <LegacyComponents/UIDevice+PlatformInfo.h>
 
 #import <thirdparty/AFNetworking/AFNetworking.h>
 
 #import "TGTimer.h"
 
-#import "SGraphObjectNode.h"
+#import <LegacyComponents/SGraphObjectNode.h>
 
 #import "TGSchema.h"
 
@@ -26,8 +26,6 @@
 #import "TGDatabase.h"
 
 #import "TGUser+Telegraph.h"
-
-#import "NSObject+TGLock.h"
 
 #import "TGLogoutRequestBuilder.h"
 #import "TGSendCodeRequestBuilder.h"
@@ -122,9 +120,7 @@
 
 #import "TGICloudFileDownloadActor.h"
 
-#import "TGRemoteImageView.h"
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
+#import <LegacyComponents/TGRemoteImageView.h>
 #import "TGInterfaceAssets.h"
 
 #import "TGInterfaceManager.h"
@@ -169,10 +165,8 @@
 #import "TGRecentGifsSignal.h"
 #import "TGRecentStickersSignal.h"
 #import "TGRecentMaskStickersSignal.h"
+#import "TGFavoriteStickersSignal.h"
 
-#import "TGWidgetSync.h"
-
-#import "TGBotContextResultAttachment.h"
 #import "TLRPCmessages_sendInlineBotResult.h"
 
 #import "TLaccount_updateProfile$updateProfile.h"
@@ -183,7 +177,13 @@
 
 #import "FetchResources.h"
 
+#import "TLRPCmessages_search.h"
+
 #import "../../config.h"
+
+#import "TLRPCmessages_search.h"
+#import "TLRPCmessages_sendMultiMedia.h"
+#import "TLRPCmessages_forwardMessages.h"
 
 @interface TGTypingRecord : NSObject
 
@@ -327,6 +327,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
 
         _actionHandle = [[ASHandle alloc] initWithDelegate:self releaseOnMainThread:false];
         
+        UIApplicationState applicationState = [[UIApplication sharedApplication] applicationState];
         [ActionStageInstance() dispatchOnStageQueue:^
         {
             NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
@@ -399,7 +400,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
             {
                 [ActionStageInstance() dispatchResource:@"/as/updateRelativeTimestamps" resource:nil];
             } queue:[ActionStageInstance() globalStageDispatchQueue]];
-            if ([UIApplication sharedApplication] != nil && [[UIApplication sharedApplication] applicationState] != UIApplicationStateBackground)
+            if ([UIApplication sharedApplication] != nil && applicationState != UIApplicationStateBackground)
                 [_updateRelativeTimestampsTimer start];
             
             _typingUserRecordsByConversation = [[NSMutableDictionary alloc] init];
@@ -831,9 +832,12 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
         _channelStatesSignalManager = [[SMulticastSignalManager alloc] init];
         _channelTasksDisposable = [[SDisposableSet alloc] init];
         _disposeOnLogout = [[SDisposableSet alloc] init];
+        _checkLocalizationDisposable = [[SMetaDisposable alloc] init];
+        _networkTypeManager = [[TGNetworkTypeManager alloc] init];
+        _liveLocationManager = [[TGLiveLocationManager alloc] init];
         _callManager = [[TGCallManager alloc] init];
-        _mediaBox = [[MediaBox alloc] initWithBasePath:[[TGAppDelegate documentsPath] stringByAppendingPathComponent:@"mediacache"]];
         [[TGInterfaceManager instance] setupCallManager:_callManager];
+        _mediaBox = [[MediaBox alloc] initWithBasePath:[[TGAppDelegate documentsPath] stringByAppendingPathComponent:@"mediacache"]];
     }
     return self;
 }
@@ -892,6 +896,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
         [TGMaskStickersSignals clearCache];
         TGAppDelegateInstance.alwaysShowStickersMode = 0;
         
+        [_liveLocationManager reset];
         [_callManager reset];
         
         _genericTasksSignalManager = [[SMulticastSignalManager alloc] init];
@@ -920,7 +925,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
             [[UIApplication sharedApplication] setApplicationIconBadgeNumber:0];
             [[UIApplication sharedApplication] cancelAllLocalNotifications];
             
-            [TGAppDelegateInstance presentLoginController:true animated:false showWelcomeScreen:false phoneNumber:presetPhoneNumber phoneCode:nil phoneCodeHash:nil codeSentToTelegram:false codeSentViaPhone:false profileFirstName:nil profileLastName:nil resetAccountState:nil];
+            [TGAppDelegateInstance presentLoginController:true animated:false phoneNumber:presetPhoneNumber phoneCode:nil phoneCodeHash:nil codeSentToTelegram:false codeSentViaPhone:false profileFirstName:nil profileLastName:nil resetAccountState:nil];
         });
         
         [_channelTasksDisposable dispose];
@@ -929,15 +934,17 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
         [_disposeOnLogout dispose];
         _disposeOnLogout = [[SDisposableSet alloc] init];
         
+        [_checkLocalizationDisposable dispose];
+        _checkLocalizationDisposable = [[SMetaDisposable alloc] init];
+        
         [TGChannelStateSignals clearChannelStates];
         
         [TGRecentContextBotsSignal clearRecentBots];
         [TGRecentGifsSignal clearRecentGifs];
         [TGRecentStickersSignal clearRecentStickers];
         [TGRecentMaskStickersSignal clearRecentStickers];
-        
-        [TGWidgetSync clearWidgetData];
-        
+        [TGFavoriteStickersSignal clearFavoriteStickers];
+                
         [[[TGBridgeServer instanceSignal] onNext:^(TGBridgeServer *server) {
             [server setAuthorized:false userId:0];
         }] startWithNext:nil];
@@ -1064,12 +1071,12 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
 
 - (void)dispatchUserPresenceChanges:(int64_t)userId presence:(TGUserPresence)presence
 {
-    std::tr1::shared_ptr<std::map<int, TGUserPresence> > presenceMap(new std::map<int, TGUserPresence>());
+    std::shared_ptr<std::map<int, TGUserPresence> > presenceMap(new std::map<int, TGUserPresence>());
     presenceMap->insert(std::make_pair((int)userId, presence));
     [self dispatchMultipleUserPresenceChanges:presenceMap];
 }
 
-- (void)dispatchMultipleUserPresenceChanges:(std::tr1::shared_ptr<std::map<int, TGUserPresence> >)presenceMap
+- (void)dispatchMultipleUserPresenceChanges:(std::shared_ptr<std::map<int, TGUserPresence> >)presenceMap
 {
     [ActionStageInstance() dispatchOnStageQueue:^
     {
@@ -1446,21 +1453,25 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
     return [self serviceUserUid];
 }
 
-- (void)locationTranslationSettingsUpdated
+- (int)voipSupportUserUid
 {
-    bool locationTranslationEnabled = TGAppDelegateInstance.locationTranslationEnabled;
-    
-    [ActionStageInstance() dispatchOnStageQueue:^
+    return 4244000;
+}
+
+- (int)createVoipSupportUserIfNeeded
+{
+    if ([TGDatabaseInstance() loadUser:[self voipSupportUserUid]] == nil)
     {
-        if (locationTranslationEnabled)
-        {
-            [ActionStageInstance() requestActor:@"/tg/liveNearby" options:nil watcher:self];
-        }
-        else
-        {
-            [ActionStageInstance() removeWatcher:self fromPath:@"/tg/liveNearby"];
-        }
-    }];
+        TGUser *user = [[TGUser alloc] init];
+        user.uid = [self voipSupportUserUid];
+        user.phoneNumber = @"4244000";
+        user.firstName = @"VoIP Support";
+        user.lastName = @"";
+        
+        [TGDatabaseInstance() storeUsers:[[NSArray alloc] initWithObjects:user, nil]];
+    }
+    
+    return [self voipSupportUserUid];
 }
 
 - (void)dispatchUserLinkChanged:(int)uid link:(int)link
@@ -1613,9 +1624,6 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
                 
                 [TGAppDelegateInstance setupShortcutItems];
             });
-            
-            if (TGAppDelegateInstance.locationTranslationEnabled)
-                [ActionStageInstance() requestActor:@"/tg/liveNearby" options:nil watcher:self];
             
             [TGDatabaseInstance() processAndScheduleSelfDestruct];
             [TGDatabaseInstance() processAndScheduleMediaCleanup];
@@ -2018,57 +2026,6 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
     } progressBlock:nil requiresCompletion:true requestClass:TGRequestClassUploadMedia | TGRequestClassFailOnServerErrors];
 }
 
-- (NSObject *)doDownloadFile:(int)datacenterId volumeId:(int64_t)volumeId fileId:(int)fileId secret:(int64_t)secret actor:(id<TGFileDownloadActor>)actor
-{
-    TLRPCupload_getFile$upload_getFile *getFile = [[TLRPCupload_getFile$upload_getFile alloc] init];
-
-    TLInputFileLocation$inputFileLocation *location = [[TLInputFileLocation$inputFileLocation alloc] init];
-    location.volume_id = volumeId;
-    location.local_id = fileId;
-    location.secret = secret;
-    
-    getFile.location = location;
-    
-    return [[TGTelegramNetworking instance] performRpc:getFile completionBlock:^(TLupload_File *response, __unused int64_t responseTime, MTRpcError *error)
-    {
-        if (error == nil)
-        {
-            [actor fileDownloadSuccess:volumeId fileId:fileId secret:secret data:response.bytes];
-        }
-        else
-        {
-            [actor fileDownloadFailed:volumeId fileId:fileId secret:secret];
-        }
-    } progressBlock:^(__unused int length, float progress)
-    {
-        [actor fileDownloadProgress:volumeId fileId:fileId secret:secret progress:progress];
-    } requiresCompletion:true requestClass:TGRequestClassDownloadMedia datacenterId:datacenterId];
-}
-
-- (id)doDownloadFilePart:(int)datacenterId location:(TLInputFileLocation *)location offset:(int)offset length:(int)length actor:(id<TGFileDownloadActor>)actor
-{
-    TLRPCupload_getFile$upload_getFile *getFile = [[TLRPCupload_getFile$upload_getFile alloc] init];
-    
-    getFile.location = location;
-    getFile.offset = offset;
-    getFile.limit = length;
-    
-    return [[TGTelegramNetworking instance] performRpc:getFile completionBlock:^(TLupload_File *result, __unused int64_t responseTime, MTRpcError *error)
-    {
-        if (error == nil)
-        {
-            [actor filePartDownloadSuccess:location offset:offset length:length data:result.bytes];
-        }
-        else
-        {
-            [actor filePartDownloadFailed:location offset:offset length:length];
-        }
-    } progressBlock:^(int packetLength, float progress)
-    {
-        [actor filePartDownloadProgress:location offset:offset length:length packetLength:packetLength progress:progress];
-    } requiresCompletion:true requestClass:TGRequestClassDownloadMedia datacenterId:datacenterId == 0 ? TG_DEFAULT_DATACENTER_ID : datacenterId];
-}
-
 - (bool)isMigrateToDatacenterError:(NSString *)text datacenterId:(NSInteger *)datacenterId
 {
     NSArray *migratePrefixes = @[
@@ -2128,6 +2085,8 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
                 errorCode = TGSendCodeErrorFloodWait;
             else if ([errorType isEqualToString:@"PHONE_NUMBER_FLOOD"]) {
                 errorCode = TGSendCodeErrorPhoneFlood;
+            } else if ([errorType isEqualToString:@"PHONE_NUMBER_BANNED"]) {
+                errorCode = TGSendCodeErrorPhoneBanned;
             }
             else
             {
@@ -2167,6 +2126,8 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
                 errorCode = TGSendCodeErrorFloodWait;
             else if ([errorType isEqualToString:@"PHONE_NUMBER_FLOOD"]) {
                 errorCode = TGSendCodeErrorPhoneFlood;
+            } else if ([errorType isEqualToString:@"PHONE_NUMBER_BANNED"]) {
+                errorCode = TGSendCodeErrorPhoneBanned;
             }
             else
             {
@@ -2616,7 +2577,17 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
             
             TGLog(@"Server imported: %@", debugImportedString);
             
-            [requestActor exportContactsSuccess:importedArray users:importedContacts.users];
+            NSMutableArray *popularArray = [[NSMutableArray alloc] initWithCapacity:importedContacts.popular_invites.count];
+            for (TLPopularContact *popularContact in importedContacts.popular_invites)
+            {
+                if (popularContact.client_id >= 0 && popularContact.client_id < (int)contactsArray.count)
+                {
+                    TGContactBinding *binding = [contacts objectAtIndex:popularContact.client_id];
+                    [popularArray addObject:@{@"phoneId": @(binding.phoneId), @"importers": @(popularContact.importers)}];
+                }
+            }
+            
+            [requestActor exportContactsSuccess:importedArray popularContacts:popularArray users:importedContacts.users];
         }
         else
         {
@@ -2625,7 +2596,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
     } progressBlock:nil requiresCompletion:true requestClass:TGRequestClassGeneric];
 }
 
-- (NSObject *)doRequestContactList:(NSString *)hash actor:(TGSynchronizeContactsActor *)actor
+- (NSObject *)doRequestContactList:(int32_t)hash actor:(TGSynchronizeContactsActor *)actor
 {
     TLRPCcontacts_getContacts$contacts_getContacts *getContacts = [[TLRPCcontacts_getContacts$contacts_getContacts alloc] init];
     getContacts.n_hash = hash;
@@ -2867,7 +2838,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
 
 - (NSObject *)doRequestConversationMediaHistory:(int64_t)conversationId accessHash:(int64_t)accessHash maxMid:(int)maxMid maxDate:(int)maxDate limit:(int)limit actor:(TGUpdateMediaHistoryActor *)actor
 {
-    TLRPCmessages_search$messages_search *search = [[TLRPCmessages_search$messages_search alloc] init];
+    TLRPCmessages_search *search = [[TLRPCmessages_search alloc] init];
     search.peer = [self createInputPeerForConversation:conversationId accessHash:accessHash];
     search.q = @"";
     search.min_date = 0;
@@ -2875,6 +2846,8 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
     search.offset = 0;
     search.max_id = maxMid;
     search.limit = limit;
+    search.from_id = [[TLInputUser$inputUserEmpty alloc] init];
+    
     search.filter = [[TLMessagesFilter$inputMessagesFilterPhotoVideo alloc] init];
     
     return [[TGTelegramNetworking instance] performRpc:search completionBlock:^(TLmessages_Messages *messages, __unused int64_t responseTime, MTRpcError *error)
@@ -2930,7 +2903,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
     } requiresCompletion:true requestClass:TGRequestClassGeneric | TGRequestClassFailOnServerErrors datacenterId:TG_DEFAULT_DATACENTER_ID];
 }
 
-- (NSObject *)doConversationSendLocation:(int64_t)conversationId accessHash:(int64_t)accessHash latitude:(double)latitude longitude:(double)longitude venue:(TGVenueAttachment *)venue messageGuid:(NSString *)messageGuid tmpId:(int64_t)tmpId replyMessageId:(int32_t)replyMessageId postAsChannel:(bool)postAsChannel notifyMembers:(bool)notifyMembers actor:(TGModernSendCommonMessageActor *)actor
+- (NSObject *)doConversationSendLocation:(int64_t)conversationId accessHash:(int64_t)accessHash latitude:(double)latitude longitude:(double)longitude venue:(TGVenueAttachment *)venue period:(int32_t)period messageGuid:(NSString *)messageGuid tmpId:(int64_t)tmpId replyMessageId:(int32_t)replyMessageId postAsChannel:(bool)postAsChannel notifyMembers:(bool)notifyMembers actor:(TGModernSendCommonMessageActor *)actor
 {
     TLInputMedia *media = nil;
     
@@ -2946,7 +2919,15 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
         venueMedia.address = venue.address;
         venueMedia.provider = venue.provider;
         venueMedia.venue_id = venue.venueId;
+        venueMedia.venue_type = venue.type;
         media = venueMedia;
+    }
+    else if (period > 0)
+    {
+        TLInputMedia$inputMediaGeoLive *geoMedia = [[TLInputMedia$inputMediaGeoLive alloc] init];
+        geoMedia.geo_point = geoPoint;
+        geoMedia.period = period;
+        media = geoMedia;
     }
     else
     {
@@ -3017,6 +2998,7 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
     sendMedia.media = media;
     sendMedia.random_id = tmpId;
     sendMedia.reply_to_msg_id = replyMessageId;
+    
     TGLog(@"sendMedia with random_id: %lld", tmpId);
     
     return [[TGTelegramNetworking instance] performRpc:sendMedia completionBlock:^(id message, __unused int64_t responseTime, TLError *error)
@@ -3028,6 +3010,41 @@ typedef std::map<int, std::pair<TGUser *, int > >::iterator UserDataToDispatchIt
         else
         {
             [actor conversationSendMessageRequestFailed:[[TGTelegramNetworking instance] extractNetworkErrorType:error]];
+        }
+    } progressBlock:nil requiresCompletion:true requestClass:TGRequestClassGeneric | TGRequestClassFailOnServerErrors];
+}
+
+- (NSObject *)doConversationSendMultiMedia:(int64_t)conversationId accessHash:(int64_t)accessHash multiMedia:(NSArray *)multiMedia replyMessageId:(int32_t)replyMessageId postAsChannel:(bool)postAsChannel notifyMembers:(bool)notifyMembers groupedId:(int64_t)groupedId actors:(NSArray *)actors
+{
+    TLRPCmessages_sendMultiMedia *sendMultiMedia = [[TLRPCmessages_sendMultiMedia alloc] init];
+    sendMultiMedia.flags |= replyMessageId != 0 ? (1 << 0) : 0;
+    if (TGPeerIdIsChannel(conversationId)) {
+        if (postAsChannel) {
+            sendMultiMedia.flags |= 16;
+        }
+        
+        if (!notifyMembers) {
+            sendMultiMedia.flags |= (1 << 5);
+        }
+    }
+    sendMultiMedia.peer = [self createInputPeerForConversation:conversationId accessHash:accessHash];
+    sendMultiMedia.multi_media = multiMedia;
+    sendMultiMedia.reply_to_msg_id = replyMessageId;
+    
+    //TGLog(@"sendMedia with random_id: %lld", tmpId);
+    
+    return [[TGTelegramNetworking instance] performRpc:sendMultiMedia completionBlock:^(id message, __unused int64_t responseTime, TLError *error)
+    {
+        for (TGModernSendCommonMessageActor *actor in actors)
+        {
+            if (error == nil)
+            {
+                [actor conversationSendMessageRequestSuccess:message];
+            }
+            else
+            {
+                [actor conversationSendMessageRequestFailed:[[TGTelegramNetworking instance] extractNetworkErrorType:error]];
+            }
         }
     } progressBlock:nil requiresCompletion:true requestClass:TGRequestClassGeneric | TGRequestClassFailOnServerErrors];
 }

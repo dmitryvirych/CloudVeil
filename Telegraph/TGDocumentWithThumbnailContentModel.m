@@ -1,14 +1,13 @@
 #import "TGDocumentWithThumbnailContentModel.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGDocumentMediaAttachment+Telegraph.h"
 
 #import "TGModernLabelViewModel.h"
 #import "TGMessageImageViewModel.h"
-#import "TGStringUtils.h"
 
 #import "TGModernFlatteningViewModel.h"
-
-#import "TGFont.h"
 
 @interface TGDocumentWithThumbnailContentModel () {
     TGDocumentMediaAttachment *_document;
@@ -101,15 +100,15 @@
         }
         else if (document.size >= 1024 * 1024)
         {
-            sizeString = [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.Megabytes"), (float)(float)document.size / (1024 * 1024)];
+            sizeString = [[NSString alloc] initWithFormat:TGLocalized(@"Conversation.Megabytes"), (float)(float)document.size / (1024 * 1024)];
         }
         else if (document.size >= 1024)
         {
-            sizeString = [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.Kilobytes"), (int)(int)(document.size / 1024)];
+            sizeString = [[NSString alloc] initWithFormat:TGLocalized(@"Conversation.Kilobytes"), (int)(int)(document.size / 1024)];
         }
         else
         {
-            sizeString = [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.Bytes"), (int)(int)(document.size)];
+            sizeString = [[NSString alloc] initWithFormat:TGLocalized(@"Conversation.Bytes"), (int)(int)(document.size)];
         }
         
         _sizeText = sizeString;

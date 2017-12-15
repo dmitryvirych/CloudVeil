@@ -1,7 +1,6 @@
 #import "TGModernUnreadHeaderView.h"
 
-#import "TGImageUtils.h"
-#import "TGFont.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 @interface TGModernUnreadHeaderView ()
 {
@@ -18,7 +17,7 @@
 
 + (void)drawHeaderForContainerWidth:(CGFloat)containerWidth inContext:(CGContextRef)context andBindBackgroundToContainer:(UIView *)backgroundContainer atPosition:(CGPoint)position
 {
-    UIImageView *backgroundImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"ModernConversationUnreadSeparator.png"]];
+    UIImageView *backgroundImageView = [[UIImageView alloc] initWithImage:TGImageNamed(@"ModernConversationUnreadSeparator.png")];
     CGRect backgroundFrame = CGRectMake(0.0f, 3.0f, containerWidth, 25.0f);
     backgroundImageView.frame = CGRectOffset(backgroundFrame, position.x, position.y);
     [backgroundContainer addSubview:backgroundImageView];
@@ -33,7 +32,7 @@
         color = CGColorRetain(UIColorRGB(0x86868d).CGColor);
     });
     
-    NSString *text = TGLocalizedStatic(@"Conversation.UnreadMessages");
+    NSString *text = TGLocalized(@"Conversation.UnreadMessages");
     CGSize textSize = [text sizeWithFont:font];
     
     CGContextSetFillColorWithColor(context, color);
@@ -52,7 +51,7 @@
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^
         {
-            backgroundImage = [UIImage imageNamed:@"ModernConversationUnreadSeparator.png"];
+            backgroundImage = TGImageNamed(@"ModernConversationUnreadSeparator.png");
         });
         
         _backgroundView = [[UIImageView alloc] initWithImage:backgroundImage];

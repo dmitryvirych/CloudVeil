@@ -1,7 +1,44 @@
 #import "TGShareRecentPeersSignals.h"
 
-#import "TGPeerIdAdapter.h"
+#import "TGShareContext.h"
+#import "TGLegacyDatabase.h"
+#import "TGLegacyUser.h"
+
+static inline bool TGPeerIdIsGroup(int64_t peerId) {
+    return peerId < 0 && peerId > INT32_MIN;
+}
+
+static inline bool TGPeerIdIsChannel(int64_t peerId) {
+    return peerId <= ((int64_t)INT32_MIN) * 2 && peerId > ((int64_t)INT32_MIN) * 3;
+}
+
+static inline int32_t TGChannelIdFromPeerId(int64_t peerId) {
+    if (TGPeerIdIsChannel(peerId)) {
+        return (int32_t)(((int64_t)INT32_MIN) * 2 - peerId);
+    } else {
+        return 0;
+    }
+}
+
+static inline int64_t TGPeerIdFromChannelId(int32_t channelId) {
+    return ((int64_t)INT32_MIN) * 2 - ((int64_t)channelId);
+}
+
+static inline int64_t TGPeerIdFromGroupId(int32_t groupId) {
+    return -groupId;
+}
+
+static inline int32_t TGGroupIdFromPeerId(int64_t peerId) {
+    if (TGPeerIdIsGroup(peerId)) {
+        return (int32_t)-peerId;
+    } else {
+        return 0;
+    }
+}
+
+#import "TGUserModel.h"
 #import "TGChatModel.h"
+#import "TGPrivateChatModel.h"
 
 NSString *const TGRecentSearchDefaultsKey = @"Telegram_recentSearch_peers";
 const NSInteger TGRecentSearchLimit = 20;
@@ -82,51 +119,72 @@ const NSInteger TGRecentSearchLimit = 20;
     [[self userDefaults] synchronize];
 }
 
-+ (SSignal *)recentPeerResultsWithChats:(NSArray *)chats
++ (SSignal *)recentPeerResultsWithContext:(TGShareContext *)context cachedChats:(NSArray *)cachedChats
 {
-    return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber)
+    TGLegacyDatabase *database = context.legacyDatabase;
+    NSArray<TGLegacyUser *> *topUsers =  [database topUsers];
+    
+    NSMutableArray *topPeers = [[NSMutableArray alloc] init];
+    NSMutableArray *recentPeers = [[NSMutableArray alloc] init];
+
+    NSMutableDictionary *usersMapping = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *chatMapping = [[NSMutableDictionary alloc] init];
+
+    for (TGLegacyUser *user in topUsers)
     {
-        NSArray *array = [[self userDefaults] objectForKey:TGRecentSearchDefaultsKey];
-        NSMutableArray *peers = [[NSMutableArray alloc] init];
+        if (chatMapping[@(TGPeerIdPrivate)] == nil)
+            chatMapping[@(TGPeerIdPrivate)] = [[NSMutableDictionary alloc] init];
         
-        NSMutableDictionary *chatMapping = [[NSMutableDictionary alloc] init];
+        chatMapping[@(TGPeerIdPrivate)][@(user.userId)] = [[TGPrivateChatModel alloc] initWithUserId:user.userId];
         
-        for (TGChatModel *model in chats)
+        TGUserModel *userModel = [[TGUserModel alloc] initWithUserId:user.userId accessHash:user.accessHash firstName:user.firstName lastName:user.lastName avatarLocation:[[TGFileLocation alloc] initWithFileUrl:user.photoSmall]];
+        usersMapping[@(user.userId)] = userModel;
+        
+        [topPeers addObject:userModel];
+    }
+    
+    for (TGChatModel *model in cachedChats)
+    {
+        if (chatMapping[@(model.peerId.namespaceId)] == nil)
+            chatMapping[@(model.peerId.namespaceId)] = [[NSMutableDictionary alloc] init];
+
+        chatMapping[@(model.peerId.namespaceId)][@(model.peerId.peerId)] = model;
+    }
+    
+    NSArray *recentChatsIds = [[self userDefaults] objectForKey:TGRecentSearchDefaultsKey];
+    for (NSNumber *peerIdVal in recentChatsIds)
+    {
+        int64_t peerId = peerIdVal.integerValue;
+        if (TGPeerIdIsGroup(peerId))
         {
-            if (chatMapping[@(model.peerId.namespaceId)] == nil)
-                chatMapping[@(model.peerId.namespaceId)] = [[NSMutableDictionary alloc] init];
+            TGChatModel *chat = chatMapping[@(TGPeerIdGroup)][@(TGGroupIdFromPeerId(peerId))];
+            if (chat == nil)
+                chat = [database conversationWithIdSync:peerId];
             
-            chatMapping[@(model.peerId.namespaceId)][@(model.peerId.peerId)] = model;
+            if (chat != nil)
+                [recentPeers addObject:chat];
         }
-        
-        for (NSNumber *peerIdVal in array)
+        else if (TGPeerIdIsChannel(peerId))
         {
-            int64_t peerId = peerIdVal.integerValue;
-            if (TGPeerIdIsGroup(peerId))
-            {
-                TGChatModel *chat = chatMapping[@(TGPeerIdGroup)][@(TGGroupIdFromPeerId(peerId))];
-                if (chat != nil)
-                    [peers addObject:chat];
-            }
-            else if (TGPeerIdIsChannel(peerId))
-            {
-                TGChatModel *chat = chatMapping[@(TGPeerIdChannel)][@(TGChannelIdFromPeerId(peerId))];
-                if (chat != nil)
-                    [peers addObject:chat];
-            }
-            else
-            {
-                TGChatModel *chat = chatMapping[@(TGPeerIdPrivate)][@(peerId)];
-                if (chat != nil)
-                    [peers addObject:chat];
-            }
+            TGChatModel *chat = chatMapping[@(TGPeerIdChannel)][@(TGChannelIdFromPeerId(peerId))];
+            if (chat == nil)
+                chat = [database conversationWithIdSync:peerId];
+            
+            if (chat != nil)
+                [recentPeers addObject:chat];
         }
-        
-        [subscriber putNext:peers];
-        [subscriber putCompletion];
-        
-        return nil;
-    }];
+        else
+        {
+            TGChatModel *chat = chatMapping[@(TGPeerIdPrivate)][@(peerId)];
+            if (chat == nil)
+                chat = [database conversationWithIdSync:peerId];
+            
+            if (chat != nil)
+                [recentPeers addObject:chat];
+        }
+    }
+    
+    return [SSignal single:@{ @"top": topPeers, @"recent": recentPeers, @"users": usersMapping }];
 }
 
 @end

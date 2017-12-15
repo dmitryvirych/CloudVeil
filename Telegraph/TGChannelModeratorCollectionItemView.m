@@ -1,11 +1,8 @@
 #import "TGChannelModeratorCollectionItemView.h"
 
-#import "TGLetteredAvatarView.h"
-#import "TGImageUtils.h"
-#import "TGFont.h"
-#import "TGDateUtils.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGUser.h"
+#import <LegacyComponents/TGLetteredAvatarView.h>
 
 @interface TGChannelModeratorCollectionItemView () {
     TGLetteredAvatarView *_avatarView;
@@ -21,7 +18,7 @@
     self = [super initWithFrame:frame];
     if (self != nil) {
         _avatarView = [[TGLetteredAvatarView alloc] initWithFrame:CGRectMake(15.0f, 10.0f, 66.0f, 66.0f)];
-        [_avatarView setSingleFontSize:14.0f doubleFontSize:14.0f useBoldFont:false];
+        [_avatarView setSingleFontSize:28.0f doubleFontSize:28.0f useBoldFont:false];
         [self.contentView addSubview:_avatarView];
         
         _nameLabel = [[UILabel alloc] init];
@@ -44,7 +41,7 @@
     {
         if (active != NULL)
             *active = true;
-        return TGLocalizedStatic(@"Presence.online");
+        return TGLocalized(@"Presence.online");
     }
     else if (presence.lastSeen != 0)
         return [TGDateUtils stringForRelativeLastSeen:presence.lastSeen];
@@ -57,6 +54,9 @@
 
     bool active = false;
     NSString *status = [self _statusStringFromUserPresence:user.presence active:&active];
+    if (user.kind == TGUserKindBot || user.kind == TGUserKindSmartBot) {
+        status = TGLocalized(@"Bot.GenericBotStatus");
+    }
     
     _statusLabel.text = status;
     if (active) {
@@ -97,14 +97,16 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     
-    CGFloat maxWidth = self.bounds.size.width - 92.0f - 18.0f;
+    _avatarView.frame = CGRectMake(15.0f + self.safeAreaInset.left, 10.0f, 66.0f, 66.0f);
+    
+    CGFloat maxWidth = self.bounds.size.width - 92.0f - 18.0f - self.safeAreaInset.left - self.safeAreaInset.right;
     CGSize nameSize = [_nameLabel sizeThatFits:CGSizeMake(maxWidth, CGFLOAT_MAX)];
     nameSize.width = MIN(maxWidth, nameSize.width);
     CGSize statusSize = [_statusLabel sizeThatFits:CGSizeMake(maxWidth, CGFLOAT_MAX)];
     statusSize.width = MIN(maxWidth, statusSize.width);
     
-    _nameLabel.frame = CGRectMake(92.0f, 21.0f, nameSize.width, nameSize.height);
-    _statusLabel.frame = CGRectMake(92.0f, 47.0f, statusSize.width, statusSize.height);
+    _nameLabel.frame = CGRectMake(92.0f + self.safeAreaInset.left, 21.0f, nameSize.width, nameSize.height);
+    _statusLabel.frame = CGRectMake(92.0f + self.safeAreaInset.left, 47.0f, statusSize.width, statusSize.height);
 }
 
 @end

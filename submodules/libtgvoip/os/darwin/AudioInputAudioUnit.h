@@ -10,24 +10,28 @@
 #include <AudioUnit/AudioUnit.h>
 #include "../../audio/AudioInput.h"
 
-class CAudioUnitIO;
+namespace tgvoip{ namespace audio{
+class AudioUnitIO;
 
-class CAudioInputAudioUnit : public CAudioInput{
+class AudioInputAudioUnit : public AudioInput{
 
 public:
-	CAudioInputAudioUnit(CAudioUnitIO* io);
-	virtual ~CAudioInputAudioUnit();
+	AudioInputAudioUnit(std::string deviceID);
+	virtual ~AudioInputAudioUnit();
 	virtual void Configure(uint32_t sampleRate, uint32_t bitsPerSample, uint32_t channels);
 	virtual void Start();
 	virtual void Stop();
 	void HandleBufferCallback(AudioBufferList* ioData);
+#if TARGET_OS_OSX
+	virtual void SetCurrentDevice(std::string deviceID);
+#endif
 
 private:
 	unsigned char remainingData[10240];
 	size_t remainingDataSize;
 	bool isRecording;
-	CAudioUnitIO* io;
+	AudioUnitIO* io;
 };
-
+}}
 
 #endif //LIBTGVOIP_AUDIOINPUTAUDIOUNIT_H

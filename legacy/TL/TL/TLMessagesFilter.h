@@ -65,3 +65,33 @@
 
 @end
 
+@interface TLMessagesFilter$inputMessagesFilterRoundVideo : TLMessagesFilter
+
+
+@end
+
+@interface TLMessagesFilter$inputMessagesFilterRoundVoice : TLMessagesFilter
+
+
+@end
+
+@interface TLMessagesFilter$inputMessagesFilterMyMentions : TLMessagesFilter
+
+
+@end
+
+@interface TLMessagesFilter$inputMessagesFilterMyMentionsUnread : TLMessagesFilter
+
+
+@end
+
+@interface TLMessagesFilter$inputMessagesFilterGeo : TLMessagesFilter
+
+
+@end
+
+@interface TLMessagesFilter$inputMessagesFilterContacts : TLMessagesFilter
+
+
+@end
+

@@ -1,16 +1,15 @@
 #import "TGModernConversationTitleView.h"
 
-#import "TGFont.h"
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
-#import "TGAnimationBlockDelegate.h"
-#import "TGTimerTarget.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/TGTimerTarget.h>
 
 #import "TGModernConversationTitleIcon.h"
-#import "TGModernConversationTitleActivityIndicator.h"
+#import <LegacyComponents/TGModernConversationTitleActivityIndicator.h>
 
-#import "TGViewController.h"
 #import "TGAppDelegate.h"
+
+#import "TGPresentation.h"
 
 const NSTimeInterval typingIntervalFirst = 0.16;
 const NSTimeInterval typingIntervalSecond = 0.14;
@@ -48,6 +47,10 @@ const NSTimeInterval typingIntervalSecond = 0.14;
     
     bool _showUnreadCount;
     bool _disableUnreadCount;
+    
+    bool _showStatus;
+    
+    UIImageView *_arrowView;
 }
 
 @end
@@ -61,12 +64,42 @@ const NSTimeInterval typingIntervalSecond = 0.14;
     {
         [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGesture:)]];
         _showUnreadCount = true;
+        _showStatus = true;
     }
     return self;
 }
 
+- (void)setPresentation:(TGPresentation *)presentation
+{
+    _presentation = presentation;
+    
+    _titleLabel.textColor = _presentation.pallete.navigationTitleColor;
+    
+    if (_typingStatus == nil)
+        _statusLabel.textColor = _statusHasAccentColor ? _presentation.pallete.navigationActiveSubtitleColor : _presentation.pallete.navigationSubtitleColor;
+    else
+        _statusLabel.textColor = _presentation.pallete.navigationActiveSubtitleColor;
+    
+    _toggleLabel.textColor = _presentation.pallete.navigationSubtitleColor;
+    
+    _unreadBackground.image = _presentation.images.chatNavBadgeImage;
+}
+
 - (void)_updateLabelsForCurrentOrientation
 {
+}
+
+- (bool)translatesAutoresizingMaskIntoConstraints
+{
+    if (iosMajorVersion() >= 11)
+        return false;
+    
+    return [super translatesAutoresizingMaskIntoConstraints];
+}
+
+- (CGSize)intrinsicContentSize
+{
+    return CGSizeMake(1, 1);
 }
 
 - (UILabel *)titleLabel
@@ -75,8 +108,8 @@ const NSTimeInterval typingIntervalSecond = 0.14;
     {
         _titleLabel = [[UILabel alloc] init];
         _titleLabel.backgroundColor = [UIColor clearColor];
-        _titleLabel.textColor = [UIColor blackColor];
-        _titleLabel.font = TGMediumSystemFontOfSize(17.0f);
+        _titleLabel.textColor = _presentation.pallete.navigationTitleColor;
+        _titleLabel.font = TGBoldSystemFontOfSize(17.0f);
         [self addSubview:_titleLabel];
     }
     
@@ -87,9 +120,11 @@ const NSTimeInterval typingIntervalSecond = 0.14;
 {
     if (_statusLabel == nil)
     {
+        _titleLabel.font = TGMediumSystemFontOfSize(17.0f);
+        
         _statusLabel = [[UILabel alloc] init];
         _statusLabel.backgroundColor = [UIColor clearColor];
-        _statusLabel.textColor = UIColorRGB(0x787878);
+        _statusLabel.textColor = _presentation.pallete.navigationSubtitleColor;
         _statusLabel.font = TGSystemFontOfSize(13.0f);
         [self addSubview:_statusLabel];
     }
@@ -101,7 +136,7 @@ const NSTimeInterval typingIntervalSecond = 0.14;
     if (_toggleLabel == nil) {
         _toggleLabel = [[UILabel alloc] init];
         _toggleLabel.backgroundColor = [UIColor clearColor];
-        _toggleLabel.textColor = UIColorRGB(0x787878);
+        _toggleLabel.textColor = _presentation.pallete.navigationSubtitleColor;
         _toggleLabel.font = TGSystemFontOfSize(13.0f);
         [self addSubview:_toggleLabel];
     }
@@ -152,6 +187,17 @@ const NSTimeInterval typingIntervalSecond = 0.14;
     [self _setStatus:attributedStatus animated:animated];
 }
 
+- (void)setShowStatus:(bool)showStatus showArrow:(bool)showArrow {
+    _showStatus = showStatus;
+    _statusLabel.hidden = !showStatus;
+    if (!_showStatus && showArrow) {
+        if (_arrowView == nil) {
+            _arrowView = [[UIImageView alloc] initWithImage:TGImageNamed(@"TooltipArrow.png")];
+            [self addSubview:_arrowView];
+        }
+    }
+}
+
 - (void)_setStatus:(id)status animated:(bool)animated
 {
     if (!TGObjectCompare(status, _status))
@@ -180,7 +226,7 @@ const NSTimeInterval typingIntervalSecond = 0.14;
         _statusHasAccentColor = statusHasAccentColor;
         
         if (_typingStatus == nil)
-            _statusLabel.textColor = _statusHasAccentColor ? UIColorRGB(0x007bff) : UIColorRGB(0x86868d);
+            _statusLabel.textColor = _statusHasAccentColor ? _presentation.pallete.navigationActiveSubtitleColor : _presentation.pallete.navigationSubtitleColor;
     }
 }
 
@@ -193,13 +239,9 @@ const NSTimeInterval typingIntervalSecond = 0.14;
                 break;
             }
             case TGModernConversationControllerTitleToggleShowDiscussion: {
-                self.toggleIcon.image = [UIImage imageNamed:@"ConversationTitleSwitchOff.png"];
-                self.toggleLabel.text = TGLocalized(@"Channel.TitleShowDiscussion");
                 break;
             }
             case TGModernConversationControllerTitleToggleHideDiscussion: {
-                self.toggleIcon.image = [UIImage imageNamed:@"ConversationTitleSwitchOn.png"];
-                self.toggleLabel.text = TGLocalized(@"Channel.TitleShowDiscussion");
                 break;
             }
         }
@@ -241,12 +283,12 @@ const NSTimeInterval typingIntervalSecond = 0.14;
         if (typingStatus == nil)
         {
             [self statusLabel].attributedText = [[NSAttributedString alloc] initWithString:_status];
-            _statusLabel.textColor = _statusHasAccentColor ? UIColorRGB(0x007bff) : UIColorRGB(0x86868d);
+            _statusLabel.textColor = _statusHasAccentColor ? _presentation.pallete.navigationActiveSubtitleColor : _presentation.pallete.navigationSubtitleColor;
         }
         else
         {
             [self statusLabel].attributedText = [[NSAttributedString alloc] initWithString:typingStatus];
-            _statusLabel.textColor = UIColorRGB(0x007bff);
+            _statusLabel.textColor = _presentation.pallete.navigationActiveSubtitleColor;
         }
         
         if (typingStatus == nil)
@@ -286,6 +328,9 @@ const NSTimeInterval typingIntervalSecond = 0.14;
             {
                 case TGModernConversationTitleViewActivityAudioRecording:
                     [_activityIndicator setAudioRecording];
+                    break;
+                case TGModernConversationTitleViewActivityVideoMessageRecording:
+                    [_activityIndicator setVideoRecording];
                     break;
                 case TGModernConversationTitleViewActivityUploading:
                     [_activityIndicator setUploading];
@@ -432,18 +477,6 @@ static UIView *findNavigationBar(UIView *view)
         {
             if (_unreadContainer == nil)
             {
-                static UIImage *backgroundImage = nil;
-                static dispatch_once_t onceToken;
-                dispatch_once(&onceToken, ^
-                {
-                    UIGraphicsBeginImageContextWithOptions(CGSizeMake(17.0f, 17.0f), false, 0.0f);
-                    CGContextRef context = UIGraphicsGetCurrentContext();
-                    CGContextSetFillColorWithColor(context, UIColorRGB(0xff3b30).CGColor);
-                    CGContextFillEllipseInRect(context, CGRectMake(0.0f, 0.0f, 17.0f, 17.0f));
-                    backgroundImage = [UIGraphicsGetImageFromCurrentImageContext() stretchableImageWithLeftCapWidth:8 topCapHeight:8];
-                    UIGraphicsEndImageContext();
-                });
-                
                 _unreadContainer = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 10.0f, 10.0f)];
                 if (iosMajorVersion() >= 9 && TGAppDelegateInstance.rootController.isRTL) {
                     _unreadContainer.frame = CGRectMake(findNavigationBar(self.superview).frame.size.width - 10.0f, 0.0f, 10.0f, 10.0f);
@@ -454,15 +487,13 @@ static UIView *findNavigationBar(UIView *view)
                 if (self.superview != nil)
                     [findNavigationBar(self.superview) addSubview:_unreadContainer];
                 
-                _unreadBackground = [[UIImageView alloc] initWithImage:backgroundImage];
+                _unreadBackground = [[UIImageView alloc] initWithImage:_presentation.images.chatNavBadgeImage];
                 [_unreadContainer addSubview:_unreadBackground];
                 
                 _unreadLabel = [[UILabel alloc] init];
                 _unreadLabel.backgroundColor = [UIColor clearColor];
                 _unreadLabel.textColor = [UIColor whiteColor];
                 _unreadLabel.font = TGSystemFontOfSize(12.0f);
-                if ([TGViewController useExperimentalRTL])
-                    _unreadLabel.transform = CGAffineTransformMakeScale(-1.0f, 1.0f);
                 [_unreadContainer addSubview:_unreadLabel];
                 
                 _unreadBackground.alpha = _editingMode ? 0.0f : 1.0f;
@@ -475,14 +506,16 @@ static UIView *findNavigationBar(UIView *view)
             [_unreadLabel sizeToFit];
             
             CGPoint offset = CGPointMake(14.0f, UIInterfaceOrientationIsPortrait(_orientation) ? 2.0f : 0.0f);
+            offset.x += [TGViewController safeAreaInsetForOrientation:_orientation].left - 1.0f;
+            offset.y -= 1.0f;
             
-            _unreadBackground.frame = CGRectMake(offset.x, offset.y, MAX(_unreadLabel.frame.size.width + 8.0f, 17.0f), 17.0f);
+            _unreadBackground.frame = CGRectMake(offset.x, offset.y, MAX(_unreadLabel.frame.size.width + 10.0f, 19.0f), 19.0f);
             if (TGAppDelegateInstance.rootController.isRTL) {
                 CGRect frame = _unreadBackground.frame;
-                frame.origin.x = 10.0f - _unreadBackground.frame.size.width;
+                frame.origin.x = 10.0f - _unreadBackground.frame.size.width - [TGViewController safeAreaInsetForOrientation:_orientation].right;
                 _unreadBackground.frame = frame;
             }
-            _unreadLabel.frame = CGRectMake(_unreadBackground.frame.origin.x + TGRetinaFloor((_unreadBackground.frame.size.width - _unreadLabel.frame.size.width) / 2.0f), offset.y + 1.0f + (TGIsLocaleArabic() ? 1.0f : 0.0f), _unreadLabel.frame.size.width, _unreadLabel.frame.size.height);
+            _unreadLabel.frame = CGRectMake(_unreadBackground.frame.origin.x + TGRetinaFloor((_unreadBackground.frame.size.width - _unreadLabel.frame.size.width) / 2.0f), offset.y + 1.0f + (TGIsLocaleArabic() ? 1.0f : 0.0f) + 1.0f, _unreadLabel.frame.size.width, _unreadLabel.frame.size.height);
         }
         else if (_unreadContainer != nil)
         {
@@ -513,7 +546,7 @@ static UIView *findNavigationBar(UIView *view)
 {
     [super didMoveToSuperview];
     
-    if (_unreadContainer != nil && self.superview != nil)
+    if (_unreadContainer != nil && self.superview != nil && !_disableUnreadCount)
     {
         if (iosMajorVersion() >= 9 && TGAppDelegateInstance.rootController.isRTL) {
             _unreadContainer.frame = CGRectMake(findNavigationBar(self.superview).frame.size.width - 20.0f, 0.0f, 10.0f, 10.0f);
@@ -577,15 +610,18 @@ static UIView *findNavigationBar(UIView *view)
         if (_unreadContainer != nil)
         {
             CGPoint offset = CGPointMake(14.0f, UIInterfaceOrientationIsPortrait(_orientation) ? 2.0f : 0.0f);
+            offset.x += [TGViewController safeAreaInsetForOrientation:_orientation].left - 1.0f;
+            offset.y -= 1.0f;
             
             CGRect unreadBackgroundFrame = _unreadBackground.frame;
+            unreadBackgroundFrame.origin.x = offset.x;
             unreadBackgroundFrame.origin.y = offset.y;
             if (TGAppDelegateInstance.rootController.isRTL) {
-                unreadBackgroundFrame.origin.x = 10.0f - unreadBackgroundFrame.size.width;
+                unreadBackgroundFrame.origin.x = 10.0f - unreadBackgroundFrame.size.width - [TGViewController safeAreaInsetForOrientation:_orientation].right;
             }
             _unreadBackground.frame = unreadBackgroundFrame;
             
-            _unreadLabel.frame = CGRectMake(_unreadBackground.frame.origin.x + TGRetinaFloor((_unreadBackground.frame.size.width - _unreadLabel.frame.size.width) / 2.0f), offset.y + 1.0f + (TGIsLocaleArabic() ? 1.0f : 0.0f), _unreadLabel.frame.size.width, _unreadLabel.frame.size.height);
+            _unreadLabel.frame = CGRectMake(_unreadBackground.frame.origin.x + TGRetinaFloor((_unreadBackground.frame.size.width - _unreadLabel.frame.size.width) / 2.0f), offset.y + 1.0f + (TGIsLocaleArabic() ? 1.0f : 0.0f) + 1.0f, _unreadLabel.frame.size.width, _unreadLabel.frame.size.height);
         }
     }
 }
@@ -660,6 +696,11 @@ static UIView *findNavigationBar(UIView *view)
             titlePortraitOffset = -1.0f - TGRetinaPixel;
             statusPortraitOffset = -TGRetinaPixel;
         }
+        else if (iosMajorVersion() >= 11)
+        {
+            titleLandscapeOffset = 1.0f;
+            statusLandscapeOffset = 1.0f;
+        }
     }
     else
     {
@@ -676,7 +717,7 @@ static UIView *findNavigationBar(UIView *view)
     
     CGRect bounds = self.bounds;
     
-    if (_titleLabel != nil && _statusLabel != nil)
+    if (_titleLabel != nil)
     {
         CGFloat portraitScreenWidth = [TGViewController screenSizeForInterfaceOrientation:UIInterfaceOrientationPortrait].width - 12.0f;
         CGFloat landscapeScreenWidth = [TGViewController screenSizeForInterfaceOrientation:UIInterfaceOrientationLandscapeLeft].width;
@@ -738,14 +779,10 @@ static UIView *findNavigationBar(UIView *view)
             if (titleHorizontalAdjustment < statusHorizontalAdjustment)
                 titleHorizontalAdjustment = MIN(titleHorizontalAdjustment + 10.0f, statusHorizontalAdjustment);
             
-            if ([TGViewController useExperimentalRTL])
-            {
-                titleHorizontalAdjustment = -titleHorizontalAdjustment;
-                statusHorizontalAdjustment = -statusHorizontalAdjustment;
-            }
-            
             CGPoint titleOrigin = CGPointMake(titleHorizontalAdjustment + CGFloor((bounds.size.width - titleTotalWidth) / 2.0f), -17.0f + titlePortraitOffset);
-            
+            if (!_showStatus) {
+                titleOrigin.y += 8.0f;
+            }
             
             for (TGModernConversationTitleIcon *icon in _icons)
             {
@@ -761,6 +798,13 @@ static UIView *findNavigationBar(UIView *view)
             
             _titleLabel.frame = CGRectMake(titleOrigin.x + titleHorizontalOffset, titleOrigin.y, titleLabelSize.width, titleLabelSize.height);
             _statusLabel.frame = CGRectMake(statusHorizontalAdjustment + (_typingStatus == nil ? 0.0f : 10.0f) + CGFloor((bounds.size.width - statusLabelSize.width) / 2.0f), 2.0f + statusPortraitOffset, statusLabelSize.width, statusLabelSize.height);
+            
+            if (_arrowView != nil) {
+                CGSize arrowSize = _arrowView.image.size;
+                arrowSize.width *= 0.6f;
+                arrowSize.height *= 0.6f;
+                _arrowView.frame = CGRectMake(CGRectGetMaxX(_titleLabel.frame) + 3.0f, CGRectGetMinY(_titleLabel.frame) + 8.0f, arrowSize.width, arrowSize.height);
+            }
             
             if (_toggleIcon != nil) {
                 CGSize toggleIconSize = _toggleIcon.bounds.size;

@@ -1,11 +1,9 @@
 #import "TGStickerWebpageFooterModel.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGMessageImageViewModel.h"
 
-#import "TGWebPageMediaAttachment.h"
-#import "TGDocumentMediaAttachment.h"
-#import "TGStringUtils.h"
-#import "TGImageUtils.h"
 #import "TGTelegraphConversationMessageAssetsSource.h"
 #import "TGMessageImageView.h"
 
@@ -97,7 +95,7 @@
     _imageModel.parentOffset = itemPosition;
 }
 
-- (CGSize)contentSizeForContainerSize:(CGSize)__unused containerSize contentSize:(CGSize)__unused topContentSize infoWidth:(CGFloat)infoWidth needsContentsUpdate:(bool *)__unused needsContentsUpdate
+- (CGSize)contentSizeForContainerSize:(CGSize)__unused containerSize contentSize:(CGSize)__unused topContentSize infoWidth:(CGFloat)__unused infoWidth needsContentsUpdate:(bool *)__unused needsContentsUpdate
 {
     CGSize size = _imageModel.frame.size;
     size.width += 4.0f;

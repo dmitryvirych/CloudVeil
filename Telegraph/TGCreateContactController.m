@@ -1,16 +1,8 @@
-/*
- * This is the source code of Telegram for iOS v. 1.1
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Peter Iakovlev, 2013.
- */
-
 #import "TGCreateContactController.h"
 
-#import "ActionStage.h"
-#import "TGPhoneUtils.h"
-#import "TGStringUtils.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/ActionStage.h>
 
 #import "TGDatabase.h"
 
@@ -18,7 +10,6 @@
 #import "TGUserInfoEditingPhoneCollectionItem.h"
 #import "TGUserInfoAddPhoneCollectionItem.h"
 
-#import "TGNavigationController.h"
 #import "TGPhoneLabelPickerController.h"
 
 #import "TGSynchronizeContactsActor.h"
@@ -103,6 +94,10 @@
         _user.firstName = firstName;
         _user.lastName = lastName;
         _user.phoneNumber = phoneNumber;
+        
+        firstName = [firstName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        if (firstName.length == 0 && phoneNumber.length > 0)
+            _activateNameEditingOnReset = true;
         
         [self.userInfoItem setUser:_user animated:false];
         self.navigationItem.rightBarButtonItem.enabled = firstName.length != 0 || lastName.length != 0;
@@ -248,6 +243,13 @@
         }
     }
     return self;
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    [self.view endEditing:true];
 }
 
 - (void)_commonInit:(bool)isModal
@@ -420,7 +422,7 @@
             {
                 self.view.userInteractionEnabled = true;
                 
-                [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Profile.PhonebookAccessDisabled") delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil] show];
+                [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Contacts.AccessDeniedError") delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil] show];
             });
         }
         else

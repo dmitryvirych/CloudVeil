@@ -1,18 +1,23 @@
 #import "TGSecretPeerMediaGalleryModel.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGDatabase.h"
 #import "TGTelegraph.h"
-#import "TGStringUtils.h"
 
 #import "TGSecretPeerMediaGalleryImageItem.h"
 #import "TGSecretPeerMediaGalleryVideoItem.h"
 
-#import "ActionStage.h"
-#import "SGraphObjectNode.h"
+#import <LegacyComponents/ActionStage.h>
+#import <LegacyComponents/SGraphObjectNode.h>
 
-#import "TGObserverProxy.h"
+#import <LegacyComponents/TGObserverProxy.h>
 
 #import "TGModernSendSecretMessageActor.h"
+
+#import "TGGenericPeerMediaGalleryDefaultFooterView.h"
 
 @interface TGSecretPeerMediaGalleryModel () <ASWatcher>
 {
@@ -20,6 +25,7 @@
     int32_t _messageId;
     
     TGObserverProxy *_screenshotObserver;
+    NSString *_footerMessage;
 }
 
 @property (nonatomic, strong) ASHandle *actionHandle;
@@ -59,6 +65,7 @@
                 [ActionStageInstance() requestActor:@"/tg/service/synchronizeserviceactions/(settings)" options:nil watcher:TGTelegraphInstance];
             }
             
+            bool isVideo = false;
             for (id attachment in message.mediaAttachments)
             {
                 if ([attachment isKindOfClass:[TGImageMediaAttachment class]])
@@ -72,8 +79,9 @@
                         localImageId = murMurHash32(legacyCacheUrl);
                     
                     TGSecretPeerMediaGalleryImageItem *imageItem = [[TGSecretPeerMediaGalleryImageItem alloc] initWithImageId:imageMedia.imageId orLocalId:localImageId peerId:_peerId messageId:message.mid legacyImageInfo:imageMedia.imageInfo messageCountdownTime:messageCountdownTime messageLifetime:message.messageLifetime];
-                    //imageItem.author = [TGDatabaseInstance() loadUser:(int32_t)message.fromUid];
-                    //imageItem.date = message.date;
+                    imageItem.author = [TGDatabaseInstance() loadUser:(int32_t)message.fromUid];
+                    imageItem.peer = [TGDatabaseInstance() loadUser:(int32_t)message.toUid];
+                    imageItem.date = message.date;
                     
                     item = imageItem;
                     break;
@@ -81,11 +89,16 @@
                 else if ([attachment isKindOfClass:[TGVideoMediaAttachment class]])
                 {
                     TGVideoMediaAttachment *videoMedia = attachment;
+                    if (videoMedia.roundMessage)
+                        continue;
+                    
                     TGSecretPeerMediaGalleryVideoItem *videoItem = [[TGSecretPeerMediaGalleryVideoItem alloc] initWithVideoMedia:videoMedia peerId:_peerId messageId:message.mid messageCountdownTime:messageCountdownTime messageLifetime:message.messageLifetime];
-                    //videoItem.author = [TGDatabaseInstance() loadUser:(int32_t)message.fromUid];
-                    //videoItem.date = message.date;
+                    videoItem.author = [TGDatabaseInstance() loadUser:(int32_t)message.fromUid];
+                    videoItem.peer = [TGDatabaseInstance() loadUser:(int32_t)message.toUid];
+                    videoItem.date = message.date;
                     
                     item = videoItem;
+                    isVideo = true;
                     break;
                 }
             }
@@ -95,6 +108,7 @@
         }
         
         [ActionStageInstance() watchForPath:[NSString stringWithFormat:@"/tg/conversation/(%lld)/messagesDeleted", _peerId] watcher:self];
+        [ActionStageInstance() watchForPath:[NSString stringWithFormat:@"/messagesEditedInConversation/(%lld)", _peerId] watcher:self];
     }
     return self;
 }
@@ -116,8 +130,23 @@
                 TGDispatchOnMainThread(^
                 {
                     if (self.dismissWhenReady)
-                        self.dismissWhenReady();
+                        self.dismissWhenReady(true);
                 });
+                break;
+            }
+        }
+    } else if ([path isEqualToString:[NSString stringWithFormat:@"/messagesEditedInConversation/(%lld)", _peerId]]) {
+        for (TGMessage *message in resource) {
+            if (message.mid == _messageId)
+            {
+                TGDispatchOnMainThread(^
+                {
+                    if ([message hasExpiredMedia]) {
+                        if (self.dismissWhenReady)
+                            self.dismissWhenReady(true);
+                    }
+                });
+                break;
             }
         }
     }
@@ -134,25 +163,31 @@
             TGMessage *message = [TGDatabaseInstance() loadMessageWithMid:_messageId peerId:_peerId];
             if (message != nil && !message.outgoing)
             {
-                [ActionStageInstance() dispatchResource:[[NSString alloc] initWithFormat:@"/tg/conversation/(%" PRId64 ")/messageFlagChanges", message.cid] resource:@{@(_messageId): @(messageFlags)}];
-                
-                int64_t encryptedConversationId = [TGDatabaseInstance() encryptedConversationIdForPeerId:message.cid];
-                int64_t randomId = [TGDatabaseInstance() randomIdForMessageId:_messageId];
-                int64_t actionRandomId = 0;
-                arc4random_buf(&actionRandomId, 8);
-                
-                if (encryptedConversationId != 0 && randomId != 0)
-                {
-                    int64_t peerId = [TGDatabaseInstance() peerIdForEncryptedConversationId:encryptedConversationId createIfNecessary:false];
+                if (TGPeerIdIsSecretChat(_peerId)) {
+                    [ActionStageInstance() dispatchResource:[[NSString alloc] initWithFormat:@"/tg/conversation/(%" PRId64 ")/messageFlagChanges", message.cid] resource:@{@(_messageId): @(messageFlags)}];
                     
-                    NSUInteger peerLayer = [TGDatabaseInstance() peerLayer:peerId];
+                    int64_t encryptedConversationId = [TGDatabaseInstance() encryptedConversationIdForPeerId:message.cid];
+                    int64_t randomId = [TGDatabaseInstance() randomIdForMessageId:_messageId];
+                    int64_t actionRandomId = 0;
+                    arc4random_buf(&actionRandomId, 8);
                     
-                    NSData *messageData = [TGModernSendSecretMessageActor decryptedServiceMessageActionWithLayer:MIN(peerLayer, [TGModernSendSecretMessageActor currentLayer]) screenshotMessagesWithRandomIds:@[@(message.randomId)] randomId:actionRandomId];
-                    
-                    if (messageData != nil)
+                    if (encryptedConversationId != 0 && randomId != 0)
                     {
-                        [TGModernSendSecretMessageActor enqueueOutgoingServiceMessageForPeerId:peerId layer:MIN(peerLayer, [TGModernSendSecretMessageActor currentLayer]) keyId:0 randomId:actionRandomId messageData:messageData];
+                        int64_t peerId = [TGDatabaseInstance() peerIdForEncryptedConversationId:encryptedConversationId createIfNecessary:false];
+                        
+                        NSUInteger peerLayer = [TGDatabaseInstance() peerLayer:peerId];
+                        
+                        NSData *messageData = [TGModernSendSecretMessageActor decryptedServiceMessageActionWithLayer:MIN(peerLayer, [TGModernSendSecretMessageActor currentLayer]) screenshotMessagesWithRandomIds:@[@(message.randomId)] randomId:actionRandomId];
+                        
+                        if (messageData != nil)
+                        {
+                            [TGModernSendSecretMessageActor enqueueOutgoingServiceMessageForPeerId:peerId layer:MIN(peerLayer, [TGModernSendSecretMessageActor currentLayer]) keyId:0 randomId:actionRandomId messageData:messageData];
+                        }
                     }
+                } else {
+                    TGDatabaseAction action = { .type = TGDatabaseActionScreenshotMessage, .subject = _peerId, .arg0 = _messageId, .arg1 = 0};
+                    [TGDatabaseInstance() storeQueuedActions:[NSArray arrayWithObject:[[NSValue alloc] initWithBytes:&action objCType:@encode(TGDatabaseAction)]]];
+                    [ActionStageInstance() requestActor:@"/tg/service/synchronizeactionqueue/(global)" options:nil watcher:TGTelegraphInstance];
                 }
             }
         }

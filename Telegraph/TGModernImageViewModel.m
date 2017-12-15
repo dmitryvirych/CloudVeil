@@ -2,6 +2,12 @@
 
 #import "TGModernImageView.h"
 
+@interface TGModernImageViewModel ()
+{
+    bool _accountForTransform;
+}
+@end
+
 @implementation TGModernImageViewModel
 
 - (instancetype)initWithImage:(UIImage *)image
@@ -12,6 +18,14 @@
         _image = image;
     }
     return self;
+}
+
+- (void)setAccountForTransform:(bool)accountForTransform
+{
+    _accountForTransform = accountForTransform;
+    TGModernImageView *view = (TGModernImageView *)[self boundView];
+    if (view != nil)
+        [view setAccountForTransform:_accountForTransform];
 }
 
 - (Class)viewClass
@@ -34,7 +48,18 @@
     if (!TGStringCompare(view.viewStateIdentifier, self.viewStateIdentifier))
         view.image = _image;
     
+    if (iosMajorVersion() >= 11)
+        view.accessibilityIgnoresInvertColors = _ignoresInvertColors;
+    
     view.extendedEdges = _extendedEdges;
+    [view setAccountForTransform:_accountForTransform];
+}
+
+- (void)setIgnoresInvertColors:(bool)ignoresInvertColors
+{
+    _ignoresInvertColors = ignoresInvertColors;
+    if (iosMajorVersion() >= 11)
+        ((TGModernImageView *)self.boundView).accessibilityIgnoresInvertColors = _ignoresInvertColors;
 }
 
 - (void)drawInContext:(CGContextRef)context

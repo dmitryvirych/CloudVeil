@@ -15,12 +15,12 @@
 
 - (int)impliedResponseSignature
 {
-    return (int)0xad524315;
+    return (int)0x77d01c3b;
 }
 
 - (int)layerVersion
 {
-    return 8;
+    return 71;
 }
 
 - (int32_t)TLconstructorSignature
@@ -35,7 +35,7 @@
     return 0;
 }
 
-- (id<TLObject>)TLbuildFromMetaObject:(std::tr1::shared_ptr<TLMetaObject>)__unused metaObject
+- (id<TLObject>)TLbuildFromMetaObject:(std::shared_ptr<TLMetaObject>)__unused metaObject
 {
     TGLog(@"TLbuildFromMetaObject is not implemented for base type");
     return nil;
@@ -54,7 +54,7 @@
 
 - (int32_t)TLconstructorSignature
 {
-    return (int32_t)0xda30b32d;
+    return (int32_t)0x2c800be5;
 }
 
 - (int32_t)TLconstructorName
@@ -62,11 +62,10 @@
     return (int32_t)0x91f82313;
 }
 
-- (id<TLObject>)TLbuildFromMetaObject:(std::tr1::shared_ptr<TLMetaObject>)metaObject
+- (id<TLObject>)TLbuildFromMetaObject:(std::shared_ptr<TLMetaObject>)metaObject
 {
     TLRPCcontacts_importContacts$contacts_importContacts *object = [[TLRPCcontacts_importContacts$contacts_importContacts alloc] init];
     object.contacts = metaObject->getArray((int32_t)0x48dc7107);
-    object.replace = metaObject->getBool((int32_t)0x2b90b095);
     return object;
 }
 
@@ -77,12 +76,6 @@
         value.type = TLConstructedValueTypeVector;
         value.nativeObject = self.contacts;
         values->insert(std::pair<int32_t, TLConstructedValue>((int32_t)0x48dc7107, value));
-    }
-    {
-        TLConstructedValue value;
-        value.type = TLConstructedValueTypePrimitiveBool;
-        value.primitive.boolValue = self.replace;
-        values->insert(std::pair<int32_t, TLConstructedValue>((int32_t)0x2b90b095, value));
     }
 }
 

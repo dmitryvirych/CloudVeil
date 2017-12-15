@@ -19,7 +19,7 @@
     return 0;
 }
 
-- (id<TLObject>)TLbuildFromMetaObject:(std::tr1::shared_ptr<TLMetaObject>)__unused metaObject
+- (id<TLObject>)TLbuildFromMetaObject:(std::shared_ptr<TLMetaObject>)__unused metaObject
 {
     TGLog(@"TLbuildFromMetaObject is not implemented for base type");
     return nil;
@@ -46,7 +46,7 @@
     return (int32_t)0xb17cd3d8;
 }
 
-- (id<TLObject>)TLbuildFromMetaObject:(std::tr1::shared_ptr<TLMetaObject>)metaObject
+- (id<TLObject>)TLbuildFromMetaObject:(std::shared_ptr<TLMetaObject>)metaObject
 {
     TLchannels_ChannelParticipants$channels_channelParticipants *object = [[TLchannels_ChannelParticipants$channels_channelParticipants alloc] init];
     object.count = metaObject->getInt32((int32_t)0x5fa6aa74);
@@ -75,6 +75,32 @@
         value.nativeObject = self.users;
         values->insert(std::pair<int32_t, TLConstructedValue>((int32_t)0x933e5ff3, value));
     }
+}
+
+
+@end
+
+@implementation TLchannels_ChannelParticipants$channels_channelParticipantsNotModified : TLchannels_ChannelParticipants
+
+
+- (int32_t)TLconstructorSignature
+{
+    return (int32_t)0xf0173fe9;
+}
+
+- (int32_t)TLconstructorName
+{
+    return (int32_t)0xdf763428;
+}
+
+- (id<TLObject>)TLbuildFromMetaObject:(std::shared_ptr<TLMetaObject>)__unused metaObject
+{
+    TLchannels_ChannelParticipants$channels_channelParticipantsNotModified *object = [[TLchannels_ChannelParticipants$channels_channelParticipantsNotModified alloc] init];
+    return object;
+}
+
+- (void)TLfillFieldsWithValues:(std::map<int32_t, TLConstructedValue> *)__unused values
+{
 }
 
 

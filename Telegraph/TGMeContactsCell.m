@@ -1,12 +1,8 @@
 #import "TGMeContactsCell.h"
 
-#import "TGLetteredAvatarView.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGUser.h"
-
-#import "TGFont.h"
-
-#import "TGPhoneUtils.h"
+#import <LegacyComponents/TGLetteredAvatarView.h>
 
 @interface TGMeContactsCell () {
     TGLetteredAvatarView *_avatarView;
@@ -22,7 +18,7 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     if (self != nil) {
         _avatarView = [[TGLetteredAvatarView alloc] initWithFrame:CGRectMake(14.0f, 6.0f, 60.0f, 60.0f)];
-        [_avatarView setSingleFontSize:14.0f doubleFontSize:14.0f useBoldFont:false];
+        [_avatarView setSingleFontSize:24.0f doubleFontSize:24.0f useBoldFont:false];
         [self.contentView addSubview:_avatarView];
         
         _nameLabel = [[UILabel alloc] init];

@@ -8,6 +8,9 @@
 
 #import "TGModernConversationInputPanel.h"
 
+#import <SSignalKit/SSignalKit.h>
+#import <LegacyComponents/TGModernButton.h>
+
 @class HPGrowingTextView;
 @class TGModernConversationInputTextPanel;
 @class TGDocumentMediaAttachment;
@@ -16,6 +19,7 @@
 @class TGBotReplyMarkupButton;
 @class TGViewController;
 @class TGUser;
+@class TGModernConversationInputMicButton;
 
 @interface TGMessageEditingContext: NSObject <NSCoding>
 
@@ -48,15 +52,23 @@
 - (void)inputPanelMentionTextEntered:(TGModernConversationInputTextPanel *)inputTextPanel mention:(NSString *)mention text:(NSString *)text;
 - (void)inputPanelHashtagEntered:(TGModernConversationInputTextPanel *)inputTextPanel hashtag:(NSString *)hashtag;
 - (void)inputPanelCommandEntered:(TGModernConversationInputTextPanel *)inputTextPanel command:(NSString *)hashtag;
+- (void)inputPanelAlphacodeEntered:(TGModernConversationInputTextPanel *)inputTextPanel alphacode:(NSString *)alphacode;
 - (void)inputPanelLinkParsed:(TGModernConversationInputTextPanel *)inputTextPanel link:(NSString *)link probablyComplete:(bool)probablyComplete;
 - (bool)isInputPanelTextEnabled:(TGModernConversationInputTextPanel *)inputTextPanel;
 - (void)inputPanelFocused:(TGModernConversationInputTextPanel *)inputTextPanel;
 
+- (void)inputPanelExpandedKeyboard:(TGModernConversationInputTextPanel *)inputTextPanel expanded:(bool)expanded;
+
 - (bool)inputPanelAudioRecordingEnabled:(TGModernConversationInputTextPanel *)inputTextPanel;
-- (void)inputPanelAudioRecordingStart:(TGModernConversationInputTextPanel *)inputTextPanel completion:(void (^)())completion;
+- (void)inputPanelAudioRecordingStart:(TGModernConversationInputTextPanel *)inputTextPanel video:(bool)video completion:(void (^)())completion;
 - (void)inputPanelAudioRecordingCancel:(TGModernConversationInputTextPanel *)inputTextPanel;
 - (void)inputPanelAudioRecordingComplete:(TGModernConversationInputTextPanel *)inputTextPanel;
+- (void)inputPanelAudioButtonInteractionUpdate:(TGModernConversationInputTextPanel *)inputTextPanel value:(CGPoint)value;
 - (NSTimeInterval)inputPanelAudioRecordingDuration:(TGModernConversationInputTextPanel *)inputTextPanel;
+- (void)inputPanelRecordingModeChanged:(TGModernConversationInputTextPanel *)inputTextPanel video:(bool)video;
+- (void)inputPanelRecordingLocked:(TGModernConversationInputTextPanel *)inputTextPanel video:(bool)video;
+- (void)inputPanelRecordingRequestedLockedAction:(TGModernConversationInputTextPanel *)inputTextPanel;
+- (void)inputPanelRecordingStopped:(TGModernConversationInputTextPanel *)inputTextPanel;
 
 - (bool)inputPanelSendShouldBeAlwaysEnabled:(TGModernConversationInputTextPanel *)inputTextPanel;
 
@@ -75,6 +87,10 @@
 @property (nonatomic, strong) UIImageView *fieldBackground;
 @property (nonatomic, strong) UIButton *sendButton;
 @property (nonatomic, strong) UIButton *attachButton;
+@property (nonatomic, strong) TGModernConversationInputMicButton *micButton;
+@property (nonatomic, strong) UIButton *broadcastButton;
+
+@property (nonatomic, weak) UIScrollView *scrollView;
 
 @property (nonatomic, strong) UIView *inputFieldClippingContainer;
 @property (nonatomic, strong) HPGrowingTextView *inputField;
@@ -100,7 +116,23 @@
 @property (nonatomic) bool inputDisabled;
 @property (nonatomic) bool displayProgress;
 
+@property (nonatomic) bool keepInputPanel;
+
+@property (nonatomic) bool videoMessageAvailable;
+@property (nonatomic) bool videoMessage;
+
+@property (nonatomic, assign) bool ignoreNextMicButtonEvent;
+@property (nonatomic, assign) bool lockImmediately;
+@property (nonatomic, readonly) bool isLocked;
+
+@property (nonatomic, readonly) bool isCustomKeyboardExpanded;
+
 @property (nonatomic, strong) TGMessageEditingContext *messageEditingContext;
+
+@property (nonatomic, strong) SSignal *channelInfoSignal;
+
+@property (nonatomic, copy) bool (^canOpenStickersPanel)();
+@property (nonatomic, copy) bool (^canRecordMedia)();
 
 - (instancetype)initWithFrame:(CGRect)frame accessoryView:(UIView *)panelAccessoryView;
 
@@ -108,6 +140,8 @@
 
 - (void)audioRecordingStarted;
 - (void)audioRecordingFinished;
+- (void)recordingFinished;
+- (void)recordingStopped;
 
 - (void)shakeControls;
 
@@ -122,6 +156,7 @@
 
 - (CGRect)attachmentButtonFrame;
 - (CGRect)stickerButtonFrame;
+- (TGModernButton *)stickerButton;
 - (CGRect)micButtonFrame;
 - (CGRect)broadcastModeButtonFrame;
 
@@ -143,11 +178,30 @@
 + (void)replaceMention:(NSString *)mention inputField:(HPGrowingTextView *)inputField username:(bool)username userId:(int32_t)userId;
 + (void)replaceHashtag:(NSString *)hashtag inputField:(HPGrowingTextView *)inputField;
 
-- (void)adjustCustomKeyboardForWidth:(CGFloat)width;
-
 - (void)animateRecordingIn;
 - (void)addMicLevel:(CGFloat)level;
 
 - (void)setMessageEditingContext:(TGMessageEditingContext *)messageEditingContext animated:(bool)animated;
+
+- (void)resign;
+
+- (void)updateModeButtonVisibility:(bool)animated reset:(bool)reset;
+
+- (CGFloat)customKeyboardHeight;
+- (bool)isCustomKeyboardActive;
+- (void)setCustomKeyboardExpanded:(bool)expanded animated:(bool)animated;
+
+- (void)willDisappear;
+- (bool)isActive;
+
+- (void)prepareForResultPreviewAppearance:(bool)keepAssociatedPanel;
+- (void)prepareForResultPreviewDismissal:(bool)restoreFocus;
+- (bool)willRestoreFocus;
+
+- (void)setChannelInfoSignal:(SSignal *)signal;
+
+- (NSInteger)textCaretPosition;
+
+- (UIView *)keyboardSnapshotView;
 
 @end

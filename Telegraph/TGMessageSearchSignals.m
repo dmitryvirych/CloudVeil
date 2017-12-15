@@ -7,7 +7,9 @@
 #import "TGMessage+Telegraph.h"
 #import "TGUserDataRequestBuilder.h"
 
-#import "TGPeerIdAdapter.h"
+#import "TLRPCmessages_search.h"
+
+#import "TLRPCmessages_search.h"
 
 @implementation TGMessageSearchSignals
 
@@ -35,7 +37,8 @@
             return [[TLMessagesFilter$inputMessagesFilterChatPhotos alloc] init];
         case TGMessageSearchFilterPhoneCalls:
             return [[TLMessagesFilter$inputMessagesFilterPhoneCalls alloc] init];
-            
+        case TGMessageSearchFilterVoiceRound:
+            return [[TLMessagesFilter$inputMessagesFilterRoundVideo alloc] init];
     }
 }
 
@@ -63,6 +66,8 @@
             return TGSharedMediaCacheItemTypeNone;
         case TGMessageSearchFilterPhoneCalls:
             return TGSharedMediaCacheItemTypeNone;
+        case TGMessageSearchFilterVoiceRound:
+            return TGSharedMediaCacheItemTypeVoiceVideoMessage;
     }
 }
 
@@ -72,7 +77,7 @@
 
 + (SSignal *)searchPeer:(int64_t)peer accessHash:(int64_t)accessHash query:(NSString *)query filter:(TGMessageSearchFilter)filter maxMessageId:(int32_t)maxMessageId limit:(NSUInteger)limit around:(bool)around
 {
-    TLRPCmessages_search$messages_search *search = [[TLRPCmessages_search$messages_search alloc] init];
+    TLRPCmessages_search *search = [[TLRPCmessages_search alloc] init];
     search.peer = [TGTelegraphInstance createInputPeerForConversation:peer accessHash:accessHash];
     search.q = query == nil ? @"" : query;
     search.filter = [self nativeFilterForFilter:filter];
@@ -85,6 +90,7 @@
     }
     search.max_id = maxMessageId;
     search.limit = (int32_t)limit;
+    search.from_id = [[TLInputUser$inputUserEmpty alloc] init];
     
     return [[[TGTelegramNetworking instance] requestSignal:search] map:^id (TLmessages_Messages *result)
     {

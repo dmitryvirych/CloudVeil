@@ -1,8 +1,13 @@
 #import "TGGiphySearchResultItem+TGMediaItem.h"
 
-#import "TGStringUtils.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 @implementation TGGiphySearchResultItem (TGMediaItem)
+
+- (bool)isVideo
+{
+    return false;
+}
 
 - (NSString *)uniqueIdentifier
 {

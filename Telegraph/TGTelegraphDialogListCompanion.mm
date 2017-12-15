@@ -1,6 +1,6 @@
 #import "TGTelegraphDialogListCompanion.h"
 
-#import "TGImageUtils.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 #import "TGAppDelegate.h"
 #import "TGModernConversationController.h"
@@ -8,8 +8,8 @@
 
 #import "TGDialogListController.h"
 
-#import "SGraphObjectNode.h"
-#import "SGraphListNode.h"
+#import <LegacyComponents/SGraphObjectNode.h>
+#import <LegacyComponents/SGraphListNode.h>
 
 #import "TGDatabase.h"
 
@@ -18,6 +18,7 @@
 
 #import "TGSelectContactController.h"
 
+#import "TGTelegramNetworking.h"
 #import "TGTelegraph.h"
 
 #import "TGForwardTargetController.h"
@@ -26,9 +27,7 @@
 
 #import "TGModernConversationCompanion.h"
 
-#import "TGStringUtils.h"
-
-#import "TGProgressWindow.h"
+#import <LegacyComponents/TGProgressWindow.h>
 
 #include <map>
 #include <set>
@@ -41,13 +40,21 @@
 
 #import "TGCreateGroupController.h"
 
-#import "TGPeerIdAdapter.h"
+#import "TGLiveLocationSignals.h"
+#import "TGLiveLocationManager.h"
+
+#import "TGLegacyComponentsContext.h"
+#import <LegacyComponents/TGMenuSheetController.h>
+#import <LegacyComponents/TGLocationLiveSessionItemView.h>
+#import "TGLiveLocationTitlePanel.h"
+#import <LegacyComponents/TGLocationViewController.h>
 
 typedef enum {
     TGDialogListStateNormal = 0,
     TGDialogListStateConnecting = 1,
-    TGDialogListStateUpdating = 2,
-    TGDialogListStateWaitingForNetwork = 3
+    TGDialogListStateConnectingToProxy = 2,
+    TGDialogListStateUpdating = 3,
+    TGDialogListStateWaitingForNetwork = 4
 } TGDialogListState;
 
 @interface TGTelegraphDialogListCompanion ()
@@ -56,9 +63,12 @@ typedef enum {
     
     TGProgressWindow *_progressWindow;
     
+    SMetaDisposable *_stateDisposable;
     SMetaDisposable *_channelsDisposable;
     
     bool _canLoadMore;
+    SMetaDisposable *_liveLocationDisposable;
+    TGLiveLocationTitlePanel *_liveLocationPanel;
 }
 
 @property (nonatomic, strong) NSMutableArray *conversationList;
@@ -85,7 +95,9 @@ typedef enum {
 
         [self resetWatchedNodePaths];
         
+        _stateDisposable = [[SMetaDisposable alloc] init];
         _channelsDisposable = [[SMetaDisposable alloc] init];
+        _liveLocationDisposable = [[SMetaDisposable alloc] init];
     }
     return self;
 }
@@ -94,6 +106,7 @@ typedef enum {
 {
     [_actionHandle reset];
     [ActionStageInstance() removeWatcher:self];
+    [_liveLocationDisposable dispose];
     [_channelsDisposable dispose];
     
     TGProgressWindow *progressWindow = _progressWindow;
@@ -111,6 +124,67 @@ typedef enum {
 - (void)dialogListReady
 {
     [[TGInterfaceManager instance] preload];
+    
+    SSignal *liveLocationsSignal = [[TGTelegraphInstance.liveLocationManager sessions] map:^id(NSArray *sessions)
+    {
+        NSMutableArray *liveLocations = [[NSMutableArray alloc] init];
+        
+        for (TGLiveLocationSession *session in sessions)
+        {
+            id peer = nil;
+            if (TGPeerIdIsUser(session.peerId))
+                peer = [TGDatabaseInstance() loadUser:(int32_t)session.peerId];
+            else
+                peer = [TGDatabaseInstance() loadConversationWithId:session.peerId];
+            
+            TGMessage *message = [TGDatabaseInstance() loadMessageWithMid:session.messageId peerId:session.peerId];
+            [liveLocations addObject:[[TGLiveLocation alloc] initWithMessage:message peer:peer]];
+        }
+        
+        return liveLocations;
+    }];
+    
+    __weak TGTelegraphDialogListCompanion *weakSelf = self;
+    [_liveLocationDisposable setDisposable:[[liveLocationsSignal deliverOn:[SQueue mainQueue]] startWithNext:^(NSArray *next)
+    {
+        __strong TGTelegraphDialogListCompanion *strongSelf = weakSelf;
+        if (strongSelf != nil)
+            [strongSelf setLiveLocations:next];
+    }]];
+}
+
+- (void)setLiveLocations:(NSArray *)liveLocations
+{
+    __weak TGTelegraphDialogListCompanion *weakSelf = self;
+    if (liveLocations.count > 0)
+    {
+        if (_liveLocationPanel == nil)
+            _liveLocationPanel = [[TGLiveLocationTitlePanel alloc] init];
+        
+        _liveLocationPanel.tapped = ^
+        {
+            __strong TGTelegraphDialogListCompanion *strongSelf = weakSelf;
+            if (strongSelf == nil)
+                return;
+            
+            [strongSelf presentLiveLocationsMenu:liveLocations];
+        };
+        _liveLocationPanel.closed = ^
+        {
+            __strong TGTelegraphDialogListCompanion *strongSelf = weakSelf;
+            if (strongSelf == nil)
+                return;
+            
+            [strongSelf presentLiveLocationsMenu:liveLocations];
+        };
+    
+        [_liveLocationPanel setSessions:liveLocations];
+        [self.dialogListController setCurrentTitlePanel:_liveLocationPanel];
+    }
+    else
+    {
+        [self.dialogListController setCurrentTitlePanel:nil];
+    }
 }
 
 - (void)resetWatchedNodePaths
@@ -321,6 +395,7 @@ typedef enum {
     });
     
     int64_t conversationId = conversation.conversationId;
+    [TGTelegraphInstance.liveLocationManager stopWithPeerId:conversationId];
     
     [ActionStageInstance() dispatchOnStageQueue:^
     {
@@ -502,14 +577,7 @@ typedef enum {
 
 - (NSString *)stringForMemberCount:(int)memberCount
 {
-    if (memberCount == 1)
-        return TGLocalizedStatic(@"Conversation.StatusRecipients_1");
-    else if (memberCount == 2)
-        return TGLocalizedStatic(@"Conversation.StatusRecipients_2");
-    else if (memberCount >= 3 && memberCount <= 10)
-        return [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.StatusRecipients_3_10"), [TGStringUtils stringWithLocalizedNumber:memberCount]];
-    else
-        return [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.StatusRecipients_any"), [TGStringUtils stringWithLocalizedNumber:memberCount]];
+    return [effectiveLocalization() getPluralized:@"Conversation.StatusRecipients" count:(int32_t)memberCount];
 }
 
 - (void)initializeDialogListData:(TGConversation *)conversation customUser:(TGUser *)customUser selfUser:(TGUser *)selfUser
@@ -519,9 +587,11 @@ typedef enum {
     int64_t mutePeerId = conversation.conversationId;
     
     dict[@"authorIsSelf"] = @(conversation.fromUid == TGTelegraphInstance.clientUserId);
+    dict[@"isSavedMessages"] = conversation.conversationId == TGTelegraphInstance.clientUserId ? (self.forwardMode ? @2 : @1) : @0;
     
     if (conversation.isChannel) {
         dict[@"isChannel"] = @true;
+        dict[@"isChannelGroup"] = @(conversation.isChannelGroup);
         
         [dict setObject:(conversation.chatTitle == nil ? @"" : conversation.chatTitle) forKey:@"title"];
         
@@ -585,7 +655,7 @@ typedef enum {
         NSString *title = nil;
         NSArray *titleLetters = nil;
         
-        if (user.uid == [TGTelegraphInstance serviceUserUid])
+        if (user.uid == [TGTelegraphInstance serviceUserUid] || user.uid == [TGTelegraphInstance voipSupportUserUid])
             title = [user displayName];
         else if ((user.phoneNumber.length != 0 && ![TGDatabaseInstance() uidIsRemoteContact:user.uid]))
             title = user.formattedPhoneNumber;
@@ -754,6 +824,156 @@ typedef enum {
     conversation.dialogListData = dict;
 }
 
+- (void)presentLiveLocationsMenu:(NSArray *)liveLocations
+{
+    if (liveLocations.count == 1)
+    {
+        [self openLiveLocation:liveLocations.firstObject];
+        return;
+    }
+    
+    TGMenuSheetController *controller = [[TGMenuSheetController alloc] initWithContext:[TGLegacyComponentsContext shared] dark:false];
+    controller.dismissesByOutsideTap = true;
+    controller.narrowInLandscape = true;
+    controller.hasSwipeGesture = true;
+    
+    __weak TGTelegraphDialogListCompanion *weakSelf = self;
+    __weak TGMenuSheetController *weakController = controller;
+    NSMutableArray *items = [[NSMutableArray alloc] init];
+    
+    NSString *formatPrefix = [TGStringUtils integerValueFormat:@"LiveLocation.MenuChatsCount_" value:liveLocations.count];
+    NSString *title = [[NSString alloc] initWithFormat:TGLocalized(formatPrefix), [[NSString alloc] initWithFormat:@"%ld", liveLocations.count]];
+    [items addObject:[[TGMenuSheetTitleItemView alloc] initWithTitle:nil subtitle:title]];
+    for (TGLiveLocation *liveLocation in liveLocations)
+    {
+        [items addObject:[[TGLocationLiveSessionItemView alloc] initWithMessage:liveLocation.message peer:liveLocation.peer remaining:[TGLiveLocationSignals remainingTimeForMessage:liveLocation.message] action:^
+        {
+            __strong TGMenuSheetController *strongController = weakController;
+            if (strongController == nil)
+                return;
+            
+            [strongController dismissAnimated:true];
+            
+            __strong TGTelegraphDialogListCompanion *strongSelf = weakSelf;
+            if (strongSelf == nil)
+                return;
+            
+            [strongSelf openLiveLocation:liveLocation];
+        }]];
+    }
+    [items addObject:[[TGMenuSheetButtonItemView alloc] initWithTitle:TGLocalized(@"LiveLocation.MenuStopAll") type:TGMenuSheetButtonTypeDestructive action:^
+    {
+        __strong TGMenuSheetController *strongController = weakController;
+        if (strongController == nil)
+            return;
+        
+        [strongController dismissAnimated:true];
+        
+        for (TGLiveLocation *liveLocation in liveLocations)
+        {
+            [TGTelegraphInstance.liveLocationManager stopWithPeerId:[liveLocation peerId]];
+        }
+    }]];
+    
+    [items addObject:[[TGMenuSheetButtonItemView alloc] initWithTitle:TGLocalized(@"Common.Cancel") type:TGMenuSheetButtonTypeCancel action:^
+    {
+        __strong TGMenuSheetController *strongController = weakController;
+        if (strongController != nil)
+            [strongController dismissAnimated:true];
+    }]];
+
+    
+    [controller setItemViews:items];
+    controller.sourceRect = ^
+    {
+        __strong TGTelegraphDialogListCompanion *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return CGRectZero;
+        
+        return [strongSelf->_liveLocationPanel convertRect:strongSelf->_liveLocationPanel.bounds toView:strongSelf.dialogListController.view];
+    };
+    controller.permittedArrowDirections = UIPopoverArrowDirectionUp;
+    [controller presentInViewController:self.dialogListController sourceView:self.dialogListController.view animated:true];
+}
+
+- (void)openLiveLocation:(TGLiveLocation *)liveLocationToOpen
+{
+    liveLocationToOpen = [[TGLiveLocation alloc] initWithMessage:[TGDatabaseInstance() loadMessageWithMid:liveLocationToOpen.message.mid peerId:liveLocationToOpen.message.cid] peer:[TGDatabaseInstance() loadUser:TGTelegraphInstance.clientUserId] hasOwnSession:true isOwnLocation:true isExpired:false];
+    
+    TGConversation *chat = [TGDatabaseInstance() loadConversationWithId:liveLocationToOpen.message.cid];
+    bool isChannel = chat.isChannel && !chat.isChannelGroup;
+    
+    TGLocationViewController *controller = [[TGLocationViewController alloc] initWithContext:[TGLegacyComponentsContext shared] liveLocation:liveLocationToOpen];
+    [controller setFrequentUpdatesHandle:[TGTelegraphInstance.liveLocationManager subscribeForFrequentLocationUpdatesWithPeerId:liveLocationToOpen.message.cid]];
+    controller.modalMode = true;
+    controller.allowLiveLocationSharing = true;
+    controller.zoomToFitAllLocationsOnScreen = true;
+    __weak TGLocationViewController *weakLocationController = controller;
+    controller.liveLocationStopped = ^
+    {
+        __strong TGLocationViewController *strongLocationController = weakLocationController;
+        if (strongLocationController != nil)
+            [strongLocationController.presentingViewController dismissViewControllerAnimated:true completion:nil];
+        [TGTelegraphInstance.liveLocationManager stopWithPeerId:liveLocationToOpen.message.cid];
+    };
+    controller.remainingTimeForMessage = ^SSignal *(TGMessage *message)
+    {
+        return [TGLiveLocationSignals remainingTimeForMessage:message];
+    };
+    [controller setLiveLocationsSignal:[[TGLiveLocationSignals liveLocationsForPeerId:liveLocationToOpen.message.cid includeExpired:true onlyLocal:isChannel] map:^id(NSArray *messages)
+    {
+        int32_t currentTime = (int32_t)[[TGTelegramNetworking instance] globalTime];
+        
+        NSMutableArray *liveLocations = [[NSMutableArray alloc] init];
+        for (TGMessage *message in messages)
+        {
+            int32_t expires = (int32_t)message.date;
+            for (TGMediaAttachment *attachment in message.mediaAttachments)
+            {
+                if (attachment.type == TGLocationMediaAttachmentType)
+                {
+                    expires += ((TGLocationMediaAttachment *)attachment).period;
+                    break;
+                }
+            }
+            
+            id peer = nil;
+            int64_t peerId = message.fromUid;
+            if (TGPeerIdIsChannel(peerId))
+                peer = [TGDatabaseInstance() loadChannels:@[@(peerId)]][@(peerId)];
+            else
+                peer = [TGDatabaseInstance() loadUser:(int32_t)peerId];
+            
+            TGLiveLocation *liveLocation = [[TGLiveLocation alloc] initWithMessage:message peer:peer hasOwnSession:liveLocationToOpen.message.mid == message.mid isOwnLocation:[liveLocationToOpen peerId] == message.fromUid isExpired:currentTime > expires];
+            [liveLocations addObject:liveLocation];
+        }
+        return liveLocations;
+    }]];
+    controller.receivingPeer = TGPeerIdIsUser(liveLocationToOpen.message.cid) ? [TGDatabaseInstance() loadUser:(int32_t)liveLocationToOpen.message.cid] : [TGDatabaseInstance() loadConversationWithId:liveLocationToOpen.message.cid];
+    
+    __weak TGTelegraphDialogListCompanion *weakSelf = self;
+    controller.openLocation = ^(TGMessage *message)
+    {
+        __strong TGTelegraphDialogListCompanion *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        
+        [strongSelf.dialogListController dismissViewControllerAnimated:true completion:^
+        {
+            TGLiveLocation *liveLocation = [[TGLiveLocation alloc] initWithMessage:message peer:[TGDatabaseInstance() loadUser:TGTelegraphInstance.clientUserId] hasOwnSession:true isOwnLocation:true isExpired:false];
+            [strongSelf openLiveLocation:liveLocation];
+        }];
+    };
+
+    TGNavigationController *navigationController = [TGNavigationController navigationControllerWithControllers:@[controller]];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
+    {
+        navigationController.presentationStyle = TGNavigationControllerPresentationStyleInFormSheet;
+        navigationController.modalPresentationStyle = UIModalPresentationFormSheet;
+    }
+    [self.dialogListController presentViewController:navigationController animated:true completion:nil];
+}
+
 - (void)actorMessageReceived:(NSString *)path messageType:(NSString *)messageType message:(id)message
 {
     if ([path isEqualToString:[NSString stringWithFormat:@"/tg/search/messages/(%lu)", (unsigned long)[_searchString hash]]])
@@ -828,8 +1048,19 @@ typedef enum {
     return nil;
 }
 
+- (TGConversation *)selfPeer
+{
+    TGConversation *selfPeer = [TGDatabaseInstance() loadConversationWithId:TGTelegraphInstance.clientUserId];
+    if (selfPeer == nil)
+        selfPeer = [[TGConversation alloc] initWithConversationId:TGTelegraphInstance.clientUserId unreadCount:0 serviceUnreadCount:0];
+    
+    return selfPeer;
+}
+
 - (void)actorCompleted:(int)resultCode path:(NSString *)path result:(id)result
 {
+    bool hideSelf = self.forwardMode;
+    
     if ([path isEqualToString:[NSString stringWithFormat:@"/tg/search/dialogs/(%lu)", (unsigned long)[_searchString hash]]])
     {
         NSDictionary *dict = ((SGraphObjectNode *)result).object;
@@ -845,12 +1076,17 @@ typedef enum {
             bool showGroupsOnly = self.showGroupsOnly;
             bool showSecretInForwardMode = self.showSecretInForwardMode;
             
+            TGUser *selfUser = [[TGDatabase instance] loadUser:TGTelegraphInstance.clientUserId];
+            
             for (id object in chats)
             {
                 if ([object isKindOfClass:[TGConversation class]])
                 {
                     TGConversation *conversation = (TGConversation *)object;
                     if (((forwardMode || privacyMode) && conversation.conversationId <= INT_MIN) && !showSecretInForwardMode)
+                        continue;
+                    
+                    if (conversation.conversationId == selfUser.uid && hideSelf)
                         continue;
                     
                     if (conversation.isDeactivated || conversation.isDeleted) {
@@ -863,7 +1099,7 @@ typedef enum {
                     if (showGroupsOnly && (conversation.conversationId <= INT_MIN || conversation.conversationId > 0))
                         continue;
                     
-                    [self initializeDialogListData:conversation customUser:nil selfUser:[TGDatabaseInstance() loadUser:TGTelegraphInstance.clientUserId]];
+                    [self initializeDialogListData:conversation customUser:nil selfUser:selfUser];
                     [result addObject:conversation];
                 }
                 else
@@ -1001,6 +1237,22 @@ typedef enum {
                     return NSOrderedSame;
             }];
             
+            for (int i = 0; i < (int)_conversationList.count; i++)
+            {
+                if (((TGConversation *)_conversationList[i]).conversationId == selfUser.uid && hideSelf)
+                {
+                    [_conversationList removeObjectAtIndex:i];
+                    i--;
+                }
+            }
+        
+            if (forwardMode && !showGroupsOnly)
+            {
+                TGConversation *selfConversation = [self selfPeer];
+                [_conversationList insertObject:selfConversation atIndex:0];
+                [self initializeDialogListData:selfConversation customUser:nil selfUser:selfUser];
+            }
+            
             NSArray *items = [NSArray arrayWithArray:_conversationList];
             
             _canLoadMore = canLoadMore;
@@ -1024,12 +1276,16 @@ typedef enum {
                     }
                 });
             } else {
+                if (self.dialogListController.debugReady != nil)
+                    self.dialogListController.debugReady();
                 dispatch_async(dispatch_get_main_queue(), ^
                 {
                     TGDialogListController *controller = self.dialogListController;
                     if (controller != nil)
                     {
                         controller.canLoadMore = canLoadMore;
+                        if (self.dialogListController.debugReady != nil)
+                            self.dialogListController.debugReady();
                         [controller dialogListFullyReloaded:items];
                     }
                 });
@@ -1038,25 +1294,11 @@ typedef enum {
             static dispatch_once_t onceToken;
             dispatch_once(&onceToken, ^
             {
-                NSMutableArray *conversationIds = [[NSMutableArray alloc] init];
-                for (TGConversation *conversation in items)
-                {
-                    [conversationIds addObject:@(conversation.conversationId)];
-                }
-                
-                dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC));
-                dispatch_after(popTime, dispatch_get_main_queue(), ^(void)
+                TGDispatchAfter(0.4, dispatch_get_main_queue(), ^
                 {
                     [self dialogListReady];
-                    
-                    [TGModernConversationCompanion warmupResources];
-                    
-                    //[TGDatabaseInstance() preloadConversationStates:conversationIds];
                 });
             });
-        }
-        else
-        {
         }
     }
     else if ([path isEqualToString:@"/tg/service/synchronizationstate"])
@@ -1069,8 +1311,13 @@ typedef enum {
         {
             if (state & 4)
                 newState = TGDialogListStateWaitingForNetwork;
-            else
-                newState = TGDialogListStateConnecting;
+            else {
+                if (state & 8) {
+                    newState = TGDialogListStateConnectingToProxy;
+                } else {
+                    newState = TGDialogListStateConnecting;
+                }
+            }
         }
         else if (state & 1)
             newState = TGDialogListStateUpdating;
@@ -1080,19 +1327,27 @@ typedef enum {
         if (newState != _state)
         {
             _state = newState;
-            dispatch_async(dispatch_get_main_queue(), ^
+            
+            __weak TGTelegraphDialogListCompanion *weakSelf = self;
+            [_stateDisposable setDisposable:[[[[SSignal complete] delay:0.3 onQueue:[SQueue mainQueue]] then:[SSignal single:@(newState)]] startWithNext:^(__unused id next)
             {
+                __strong TGTelegraphDialogListCompanion *strongSelf = weakSelf;
+                if (strongSelf == nil)
+                    return;
+                
                 NSString *title = nil;
                 if (newState == TGDialogListStateConnecting)
                     title = TGLocalized(@"State.Connecting");
+                else if (newState == TGDialogListStateConnectingToProxy)
+                    title = TGLocalized(@"State.ConnectingToProxy");
                 else if (newState == TGDialogListStateUpdating)
                     title = TGLocalized(@"State.Updating");
                 else if (newState == TGDialogListStateWaitingForNetwork)
                     title = TGLocalized(@"State.WaitingForNetwork");
                 
-                TGDialogListController *dialogListController = self.dialogListController;
-                [dialogListController titleStateUpdated:title isLoading:newState != TGDialogListStateNormal];
-            });
+                TGDialogListController *dialogListController = strongSelf.dialogListController;
+                [dialogListController titleStateUpdated:title isLoading:newState != TGDialogListStateNormal isProxy:newState == TGDialogListStateConnectingToProxy];
+            }]];
         }
     }
     else if ([path hasPrefix:@"/tg/loadConversationAndMessageForSearch/"])
@@ -1116,6 +1371,8 @@ typedef enum {
 
 - (void)actionStageResourceDispatched:(NSString *)path resource:(id)resource arguments:(id)arguments
 {
+    bool hideSelf = self.forwardMode;
+    
     if ([path hasPrefix:@"/tg/dialoglist"])
     {
         [self actorCompleted:ASStatusSuccess path:path result:resource];
@@ -1127,6 +1384,8 @@ typedef enum {
             [conversationIds addObject:@(conversation.conversationId)];
         }
         
+        TGUser *selfUser = [[TGDatabase instance] loadUser:TGTelegraphInstance.clientUserId];
+        
         NSMutableArray *conversations = [((SGraphObjectNode *)resource).object mutableCopy];
         
         for (NSInteger i = 0; i < (NSInteger)conversations.count; i++) {
@@ -1135,10 +1394,11 @@ typedef enum {
             if (conversation.isChannel && conversation.kind != TGConversationKindPersistentChannel) {
                 [conversations removeObjectAtIndex:i];
                 i--;
+            } else if (conversation.conversationId == selfUser.uid && hideSelf) {
+                [conversations removeObjectAtIndex:i];
+                i--;
             }
         }
-        
-        TGUser *selfUser = [[TGDatabase instance] loadUser:TGTelegraphInstance.clientUserId];
         
         TGDialogListController *controller = self.dialogListController;
         if (controller.isDisplayingSearch)
@@ -1297,6 +1557,13 @@ typedef enum {
             }
         }
         
+        if (self.forwardMode)
+        {
+            TGConversation *conversation = [_conversationList firstObject];
+            if (conversation.conversationId == selfUser.uid)
+                [_conversationList removeObjectAtIndex:0];
+        }
+        
         [_conversationList sortUsingComparator:^NSComparisonResult(id obj1, id obj2)
          {
              int date1 = (int)((TGConversation *)obj1).date;
@@ -1341,6 +1608,13 @@ typedef enum {
                     break;
                 }
             }
+        }
+        
+        if (self.forwardMode && !self.showGroupsOnly)
+        {
+            TGConversation *selfConversation = [self selfPeer];
+            [_conversationList insertObject:selfConversation atIndex:0];
+            [self initializeDialogListData:selfConversation customUser:nil selfUser:selfUser];
         }
         
         NSMutableArray *currentConversationIds = [[NSMutableArray alloc] init];
@@ -1581,7 +1855,7 @@ typedef enum {
                 
                 NSString *title = nil;
                 
-                if (user.uid == [TGTelegraphInstance serviceUserUid])
+                if (user.uid == [TGTelegraphInstance serviceUserUid] || user.uid == [TGTelegraphInstance voipSupportUserUid])
                     title = [user displayName];
                 else if (user.phoneNumber.length != 0 && ![TGDatabaseInstance() uidIsRemoteContact:user.uid])
                     title = user.formattedPhoneNumber;
@@ -1629,6 +1903,8 @@ typedef enum {
 {
     if ([activity isEqualToString:@"recordingAudio"])
         return TGLocalized(@"DialogList.SingleRecordingAudioSuffix");
+    else if ([activity isEqualToString:@"recordingVideoMessage"])
+        return TGLocalized(@"DialogList.SingleRecordingVideoMessageSuffix");
     else if ([activity isEqualToString:@"uploadingPhoto"])
         return TGLocalized(@"DialogList.SingleUploadingPhotoSuffix");
     else if ([activity isEqualToString:@"uploadingVideo"])
@@ -1645,6 +1921,8 @@ typedef enum {
 {
     if ([activity isEqualToString:@"recordingAudio"])
         return TGLocalized(@"Activity.RecordingAudio");
+    else if ([activity isEqualToString:@"recordingVideoMessage"])
+        return TGLocalized(@"Activity.RecordingVideoMessage");
     else if ([activity isEqualToString:@"uploadingPhoto"])
         return TGLocalized(@"Activity.UploadingPhoto");
     else if ([activity isEqualToString:@"uploadingVideo"])

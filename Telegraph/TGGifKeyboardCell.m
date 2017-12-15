@@ -1,21 +1,22 @@
 #import "TGGifKeyboardCell.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGDocumentMediaAttachment.h"
-#import "TGImageView.h"
+#import <LegacyComponents/ActionStage.h>
+
+#import <LegacyComponents/TGImageView.h>
 #import "TGVTAcceleratedVideoView.h"
 
 #import "TGPreparedLocalDocumentMessage.h"
 
-#import "TGGifConverter.h"
+#import <LegacyComponents/TGGifConverter.h>
 #import "TGTelegraph.h"
 
-#import "TGMessageImageViewOverlayView.h"
+#import <LegacyComponents/TGMessageImageViewOverlayView.h>
 
 @interface TGGifKeyboardCellContents () <ASWatcher> {
     TGImageView *_imageView;
-    TGVTAcceleratedVideoView *_videoView;
+    UIView<TGInlineVideoPlayerView> *_videoView;
     SMetaDisposable *_converterDisposable;
     
     TGMessageImageViewOverlayView *_overlayView;
@@ -44,6 +45,12 @@
         _overlayView.hidden = true;
         [_overlayView setRadius:24.0f];
         [self addSubview:_overlayView];
+        
+        if (iosMajorVersion() >= 11)
+        {
+            _imageView.accessibilityIgnoresInvertColors = true;
+            _overlayView.accessibilityIgnoresInvertColors = true;
+        }
         
         _converterDisposable = [[SMetaDisposable alloc] init];
     }
@@ -187,7 +194,7 @@
                 if (exists) {
                     if ([document.mimeType isEqualToString:@"video/mp4"]) {
                         [strongSelf->_videoView removeFromSuperview];
-                        strongSelf->_videoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:strongSelf.bounds];
+                        strongSelf->_videoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:strongSelf.bounds];
                         [strongSelf addSubview:strongSelf->_videoView];
                         [strongSelf->_videoView setPath:filePath];
                     } else if ([document.mimeType isEqualToString:@"image/gif"]) {
@@ -233,7 +240,7 @@
                             __strong TGGifKeyboardCellContents *strongSelf = weakSelf;
                             if (strongSelf != nil && [strongSelf->_document isEqual:document]) {
                                 [strongSelf->_videoView removeFromSuperview];
-                                strongSelf->_videoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:strongSelf.bounds];
+                                strongSelf->_videoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:strongSelf.bounds];
                                 [strongSelf addSubview:strongSelf->_videoView];
                                 [strongSelf->_videoView setPath:path];
                             }

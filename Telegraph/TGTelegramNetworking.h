@@ -91,7 +91,9 @@ typedef enum {
 
 @interface TGTelegramNetworking : NSObject
 
++ (void)preload;
 + (TGTelegramNetworking *)instance;
++ (TGTelegramNetworking *)maybeInstance;
 
 - (SMulticastSignalManager *)genericTasksSignalManager;
 
@@ -123,6 +125,7 @@ typedef enum {
 
 - (NSInteger)masterDatacenterId;
 - (id)requestDownloadWorkerForDatacenterId:(NSInteger)datacenterId type:(TGNetworkMediaTypeTag)type completion:(void (^)(TGNetworkWorkerGuard *))completion;
+- (id)requestDownloadWorkerForDatacenterId:(NSInteger)datacenterId type:(TGNetworkMediaTypeTag)type isCdn:(bool)isCdn completion:(void (^)(TGNetworkWorkerGuard *))completion;
 - (void)cancelDownloadWorkerRequestByToken:(id)token;
 
 - (void)addRequest:(MTRequest *)request;
@@ -145,6 +148,7 @@ typedef enum {
 - (void)wakeUpWithCompletion:(void (^)())completion;
 
 - (SSignal *)downloadWorkerForDatacenterId:(NSInteger)datacenterId type:(TGNetworkMediaTypeTag)type;
+- (SSignal *)downloadWorkerForDatacenterId:(NSInteger)datacenterId type:(TGNetworkMediaTypeTag)type isCdn:(bool)isCdn;
 - (SSignal *)requestSignal:(TLMetaRpc *)rpc;
 - (SSignal *)requestSignal:(TLMetaRpc *)rpc continueOnServerErrors:(bool)continueOnServerErrors;
 - (SSignal *)requestSignal:(TLMetaRpc *)rpc continueOnServerErrors:(bool)continueOnServerErrors failOnFloodErrors:(bool)failOnFloodErrors;

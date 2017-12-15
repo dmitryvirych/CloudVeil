@@ -1,19 +1,14 @@
-/*
- * This is the source code of Telegram for iOS v. 1.1
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Peter Iakovlev, 2013.
- */
-
 #import "TGGroupInfoUserCollectionItemView.h"
 
-#import "TGImageUtils.h"
-#import "TGFont.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGUser.h"
+#import <LegacyComponents/TGLetteredAvatarView.h>
 
-#import "TGLetteredAvatarView.h"
+#import "TGDialogListCellEditingControls.h"
+
+#import "TGCollectionMenuView.h"
+
+#import "TGPresentation.h"
 
 @interface TGGroupInfoUserCollectionItemViewContent : UIView
 
@@ -76,7 +71,7 @@
     if (!self.editing) {
         if (_label.length != 0) {
             CGContextSetFillColorWithColor(context, regularStatusColor);
-            [_label drawAtPoint:CGPointMake(availableWidth - labelSize.width + 6.0f, 11.0f + TGRetinaPixel) withFont:statusFont];
+            [_label drawAtPoint:CGPointMake(availableWidth - labelSize.width + 6.0f, 11.0f + TGScreenPixel) withFont:statusFont];
         }
     }
     
@@ -87,11 +82,11 @@
     
     CGContextSetFillColorWithColor(context, _isSecretChat ? secretNameColor : nameColor);
     [_firstName drawInRect:CGRectMake(1.0f, 1.0f, firstNameSize.width, firstNameSize.height) withFont:regularNameFont lineBreakMode:NSLineBreakByTruncatingTail];
-    [_lastName drawInRect:CGRectMake(1.0f + firstNameSize.width + nameSpacing, TGRetinaPixel, lastNameSize.width, lastNameSize.height) withFont:boldNameFont lineBreakMode:NSLineBreakByTruncatingTail];
+    [_lastName drawInRect:CGRectMake(1.0f + firstNameSize.width + nameSpacing, TGScreenPixel, lastNameSize.width, lastNameSize.height) withFont:boldNameFont lineBreakMode:NSLineBreakByTruncatingTail];
     
     CGSize statusSize = [_status sizeWithFont:statusFont];
     CGContextSetFillColorWithColor(context, _statusIsActive ? activeStatusColor : regularStatusColor);
-    [_status drawInRect:CGRectMake(1.0f, 23.0f - TGRetinaPixel, MIN(statusSize.width, availableWidth), statusSize.height) withFont:statusFont lineBreakMode:NSLineBreakByTruncatingTail];
+    [_status drawInRect:CGRectMake(1.0f, 23.0f - TGScreenPixel, MIN(statusSize.width, availableWidth), statusSize.height) withFont:statusFont lineBreakMode:NSLineBreakByTruncatingTail];
 }
 
 @end
@@ -102,8 +97,12 @@
     TGLetteredAvatarView *_avatarView;
     TGGroupInfoUserCollectionItemViewContent *_content;
     UISwitch *_switchView;
+    UIImageView *_checkView;
     
     UIView *_disabledOverlayView;
+    bool _requiresFullSeparator;
+    
+    TGDialogListCellEditingControls *_wrapView;
 }
 
 @end
@@ -115,20 +114,83 @@
     self = [super initWithFrame:frame];
     if (self != nil)
     {
-        self.separatorInset = 65.0f;
+        _wrapView = [[TGDialogListCellEditingControls alloc] init];
+        
+        _wrapView.clipsToBounds = true;
+        [_wrapView setLabelOnly:true];
+        [_wrapView setOffsetLabels:true];
+        [self.contentView addSubview:_wrapView];
         
         _avatarView = [[TGLetteredAvatarView alloc] init];
-        [_avatarView setSingleFontSize:17.0f doubleFontSize:17.0f useBoldFont:true];
+        [_avatarView setSingleFontSize:18.0f doubleFontSize:18.0f useBoldFont:true];
         _avatarView.fadeTransition = true;
-        [self.editingContentView addSubview:_avatarView];
+        [_wrapView addSubview:_avatarView];
         
         _content = [[TGGroupInfoUserCollectionItemViewContent alloc] init];
-        [self.editingContentView addSubview:_content];
+        
+        [self.editingContentView removeFromSuperview];
+        
+        [_wrapView addSubview:_content];
+        [_wrapView addSubview:self.editingContentView];
+        
+        self.disableControls = true;
+        __weak TGGroupInfoUserCollectionItemView *weakSelf = self;
+        self.customOpenControls = ^{
+            __strong TGGroupInfoUserCollectionItemView *strongSelf = weakSelf;
+            if (strongSelf != nil) {
+                [strongSelf->_wrapView setExpanded:true animated:true];
+            }
+        };
+        
+        _wrapView.requestDelete = ^{
+            __strong TGGroupInfoUserCollectionItemView *strongSelf = weakSelf;
+            if (strongSelf != nil && strongSelf->_requestDelete) {
+                [strongSelf setShowsEditingOptions:false animated:true];
+                strongSelf->_requestDelete();
+            }
+        };
+        
+        _wrapView.requestPromote = ^{
+            __strong TGGroupInfoUserCollectionItemView *strongSelf = weakSelf;
+            if (strongSelf != nil && strongSelf->_requestPromote) {
+                [strongSelf setShowsEditingOptions:false animated:true];
+                strongSelf->_requestPromote();
+            }
+        };
+        
+        _wrapView.requestRestrict = ^{
+            __strong TGGroupInfoUserCollectionItemView *strongSelf = weakSelf;
+            if (strongSelf != nil && strongSelf->_requestRestrict) {
+                [strongSelf setShowsEditingOptions:false animated:true];
+                strongSelf->_requestRestrict();
+            }
+        };
+        
+        _wrapView.expandedUpdated = ^(bool value) {
+            __strong TGGroupInfoUserCollectionItemView *strongSelf = weakSelf;
+            if (strongSelf != nil && strongSelf->_requestRestrict) {
+                [[strongSelf _collectionMenuView] _setEditingCell:strongSelf editing:value];
+            }
+        };
     }
     return self;
 }
 
-- (void)setFirstName:(NSString *)firstName lastName:(NSString *)lastName uidForPlaceholderCalculation:(int32_t)uidForPlaceholderCalculation
+- (void)prepareForReuse
+{
+    [_wrapView setExpanded:false animated:false];
+    
+    [super prepareForReuse];
+}
+
+- (void)setPresentation:(TGPresentation *)presentation
+{
+    [super setPresentation:presentation];
+    
+    _checkView.image = presentation.images.collectionMenuCheckImage;
+}
+
+- (void)setFirstName:(NSString *)firstName lastName:(NSString *)lastName uidForPlaceholderCalculation:(int32_t)uidForPlaceholderCalculation canPromote:(bool)canPromote canRestrict:(bool)canRestrict canBan:(bool)canBan canDelete:(bool)canDelete
 {
     if (firstName.length != 0)
     {
@@ -142,6 +204,22 @@
     }
     
     _uidForPlaceholderCalculation = uidForPlaceholderCalculation;
+    
+    NSMutableArray *actions = [[NSMutableArray alloc] init];
+    if (canPromote) {
+        [actions addObject:@(TGDialogListCellEditingControlsPromote)];
+    }
+    if (canRestrict) {
+        [actions addObject:@(TGDialogListCellEditingControlsRestrict)];
+    }
+    if (canBan) {
+        [actions addObject:@(TGDialogListCellEditingControlsBan)];
+    }
+    if (canDelete) {
+        [actions addObject:@(TGDialogListCellEditingControlsDelete)];
+    }
+    [_wrapView setSmallLabels:actions.count > 1];
+    [_wrapView setButtonBytes:actions];
     
     [_content setNeedsDisplay];
 }
@@ -241,6 +319,32 @@
     }
 }
 
+- (void)setDisplayCheck:(bool)displayCheck {
+    if (displayCheck && _checkView == nil) {
+        _checkView = [[UIImageView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 14.0f, 11.0f)];
+        _checkView.image = self.presentation.images.collectionMenuCheckImage;
+    }
+    if (displayCheck) {
+        if (_checkView.superview == nil) {
+            [self addSubview:_checkView];
+            [self setNeedsLayout];
+        }
+    } else {
+        if (_checkView.superview != nil) {
+            [_checkView removeFromSuperview];
+        }
+    }
+}
+
+- (void)setCheckIsOn:(bool)checkIsOn {
+    _checkView.hidden = !checkIsOn;
+}
+
+- (void)setRequiresFullSeparator:(bool)requiresFullSeparator {
+    _requiresFullSeparator = requiresFullSeparator;
+    self.separatorInset = requiresFullSeparator ? 0.0f : 65.0f;
+}
+
 - (void)setDisabled:(bool)disabled animated:(bool)animated
 {
     if (disabled)
@@ -290,12 +394,28 @@
 
 - (void)layoutSubviews
 {
-    CGFloat leftInset = self.showsDeleteIndicator ? 38.0f : 0.0f;
-    self.separatorInset = 65.0f + leftInset;
+    CGFloat contentOffset = self.contentView.frame.origin.x;
+    [_wrapView setExpandable:contentOffset <= FLT_EPSILON];
+    
+    CGSize size = self.bounds.size;
+    
+    _wrapView.frame = CGRectMake(contentOffset, 0.0f, size.width, size.height);
+    
+    CGFloat leftInset = 0.0f;
+    
+    if (self.showsDeleteIndicator) {
+        leftInset = 38.0f;
+    }
     
     if (self.showsDeleteIndicator != _content.editing) {
         _content.editing = self.showsDeleteIndicator;
         [_content setNeedsDisplay];
+    }
+    
+    if (_requiresFullSeparator) {
+        self.separatorInset = 0.0f;
+    } else {
+        self.separatorInset = 65.0f + leftInset;
     }
     
     CGFloat rightInset = 0.0f;
@@ -303,7 +423,14 @@
         rightInset = _switchView.frame.size.width + 20.0f;
         
         CGSize switchSize = _switchView.bounds.size;
-        _switchView.frame = CGRectMake(self.bounds.size.width - switchSize.width - 15.0f, 6.0f, switchSize.width, switchSize.height);
+        _switchView.frame = CGRectMake(self.bounds.size.width - switchSize.width - 15.0f - self.safeAreaInset.right, 6.0f, switchSize.width, switchSize.height);
+    }
+    
+    if (_checkView != nil && _checkView.superview != nil) {
+        rightInset = _checkView.frame.size.width + 22.0f;
+        
+        CGSize checkSize = _checkView.frame.size;
+        _checkView.frame = CGRectMake(self.bounds.size.width - 15.0f - checkSize.width - self.safeAreaInset.right, 16.0f, checkSize.width, checkSize.height);
     }
     
     [super layoutSubviews];
@@ -313,9 +440,9 @@
     if (_disabledOverlayView != nil)
         [_disabledOverlayView setFrame:CGRectInset(bounds, 0.0f, 1.0f)];
     
-    _avatarView.frame = CGRectMake(leftInset + 14.0f, 4.0f + TGRetinaPixel, 40.0f, 40.0f);
+    _avatarView.frame = CGRectMake(leftInset + 14.0f + self.safeAreaInset.left, 4.0f + TGScreenPixel, 40.0f, 40.0f);
     
-    CGRect contentFrame = CGRectMake(65.0f + leftInset, 4.0f, bounds.size.width - 65.0f - rightInset, bounds.size.height - 8.0f);
+    CGRect contentFrame = CGRectMake(65.0f + leftInset + self.safeAreaInset.left, 4.0f, bounds.size.width - 65.0f - rightInset, bounds.size.height - 8.0f);
     if (!CGSizeEqualToSize(_content.frame.size, contentFrame.size))
         [_content setNeedsDisplay];
     _content.frame = contentFrame;
@@ -325,11 +452,25 @@
 
 - (void)deleteAction
 {
-    [self setShowsEditingOptions:false animated:true];
+    //[self setShowsEditingOptions:false animated:true];
     
     id<TGGroupInfoUserCollectionItemViewDelegate> delegate = _delegate;
     if ([delegate respondsToSelector:@selector(groupInfoUserItemViewRequestedDeleteAction:)])
         [delegate groupInfoUserItemViewRequestedDeleteAction:self];
+}
+
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event {
+    UIView *indicator = [(TGEditableCollectionItemView *)self hitTestDeleteIndicator:point];
+    if (indicator != nil) {
+        return indicator;
+    }
+    return [super hitTest:point withEvent:event];
+}
+
+- (void)setShowsEditingOptions:(bool)showsEditingOptions animated:(bool)animated {
+    [super setShowsEditingOptions:showsEditingOptions animated:animated];
+    
+    [_wrapView setExpanded:showsEditingOptions animated:animated];
 }
 
 @end

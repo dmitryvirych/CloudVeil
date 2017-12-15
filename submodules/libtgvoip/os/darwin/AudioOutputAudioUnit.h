@@ -10,12 +10,13 @@
 #include <AudioUnit/AudioUnit.h>
 #include "../../audio/AudioOutput.h"
 
-class CAudioUnitIO;
+namespace tgvoip{ namespace audio{
+class AudioUnitIO;
 
-class CAudioOutputAudioUnit : public CAudioOutput{
+class AudioOutputAudioUnit : public AudioOutput{
 public:
-	CAudioOutputAudioUnit(CAudioUnitIO* io);
-	virtual ~CAudioOutputAudioUnit();
+	AudioOutputAudioUnit(std::string deviceID);
+	virtual ~AudioOutputAudioUnit();
 	virtual void Configure(uint32_t sampleRate, uint32_t bitsPerSample, uint32_t channels);
 	virtual bool IsPhone();
 	virtual void EnableLoudspeaker(bool enabled);
@@ -24,16 +25,19 @@ public:
 	virtual bool IsPlaying();
     virtual float GetLevel();
 	void HandleBufferCallback(AudioBufferList* ioData);
+#if TARGET_OS_OSX
+	virtual void SetCurrentDevice(std::string deviceID);
+#endif
 
 private:
 	bool isPlaying;
 	unsigned char remainingData[10240];
 	size_t remainingDataSize;
-	CAudioUnitIO* io;
+	AudioUnitIO* io;
     float level;
     int16_t absMax;
     int count;
 };
-
+}}
 
 #endif //LIBTGVOIP_AUDIOOUTPUTAUDIOUNIT_H

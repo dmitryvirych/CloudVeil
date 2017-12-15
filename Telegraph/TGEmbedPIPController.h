@@ -1,5 +1,6 @@
-#import "TGOverlayController.h"
-#import "TGPIPAblePlayerView.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/TGPIPAblePlayerView.h>
 
 @class TGEmbedPIPPlaceholderView;
 @class TGWebPageMediaAttachment;
@@ -34,6 +35,7 @@
 
 + (void)registerPlaceholderView:(TGEmbedPIPPlaceholderView *)view;
 + (void)registerPlayerView:(UIView<TGPIPAblePlayerView> *)view;
++ (bool)hasPlayerViews;
 
 + (UIView<TGPIPAblePlayerView> *)activeNonPIPPlayerView;
 
@@ -44,5 +46,7 @@
 + (void)_systemPictureInPictureDidStart;
 + (void)_systemPictureInPictureDidStop;
 + (void)_cancelSystemPIPWithCompletion:(void (^)(void))completion;
+
++ (void)maybeReleaseVolumeOverlay;
 
 @end

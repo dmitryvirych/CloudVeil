@@ -1,35 +1,35 @@
 #import "TGExternalGifSearchResultGalleryItemView.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGExternalGifSearchResultGalleryItem.h"
 
-#import "TGImageView.h"
-#import "TGModernAnimatedImagePlayer.h"
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
+#import <LegacyComponents/TGImageView.h>
+#import <LegacyComponents/TGModernAnimatedImagePlayer.h>
 
-#import "ActionStage.h"
+#import <LegacyComponents/ActionStage.h>
 
-#import "TGMessageImageViewOverlayView.h"
+#import <LegacyComponents/TGMessageImageViewOverlayView.h>
 
-#import "TGModernButton.h"
+#import <LegacyComponents/TGModernButton.h>
 
 #import "ATQueue.h"
 
 #import "TGMediaStoreContext.h"
 
-#import "TGModernGalleryTransitionView.h"
+#import <LegacyComponents/TGModernGalleryTransitionView.h>
 
 #import "TGVTAcceleratedVideoView.h"
 #import "TGWebpageSignals.h"
 
-#import "TGMediaSelectionContext.h"
+#import <LegacyComponents/TGMediaSelectionContext.h>
 
 #import "TGTelegramNetworking.h"
 
 @interface TGExternalGifSearchResultGalleryItemView () <ASWatcher> {
     UIView *_containerView;
     TGImageView *_imageView;
-    TGVTAcceleratedVideoView *_acceleratedVideoView;
+    UIView<TGInlineVideoPlayerView> *_acceleratedVideoView;
     TGModernAnimatedImagePlayer *_player;
     
     CGSize _imageSize;
@@ -149,7 +149,7 @@
     
     if (_isVideo) {
         if (_acceleratedVideoView == nil) {
-            _acceleratedVideoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:_imageView.bounds];
+            _acceleratedVideoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:_imageView.bounds];
             _acceleratedVideoView.userInteractionEnabled = false;
             _acceleratedVideoView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
             [_imageView insertSubview:_acceleratedVideoView atIndex:0];

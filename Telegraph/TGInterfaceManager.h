@@ -7,12 +7,13 @@
  */
 
 #import <Foundation/Foundation.h>
-
-#import "ActionStage.h"
+#import <SSignalKit/SSignalKit.h>
+#import <LegacyComponents/ActionStage.h>
 
 @class TGMessage;
 @class TGConversation;
 @class TGModernConversationController;
+@class TGNavigationController;
 @class TGCallManager;
 
 @interface TGInterfaceManager : NSObject <ASWatcher>
@@ -28,7 +29,11 @@
 - (void)navigateToConversationWithId:(int64_t)conversationId conversation:(TGConversation *)conversation performActions:(NSDictionary *)performActions;
 - (void)navigateToConversationWithId:(int64_t)conversationId conversation:(TGConversation *)conversation performActions:(NSDictionary *)performActions animated:(bool)animated;
 - (void)navigateToConversationWithId:(int64_t)conversationId conversation:(TGConversation *)conversation performActions:(NSDictionary *)performActions atMessage:(NSDictionary *)atMessage clearStack:(bool)clearStack openKeyboard:(bool)openKeyboard canOpenKeyboardWhileInTransition:(bool)canOpenKeyboardWhileInTransition animated:(bool)animated;
+- (void)navigateToConversationWithId:(int64_t)conversationId conversation:(TGConversation *)conversation performActions:(NSDictionary *)performActions atMessage:(NSDictionary *)atMessage clearStack:(bool)clearStack openKeyboard:(bool)openKeyboard canOpenKeyboardWhileInTransition:(bool)canOpenKeyboardWhileInTransition navigationController:(TGNavigationController *)navigationController animated:(bool)animated;
+- (void)navigateToConversationWithId:(int64_t)conversationId conversation:(TGConversation *)__unused conversation performActions:(NSDictionary *)performActions atMessage:(NSDictionary *)atMessage clearStack:(bool)clearStack openKeyboard:(bool)openKeyboard canOpenKeyboardWhileInTransition:(bool)canOpenKeyboardWhileInTransition navigationController:(TGNavigationController *)navigationController selectChat:(bool)selectChat animated:(bool)animated;
+- (void)navigateToChannelLogWithConversation:(TGConversation *)conversation animated:(bool)animated;
 - (TGModernConversationController *)configuredPreviewConversationControlerWithId:(int64_t)conversationId;
+- (TGModernConversationController *)configuredConversationControlerWithId:(int64_t)conversationId performActions:(NSDictionary *)performActions preview:(bool)preview;
 
 - (TGModernConversationController *)currentControllerWithPeerId:(int64_t)peerId;
 - (void)dismissConversation;
@@ -38,6 +43,8 @@
 - (void)navigateToProfileOfUser:(int)uid encryptedConversationId:(int64_t)encryptedConversationId;
 - (void)navigateToProfileOfUser:(int)uid callMessages:(NSArray *)callMessages;
 - (void)navigateToSharedMediaOfConversationWithId:(int64_t)conversationId mode:(int)mode atMessage:(NSDictionary *)atMessage;
+
+- (void)displayHashtagOverview:(NSString *)hashtag conversationId:(int64_t)conversationId;
 
 - (void)displayBannerIfNeeded:(TGMessage *)message conversationId:(int64_t)conversationId;
 - (void)dismissBannerForConversationId:(int64_t)conversationId;
@@ -50,5 +57,9 @@
 - (void)callPeerWithId:(int64_t)peerId completion:(void (^)(void))completion;
 - (void)dismissAllCalls;
 - (void)maybeDisplayCallsTabAlert;
+- (bool)hasCallControllerInForeground;
+
+- (SSignal *)callControllerInForeground;
+- (SSignal *)messageVisibilitySignalWithConversationId:(int64_t)conversationId messageId:(int32_t)messageId;
 
 @end

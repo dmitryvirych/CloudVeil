@@ -1,13 +1,17 @@
 #import "TGButtonCollectionItemView.h"
 
-#import "TGImageUtils.h"
-#import "TGFont.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import "TGPresentation.h"
 
 @interface TGButtonCollectionItemView ()
 {
     UIImageView *_iconView;
     UILabel *_titleLabel;
     NSTextAlignment _alignment;
+    CGPoint _iconOffset;
+    
+    UIColor *_customTitleColor;
 }
 
 @end
@@ -29,6 +33,14 @@
     return self;
 }
 
+- (void)setPresentation:(TGPresentation *)presentation
+{
+    [super setPresentation:presentation];
+    
+    if (_customTitleColor == nil)
+        _titleLabel.textColor = self.presentation.pallete.collectionMenuAccentColor;
+}
+
 - (void)setTitle:(NSString *)title
 {
     _titleLabel.text = title;
@@ -38,7 +50,8 @@
 
 - (void)setTitleColor:(UIColor *)titleColor
 {
-    _titleLabel.textColor = titleColor;
+    _customTitleColor = titleColor;
+    _titleLabel.textColor = titleColor ?: self.presentation.pallete.collectionMenuAccentColor;
 }
 
 - (void)setTitleAlignment:(NSTextAlignment)alignment
@@ -82,6 +95,12 @@
     }
 }
 
+- (void)setIconOffset:(CGPoint)iconOffset
+{
+    _iconOffset = iconOffset;
+    [self setNeedsLayout];
+}
+
 - (void)setLeftInset:(CGFloat)leftInset
 {
     _leftInset = leftInset;
@@ -109,10 +128,10 @@
     if (_iconView.superview != nil) {
         CGSize iconSize = _iconView.image.size;
         
-        _iconView.frame = CGRectMake(CGFloor((_leftInset - iconSize.width) / 2.0f), CGFloor((bounds.size.height - iconSize.height) / 2.0f), iconSize.width, iconSize.height);
+        _iconView.frame = CGRectMake(CGFloor((inset - iconSize.width) / 2.0f) + _iconOffset.x + self.safeAreaInset.left, CGFloor((bounds.size.height - iconSize.height) / 2.0f) + _iconOffset.y, iconSize.width, iconSize.height);
     }
     
-    _titleLabel.frame = CGRectMake(inset, CGFloor((bounds.size.height - 26) / 2), bounds.size.width - inset - 15.0f, 26);
+    _titleLabel.frame = CGRectMake(inset + self.safeAreaInset.left, CGFloor((bounds.size.height - 26) / 2), bounds.size.width - inset - 15.0f, 26);
     [_titleLabel sizeToFit];
     
     CGFloat verticalOffset = TGRetinaPixel;
@@ -124,7 +143,7 @@
     if (_alignment == NSTextAlignmentCenter)
         _titleLabel.frame = CGRectMake(CGFloor((bounds.size.width - _titleLabel.frame.size.width) / 2), CGFloor((bounds.size.height - _titleLabel.frame.size.height) / 2) + verticalOffset, _titleLabel.frame.size.width, _titleLabel.frame.size.height);
     else
-        _titleLabel.frame = CGRectMake(inset, CGFloor((bounds.size.height - _titleLabel.frame.size.height) / 2) + verticalOffset, _titleLabel.frame.size.width, _titleLabel.frame.size.height);
+        _titleLabel.frame = CGRectMake(inset + self.safeAreaInset.left, CGFloor((bounds.size.height - _titleLabel.frame.size.height) / 2) + verticalOffset, _titleLabel.frame.size.width, _titleLabel.frame.size.height);
 }
 
 @end

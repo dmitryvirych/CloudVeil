@@ -1,25 +1,24 @@
 #import "TGPreviewGifItemView.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGStringUtils.h"
-#import "TGImageUtils.h"
-#import "TGPhotoEditorUtils.h"
+#import <LegacyComponents/ActionStage.h>
+
+#import <LegacyComponents/TGPhotoEditorUtils.h>
 
 #import "TGSharedPhotoSignals.h"
 #import "TGSharedMediaUtils.h"
 #import "TGMediaStoreContext.h"
 
-#import "TGImageView.h"
+#import <LegacyComponents/TGImageView.h>
 #import "TGVTAcceleratedVideoView.h"
-#import "TGMessageImageViewOverlayView.h"
+#import <LegacyComponents/TGMessageImageViewOverlayView.h>
 
-#import "TGDocumentMediaAttachment.h"
 #import "TGPreparedLocalDocumentMessage.h"
 #import "TGBotContextExternalResult.h"
 
 #import "TGTelegraph.h"
-#import "TGGifConverter.h"
+#import <LegacyComponents/TGGifConverter.h>
 
 #import "TGTelegramNetworking.h"
 
@@ -29,7 +28,7 @@
     TGBotContextExternalResult *_result;
     
     TGImageView *_imageView;
-    TGVTAcceleratedVideoView *_videoView;
+    UIView<TGInlineVideoPlayerView> *_videoView;
     TGMessageImageViewOverlayView *_overlayView;
     
     NSString *_downloadPath;
@@ -239,7 +238,7 @@
                     if (exists) {
                         if ([document.mimeType isEqualToString:@"video/mp4"]) {
                             [strongSelf->_videoView removeFromSuperview];
-                            strongSelf->_videoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:strongSelf->_imageView.bounds];
+                            strongSelf->_videoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:strongSelf->_imageView.bounds];
                             [strongSelf addSubview:strongSelf->_videoView];
                             [strongSelf->_videoView setPath:filePath];
                         } else if ([document.mimeType isEqualToString:@"image/gif"]) {
@@ -286,7 +285,7 @@
                                 if (strongSelf != nil && [strongSelf->_document isEqual:document])
                                 {
                                     [strongSelf->_videoView removeFromSuperview];
-                                    strongSelf->_videoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:strongSelf.bounds];
+                                    strongSelf->_videoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:strongSelf.bounds];
                                     [strongSelf addSubview:strongSelf->_videoView];
                                     [strongSelf->_videoView setPath:path];
                                 }
@@ -315,7 +314,7 @@
                             if (path != nil) {
                                 if ([externalResult.contentType isEqualToString:@"video/mp4"]) {
                                     [strongSelf->_videoView removeFromSuperview];
-                                    strongSelf->_videoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:strongSelf.bounds];
+                                    strongSelf->_videoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:strongSelf.bounds];
                                     [strongSelf insertSubview:strongSelf->_videoView aboveSubview:strongSelf->_overlayView];
                                     [strongSelf->_videoView setPath:path];
                                 }

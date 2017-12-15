@@ -1,39 +1,26 @@
-/*
- * This is the source code of Telegram for iOS v. 1.1
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Peter Iakovlev, 2013.
- */
-
 #import "TGAnimatedImageMessageViewModel.h"
 
-#import "ASQueue.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
-#import "TGTimerTarget.h"
+#import <LegacyComponents/ASQueue.h>
 
-#import "TGImageInfo.h"
+#import <LegacyComponents/TGTimerTarget.h>
 
 #import "TGMessageImageViewModel.h"
 #import "TGModernRemoteImageView.h"
 #import "TGModernViewContext.h"
 
-#import "TGMessage.h"
-#import "TGMediaAttachment.h"
-#import "TGDocumentMediaAttachment.h"
 #import "TGPreparedLocalDocumentMessage.h"
 
 #import "TGMessageImageView.h"
 
-#import "TGModernAnimatedImagePlayer.h"
+#import <LegacyComponents/TGModernAnimatedImagePlayer.h>
 
-#import "TGImageBlur.h"
+#import <LegacyComponents/TGImageBlur.h>
 
 #import "TGInlineVideoModel.h"
 
-#import "TGGifConverter.h"
+#import <LegacyComponents/TGGifConverter.h>
 
 #import "TGTelegraph.h"
 
@@ -110,12 +97,15 @@
         
         CGFloat scale = [UIScreen mainScreen].scale;
         self.imageModel.inlineVideoSize = CGSizeMake(renderSize.width * scale, renderSize.height * scale);
-        
+        self.imageModel.inlineVideoCornerRadius = 14.0f;
+        self.imageModel.inlineVideoPosition = [self visiblePositionFlags];
         if (_contentModel != nil) {
             self.imageModel.inlineVideoInsets = UIEdgeInsetsZero;
         } else {
             self.imageModel.inlineVideoInsets = UIEdgeInsetsMake(2.0f, 2.0f, 2.0f, 2.0f);
         }
+        
+        self.avatarOffset -= 1.0f;
     }
     return self;
 }
@@ -204,10 +194,16 @@
 {
 }
 
-- (void)stopInlineMedia
+- (void)stopInlineMedia:(int32_t)__unused excludeMid
 {
-    [((TGMessageImageViewContainer *)self.imageModel.boundView).imageView setVideoPathSignal:nil];
+    bool wasActivated = _activatedMedia;
     _activatedMedia = false;
+    
+    if (wasActivated)
+    {
+        [((TGMessageImageViewContainer *)self.imageModel.boundView).imageView hideVideo];
+        [((TGMessageImageViewContainer *)self.imageModel.boundView).imageView setVideoPathSignal:nil];
+    }
     
     [self updateImageOverlay:false];
 }
@@ -251,10 +247,10 @@
     [self updateImageOverlay:false];
 }
 
-- (void)activateMedia
+- (void)activateMedia:(bool)instant
 {
     if (_activatedMedia)
-        [_context.companionHandle requestAction:@"openMediaRequested" options:@{@"mid": @(_mid), @"instant": @(false)}];
+        [_context.companionHandle requestAction:@"openMediaRequested" options:@{@"mid": @(_mid), @"instant": @(instant)}];
     else
         [self activateMediaPlayback];
 }

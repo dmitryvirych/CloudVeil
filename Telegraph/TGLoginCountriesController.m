@@ -1,24 +1,18 @@
 #import "TGLoginCountriesController.h"
 
-#import "Freedom.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 #import "TGLoginCountryCell.h"
 
-#import "TGToolbarButton.h"
-#import "TGSearchBar.h"
+#import <LegacyComponents/TGSearchBar.h>
 
-#import "TGHacks.h"
-#import "TGImageUtils.h"
-
-#import "TGSearchDisplayMixin.h"
+#import <LegacyComponents/TGSearchDisplayMixin.h>
 
 #import <QuartzCore/QuartzCore.h>
 
 #import "TGInterfaceAssets.h"
 
-#import "TGListsTableView.h"
-
-#import "TGFont.h"
+#import <LegacyComponents/TGListsTableView.h>
 
 static NSArray *countryCodes()
 {
@@ -123,6 +117,18 @@ static NSArray *countryCodes()
     return nil;
 }
 
++ (NSString *)countryIdByCode:(int)code
+{
+    for (NSArray *array in countryCodes())
+    {
+        NSNumber *countryCode = [array objectAtIndex:0];
+        if ([countryCode intValue] == code)
+            return [array objectAtIndex:1];
+    }
+    
+    return nil;
+}
+
 + (NSString *)countryNameByCountryId:(NSString *)countryId code:(int *)code
 {
     NSString *normalizedCountryId = [countryId lowercaseString];
@@ -188,6 +194,15 @@ static NSArray *countryCodes()
     if (_searchMixin != nil)
         [_searchMixin controllerInsetUpdated:self.controllerInset];
     
+    for (TGCountrySection *section in _sections)
+    {
+        UIView *sectionLabel = [section.headerView viewWithTag:100];
+        sectionLabel.frame = CGRectMake(14 + self.controllerSafeAreaInset.left, sectionLabel.frame.origin.y, sectionLabel.frame.size.width, sectionLabel.frame.size.height);
+    }
+    
+    CGFloat indexOffset = self.controllerSafeAreaInset.right > FLT_EPSILON ? (self.interfaceOrientation == UIInterfaceOrientationLandscapeLeft ? self.controllerSafeAreaInset.right - 10.0f : 0.0f) : 0.0f;
+    ((TGListsTableView *)_tableView).indexOffset = indexOffset;
+    
     [super controllerInsetUpdated:previousInset];
 }
 
@@ -247,6 +262,9 @@ static NSArray *countryCodes()
     self.view.backgroundColor = [UIColor whiteColor];
     
     _tableView = [[TGListsTableView alloc] initWithFrame:self.view.bounds style:UITableViewStylePlain];
+    ((TGListsTableView *)_tableView).mayHaveIndex = true;
+    if (iosMajorVersion() >= 11)
+        _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _tableView.rowHeight = 44;
     _tableView.dataSource = self;
@@ -292,7 +310,7 @@ static NSArray *countryCodes()
         
         sectionLabel.text = title;
         [sectionLabel sizeToFit];
-        sectionLabel.frame = CGRectOffset(sectionLabel.frame, 14, TGRetinaPixel);
+        sectionLabel.frame = CGRectOffset(sectionLabel.frame, 14 + self.controllerSafeAreaInset.left, TGRetinaPixel);
         
         [sectionContainer addSubview:sectionLabel];
     }
@@ -301,6 +319,7 @@ static NSArray *countryCodes()
         UILabel *sectionLabel = (UILabel *)[sectionContainer viewWithTag:100];
         sectionLabel.text = title;
         [sectionLabel sizeToFit];
+        sectionLabel.frame = CGRectMake(14 + self.controllerSafeAreaInset.left, sectionLabel.frame.origin.y, sectionLabel.frame.size.width, sectionLabel.frame.size.height);
     }
     
     return sectionContainer;

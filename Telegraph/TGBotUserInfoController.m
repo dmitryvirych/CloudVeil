@@ -1,16 +1,15 @@
 #import "TGBotUserInfoController.h"
 
-#import "ActionStage.h"
-#import "SGraphObjectNode.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGHacks.h"
-#import "TGStringUtils.h"
-#import "TGPhoneUtils.h"
+#import "TGLegacyComponentsContext.h"
+
+#import <LegacyComponents/ActionStage.h>
+#import <LegacyComponents/SGraphObjectNode.h>
 
 #import "TGDatabase.h"
 #import "TGInterfaceManager.h"
 #import "TGTelegraph.h"
-#import "TGNavigationBar.h"
 
 #import "TGUserInfoCollectionItem.h"
 #import "TGUserInfoPhoneCollectionItem.h"
@@ -29,13 +28,12 @@
 #import "TGCreateContactController.h"
 #import "TGAddToExistingContactController.h"
 
-#import "TGProgressWindow.h"
+#import <LegacyComponents/TGProgressWindow.h>
 #import "TGActionSheet.h"
 
-#import "TGRemoteImageView.h"
+#import <LegacyComponents/TGRemoteImageView.h>
 
-#import "TGOverlayControllerWindow.h"
-#import "TGModernGalleryController.h"
+#import <LegacyComponents/TGModernGalleryController.h>
 #import "TGUserAvatarGalleryModel.h"
 #import "TGUserAvatarGalleryItem.h"
 
@@ -47,7 +45,7 @@
 
 #import "TGTelegramNetworking.h"
 
-#import "TGTimerTarget.h"
+#import <LegacyComponents/TGTimerTarget.h>
 
 #import "TGBotSignals.h"
 
@@ -55,15 +53,11 @@
 
 #import "TGGroupManagementSignals.h"
 
-#import "TGPeerIdAdapter.h"
-
 #import "TGChannelManagementSignals.h"
 
 #import "TGAccountSignals.h"
 
 #import "TGReportPeerOtherTextController.h"
-
-#import "TGHashtagSearchController.h"
 
 #import "TGShareMenu.h"
 #import "TGSendMessageSignals.h"
@@ -919,8 +913,15 @@ static UIView *_findBackArrow(UIView *view)
 {
     NSString *linkString = [NSString stringWithFormat:@"https://t.me/%@", _user.userName];
     NSString *shareString = linkString;
+    NSString *externalString = shareString;
     if (_user.about.length > 0)
-        shareString = [NSString stringWithFormat:@"%@ %@", _user.about, shareString];
+    {
+        NSString *aboutText = _user.about;
+        if (aboutText.length > 200)
+            aboutText = [[aboutText substringToIndex:200] stringByAppendingString:@"..."];
+        
+        externalString = [NSString stringWithFormat:@"%@ %@", aboutText, externalString];
+    }
     
     __weak TGBotUserInfoController *weakSelf = self;
     CGRect (^sourceRect)(void) = ^CGRect
@@ -938,6 +939,8 @@ static UIView *_findBackArrow(UIView *view)
     } shareAction:^(NSArray *peerIds, NSString *caption)
     {
         [[TGShareSignals shareText:shareString toPeerIds:peerIds caption:caption] startWithNext:nil];
+        
+        [[[TGProgressWindow alloc] init] dismissWithSuccess];
     } externalShareItemSignal:[SSignal single:shareString] sourceView:self.view sourceRect:sourceRect barButtonItem:nil];
 }
 
@@ -1002,7 +1005,7 @@ static UIView *_findBackArrow(UIView *view)
                         if (NSClassFromString(@"UIAlertController") != nil) {
                             
                         } else {
-                            [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"TwoStepAuth.GenericError") cancelButtonTitle:TGLocalized(@"Common.OK") okButtonTitle:nil completionBlock:nil] show];
+                            [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Login.UnknownError") cancelButtonTitle:TGLocalized(@"Common.OK") okButtonTitle:nil completionBlock:nil] show];
                         }
                     } completed:^{
                         __strong TGBotUserInfoController *strongSelf = weakSelf;
@@ -1081,7 +1084,7 @@ static UIView *_findBackArrow(UIView *view)
                                     {
                                         self.view.userInteractionEnabled = true;
                                         
-                                        [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Profile.PhonebookAccessDisabled") delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil] show];
+                                        [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Contacts.AccessDeniedError") delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil] show];
                                     });
          }
          else
@@ -1110,7 +1113,7 @@ static UIView *_findBackArrow(UIView *view)
                                     {
                                         self.view.userInteractionEnabled = true;
                                         
-                                        [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Profile.PhonebookAccessDisabled") delegate:nil cancelButtonTitle:TGLocalized(@"OK") otherButtonTitles:nil] show];
+                                        [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Contacts.AccessDeniedError") delegate:nil cancelButtonTitle:TGLocalized(@"OK") otherButtonTitles:nil] show];
                                     });
          }
          else
@@ -1133,7 +1136,7 @@ static UIView *_findBackArrow(UIView *view)
                                     {
                                         self.view.userInteractionEnabled = true;
                                         
-                                        [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Profile.PhonebookAccessDisabled") delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil] show];
+                                        [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Contacts.AccessDeniedError") delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil] show];
                                     });
          }
          else
@@ -1169,7 +1172,7 @@ static UIView *_findBackArrow(UIView *view)
         
         if (user != nil && user.photoUrlBig != nil && avatarView.currentImage != nil)
         {
-            TGModernGalleryController *modernGallery = [[TGModernGalleryController alloc] init];
+            TGModernGalleryController *modernGallery = [[TGModernGalleryController alloc] initWithContext:[TGLegacyComponentsContext shared]];
             modernGallery.previewMode = previewMode;
             if (previewMode)
                 modernGallery.showInterface = false;
@@ -1249,7 +1252,7 @@ static UIView *_findBackArrow(UIView *view)
             
             if (!previewMode)
             {
-                TGOverlayControllerWindow *controllerWindow = [[TGOverlayControllerWindow alloc] initWithParentController:self contentController:modernGallery];
+                TGOverlayControllerWindow *controllerWindow = [[TGOverlayControllerWindow alloc] initWithManager:[[TGLegacyComponentsContext shared] makeOverlayWindowManager] parentController:self contentController:modernGallery];
                 controllerWindow.hidden = false;
             }
             else
@@ -1271,11 +1274,14 @@ static UIView *_findBackArrow(UIView *view)
     {
         __weak TGBotUserInfoController *weakSelf = self;
         TGConversation *conversation = options[@"target"];
+        if (![conversation isKindOfClass:[TGConversation class]])
+            return;
         
         TGProgressWindow *progressWindow = [[TGProgressWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
         [progressWindow show:true];
         
         if (conversation.isChannel) {
+            TGUser *user = _user;
             [[[[TGChannelManagementSignals inviteUsers:conversation.conversationId accessHash:conversation.accessHash users:@[_user]] deliverOn:[SQueue mainQueue]] onDispose:^{
                 TGDispatchOnMainThread(^{
                     [progressWindow dismiss:true];
@@ -1285,6 +1291,14 @@ static UIView *_findBackArrow(UIView *view)
                 NSString *alertText = TGLocalized(@"ConversationProfile.UnknownAddMemberError");
                 if ([errorDescription isEqualToString:@"USER_ALREADY_PARTICIPANT"])
                     alertText = TGLocalized(@"Target.InviteToGroupErrorAlreadyInvited");
+                else if ([errorDescription isEqualToString:@"CHAT_ADMIN_REQUIRED"]) {
+                    TGUser *botUser = [TGDatabaseInstance() loadUser:user.uid];
+                    if (botUser.isBot) {
+                        alertText = TGLocalized(@"Group.Members.AddMemberBotErrorNotAllowed");
+                    } else {
+                        alertText = TGLocalized(@"Group.Members.AddMemberErrorNotAllowed");
+                    }
+                }
                 
                 [[[TGAlertView alloc] initWithTitle:nil message:alertText cancelButtonTitle:TGLocalized(@"Common.OK") okButtonTitle:nil completionBlock:nil] show];
             } completed:^{
@@ -1295,6 +1309,7 @@ static UIView *_findBackArrow(UIView *view)
             }];
             
         } else {
+            int32_t uid = _uid;
             [[[[TGGroupManagementSignals inviteUserWithId:_uid toGroupWithId:TGGroupIdFromPeerId(conversation.conversationId)] deliverOn:[SQueue mainQueue]] onDispose:^
             {
                 [progressWindow dismiss:true];
@@ -1310,6 +1325,9 @@ static UIView *_findBackArrow(UIView *view)
                 NSString *alertText = TGLocalized(@"ConversationProfile.UnknownAddMemberError");
                 if ([errorDescription isEqualToString:@"USER_ALREADY_PARTICIPANT"])
                     alertText = TGLocalized(@"Target.InviteToGroupErrorAlreadyInvited");
+                else if ([errorDescription isEqualToString:@"CHAT_ADMIN_REQUIRED"]) {
+                    alertText = TGLocalized(@"Group.Members.AddMemberBotErrorNotAllowed");
+                }
                 
                 [[[TGAlertView alloc] initWithTitle:nil message:alertText cancelButtonTitle:TGLocalized(@"Common.OK") okButtonTitle:nil completionBlock:nil] show];
             } completed:nil];
@@ -1411,7 +1429,7 @@ static UIView *_findBackArrow(UIView *view)
             }
             else
             {
-                [[[TGAlertView alloc] initWithTitle:nil message:status == -2 ? [[NSString alloc] initWithFormat:TGLocalized(@"Profile.CreateEncryptedChatOutdatedError"), _user.displayFirstName, _user.displayFirstName] : TGLocalized(@"Profile.CreateEncryptedChatError") delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil] show];
+                [[[TGAlertView alloc] initWithTitle:nil message:status == -2 ? [[NSString alloc] initWithFormat:TGLocalized(@"Login.UnknownError"), _user.displayFirstName, _user.displayFirstName] : TGLocalized(@"Profile.CreateEncryptedChatError") delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil] show];
             }
         });
     }
@@ -1532,19 +1550,7 @@ static UIView *_findBackArrow(UIView *view)
     else if ([link hasPrefix:@"hashtag://"])
     {
         NSString *hashtag = [link substringFromIndex:@"hashtag://".length];
-        
-        TGHashtagSearchController *hashtagController = [[TGHashtagSearchController alloc] initWithQuery:[@"#" stringByAppendingString:hashtag] peerId:0 accessHash:0];
-        //__weak TGChannelInfoController *weakSelf = self;
-        /*hashtagController.customResultBlock = ^(int32_t messageId) {
-         __strong TGChannelInfoController *strongSelf = weakSelf;
-         if (strongSelf != nil) {
-         [strongSelf navigateToMessageId:messageId scrollBackMessageId:0 animated:true];
-         TGModernConversationController *controller = strongSelf.controller;
-         [controller.navigationController popToViewController:controller animated:true];
-         }
-         };*/
-        
-        [self.navigationController pushViewController:hashtagController animated:true];
+        [[TGInterfaceManager instance] displayHashtagOverview:[@"#" stringByAppendingString:hashtag] conversationId:_uid];
     } else {
         @try {
             NSURL *url = [NSURL URLWithString:link];
@@ -1589,7 +1595,7 @@ static UIView *_findBackArrow(UIView *view)
         TGModernGalleryController *controller = (TGModernGalleryController *)viewControllerToCommit;
         controller.previewMode = false;
         
-        TGOverlayControllerWindow *controllerWindow = [[TGOverlayControllerWindow alloc] initWithParentController:self contentController:controller];
+        TGOverlayControllerWindow *controllerWindow = [[TGOverlayControllerWindow alloc] initWithManager:[[TGLegacyComponentsContext shared] makeOverlayWindowManager] parentController:self contentController:controller];
         controllerWindow.hidden = false;
     }
 }

@@ -1,12 +1,13 @@
 #import "TGConvertToSupergroupController.h"
 
-#import "TGConversation.h"
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGGroupManagementSignals.h"
 
 #import "TGCommentCollectionItem.h"
 #import "TGButtonCollectionItem.h"
 
-#import "TGProgressWindow.h"
+#import <LegacyComponents/TGProgressWindow.h>
 #import "TGInterfaceManager.h"
 
 #import "TGAlertView.h"
@@ -31,7 +32,7 @@
         TGCommentCollectionItem *helpTitleItem = [[TGCommentCollectionItem alloc] initWithFormattedText:TGLocalized(@"ConvertToSupergroup.HelpTitle")];
         [helpItems addObject:helpTitleItem];
         
-        TGCommentCollectionItem *helpTextItem = [[TGCommentCollectionItem alloc] initWithFormattedText:TGLocalized(@"ConvertToSupergroup.HelpText") paragraphSpacing:4.0f];
+        TGCommentCollectionItem *helpTextItem = [[TGCommentCollectionItem alloc] initWithFormattedText:TGLocalized(@"ConvertToSupergroup.HelpText") paragraphSpacing:4.0f clearFormatting:false];
         helpTextItem.topInset -= 4.0f;
         [helpItems addObject:helpTextItem];
         

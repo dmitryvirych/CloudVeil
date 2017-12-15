@@ -10,7 +10,7 @@
 
 #import "TL/TLMetaScheme.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/ActionStage.h>
 
 #import "TGTelegraph.h"
 
@@ -19,14 +19,18 @@
 
 #import <MTProtoKit/MTEncryption.h>
 #import <MTProtoKit/MTRequest.h>
+
+#import "TGCdnFileData.h"
     
 @interface TGFilePartInfo : NSObject
 
 @property (nonatomic, strong) id token;
 @property (nonatomic) NSTimeInterval startTime;
+@property (nonatomic) int partOffset;
 @property (nonatomic) int partLength;
 @property (nonatomic) int downloadedLength;
 @property (nonatomic) NSData *downloadedData;
+@property (nonatomic) bool restart;
 
 @end
 
@@ -49,6 +53,8 @@
     NSOutputStream *_fileStream;
     NSOutputStream *_encryptionContextStream;
     int _currentEncryptionContextStreamCount;
+    
+    NSDictionary<NSNumber *, NSData *> *_cdnFilePartHashes;
     
     NSData *_encryptionKey;
     NSData *_encryptionIv;
@@ -73,6 +79,14 @@
     int _nextWorker;
     
     bool _completeWithData;
+    
+    TGCdnFileData *_cdnFileData;
+    TGNetworkMediaTypeTag _mediaTypeTag;
+    
+    SMetaDisposable *_reuploadDisposable;
+    bool _isReuploading;
+    
+    SMetaDisposable *_partHashesDisposable;
 }
 
 @end
@@ -134,6 +148,9 @@
         [_encryptionContextStream close];
         _encryptionContextStream = nil;
     }
+    
+    [_reuploadDisposable dispose];
+    [_partHashesDisposable dispose];
 }
 
 - (void)storeCurrentIv
@@ -203,8 +220,8 @@
         _fileStream = [[NSOutputStream alloc] initToFileAtPath:_tempStoreFilePath append:true];
         [_fileStream open];
         
-#if TGUseModernNetworking
         TGNetworkMediaTypeTag mediaTypeTag = (TGNetworkMediaTypeTag)([options[@"mediaTypeTag"] intValue]);
+        _mediaTypeTag = mediaTypeTag;
         __weak TGMultipartFileDownloadActor *weakSelf = self;
         _worker1Token = [[TGTelegramNetworking instance] requestDownloadWorkerForDatacenterId:_datacenterId type:mediaTypeTag completion:^(TGNetworkWorkerGuard *worker)
         {
@@ -223,9 +240,6 @@
                 [strongSelf assignAdditionalWorker:worker];
             }
         }];
-#else
-        [self downloadFilePartsWithWorker:nil];
-#endif
     }
     else
     {
@@ -281,6 +295,10 @@
 
 - (void)downloadFileParts
 {
+    if (_worker1 == nil) {
+        return;
+    }
+    
     if (_size != 0 && _downloadedFileSize >= _size)
     {
         if (_fileStream != nil)
@@ -321,7 +339,7 @@
         
         [_downloadingParts enumerateKeysAndObjectsUsingBlock:^(__unused NSNumber *offset, TGFilePartInfo *partInfo, __unused BOOL *stop)
         {
-            if (partInfo.downloadedData == nil)
+            if (partInfo.downloadedData == nil && !partInfo.restart)
                 activeDownloadingParts++;
         }];
         
@@ -337,6 +355,14 @@
                 {
                     if ([offset intValue] + partInfo.partLength > nextDownloadOffset)
                         nextDownloadOffset = [offset intValue] + partInfo.partLength;
+                    if (partInfo.restart) {
+                        partInfo.restart = false;
+                        
+                        TGFilePartRequestInfo *requestInfo = [[TGFilePartRequestInfo alloc] init];
+                        requestInfo.offset = partInfo.partOffset;
+                        requestInfo.length = partInfo.partLength;
+                        [requestList addObject:requestInfo];
+                    }
                 }];
                 
                 if (_size != 0 && nextDownloadOffset >= _size)
@@ -354,6 +380,7 @@
                 [requestList addObject:requestInfo];
                 
                 TGFilePartInfo *partInfo = [[TGFilePartInfo alloc] init];
+                partInfo.partOffset = nextDownloadOffset;
                 partInfo.partLength = partLength;
                 _downloadingParts[@(nextDownloadOffset)] = partInfo;
                 
@@ -365,6 +392,7 @@
                 [requestList addObject:explicitPartRequest];
                 
                 TGFilePartInfo *partInfo = [[TGFilePartInfo alloc] init];
+                partInfo.partOffset = explicitPartRequest.offset;
                 partInfo.partLength = explicitPartRequest.length;
                 _downloadingParts[@(explicitPartRequest.offset)] = partInfo;
                 activeDownloadingParts++;
@@ -375,16 +403,32 @@
         
         for (TGFilePartRequestInfo *requestInfo in requestList)
         {
-#if TGUseModernNetworking
             MTRequest *request = [[MTRequest alloc] init];
             
-            TLRPCupload_getFile$upload_getFile *getFile = [[TLRPCupload_getFile$upload_getFile alloc] init];
+            int32_t updatedLimit = requestInfo.length;
+            while (updatedLimit % 4096 != 0 || 1048576 % updatedLimit != 0) {
+                updatedLimit++;
+            }
             
             TLInputFileLocation *location = _fileLocation;
-            getFile.location = location;
-            getFile.offset = requestInfo.offset;
-            getFile.limit = requestInfo.length;
-            request.body = getFile;
+            
+            if (_cdnFileData != nil) {
+                TLRPCupload_getCdnFile$upload_getCdnFile *getFile = [[TLRPCupload_getCdnFile$upload_getCdnFile alloc] init];
+                
+                getFile.file_token = _cdnFileData.token;
+                getFile.offset = requestInfo.offset;
+                
+                getFile.limit = updatedLimit;
+                request.body = getFile;
+            } else {
+                TLRPCupload_getFile$upload_getFile *getFile = [[TLRPCupload_getFile$upload_getFile alloc] init];
+                
+                getFile.location = location;
+                getFile.offset = requestInfo.offset;
+                
+                getFile.limit = updatedLimit;
+                request.body = getFile;
+            }
             
             __weak TGMultipartFileDownloadActor *weakSelf = self;
             [request setCompleted:^(TLupload_File *result, __unused NSTimeInterval timestamp, id error)
@@ -393,10 +437,43 @@
                 {
                     __strong TGMultipartFileDownloadActor *strongSelf = weakSelf;
                     
-                    if (error == nil)
-                        [strongSelf filePartDownloadSuccess:location offset:requestInfo.offset length:requestInfo.length data:result.bytes];
-                    else
-                        [strongSelf filePartDownloadFailed:location offset:requestInfo.offset length:requestInfo.length];
+                    if (strongSelf != nil) {
+                        if (error == nil) {
+                            if ([result isKindOfClass:[TLupload_File$upload_file class]]) {
+                                [strongSelf filePartDownloadSuccess:location offset:requestInfo.offset length:requestInfo.length data:((TLupload_File$upload_file *)result).bytes];
+                            } else if ([result isKindOfClass:[TLupload_File$upload_fileCdnRedirect class]]) {
+                                ((TGFilePartInfo *)strongSelf->_downloadingParts[@(requestInfo.offset)]).restart = true;
+                                TLupload_File$upload_fileCdnRedirect *redirect = (TLupload_File$upload_fileCdnRedirect *)result;
+                                
+                                NSMutableDictionary *hashDict = [[NSMutableDictionary alloc] init];
+                                for (TLCdnFileHash$cdnFileHash *nHash in redirect.cdn_file_hashes) {
+                                    hashDict[@(nHash.offset)] = nHash.n_hash;
+                                }
+                                
+                                [strongSelf switchToCdnWithFileData:[[TGCdnFileData alloc] initWithCdnId:redirect.dc_id token:redirect.file_token encryptionKey:redirect.encryption_key encryptionIv:redirect.encryption_iv] partHashes:hashDict];
+                            } else if ([result isKindOfClass:[TLupload_CdnFile$upload_cdnFile class]]) {
+                                TGCdnFileData *fileData = strongSelf->_cdnFileData;
+                                NSData *bytes = ((TLupload_CdnFile$upload_cdnFile *)result).bytes;
+                                NSMutableData *encryptionIv = [[NSMutableData alloc] initWithData:fileData.encryptionIv];
+                                int32_t ivOffset = requestInfo.offset / 16;
+                                ivOffset = NSSwapInt(ivOffset);
+                                memcpy(encryptionIv.mutableBytes + encryptionIv.length - 4, &ivOffset, 4);
+                                NSData *data = nil;
+                                if (bytes.length != 0) {
+                                    data = MTAesCtrDecrypt(bytes, fileData.encryptionKey, encryptionIv);
+                                } else {
+                                    data = [NSData data];
+                                }
+                                [strongSelf filePartDownloadSuccess:location offset:requestInfo.offset length:requestInfo.length data:data];
+                            } else if ([result isKindOfClass:[TLupload_CdnFile$upload_cdnFileReuploadNeeded class]]) {
+                                ((TGFilePartInfo *)strongSelf->_downloadingParts[@(requestInfo.offset)]).restart = true;
+                                TLupload_CdnFile$upload_cdnFileReuploadNeeded *reupload = (TLupload_CdnFile$upload_cdnFileReuploadNeeded *)result;
+                                [strongSelf reuploadToCdn:reupload.request_token];
+                            }
+                        }
+                        else
+                            [strongSelf filePartDownloadFailed:location offset:requestInfo.offset length:requestInfo.length];
+                    }
                 }];
             }];
             
@@ -420,12 +497,114 @@
             
             id token = request.internalId;
             [worker.strongWorker addRequest:request];
-#else
-            id token = [TGTelegraphInstance doDownloadFilePart:_datacenterId location:_fileLocation offset:requestInfo.offset length:requestInfo.length actor:(id<TGFileDownloadActor>)self];
-#endif
+
             ((TGFilePartInfo *)_downloadingParts[@(requestInfo.offset)]).token = token;
         }
     }
+}
+
+- (void)switchToCdnWithFileData:(TGCdnFileData *)fileData partHashes:(NSDictionary *)partHashes {
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    if (partHashes != nil) {
+        [dict addEntriesFromDictionary:partHashes];
+    }
+    int32_t maxOffset = 0;
+    for (NSNumber *nOffset in dict.keyEnumerator) {
+        maxOffset = MAX(maxOffset, [nOffset intValue] + 128 * 1024);
+    }
+    if (maxOffset < _size) {
+        if (_partHashesDisposable == nil) {
+            _partHashesDisposable = [[SMetaDisposable alloc] init];
+        }
+        __weak TGMultipartFileDownloadActor *weakSelf = self;
+        
+        [_partHashesDisposable setDisposable:[[[[TGTelegramNetworking instance] downloadWorkerForDatacenterId:_datacenterId type:TGNetworkMediaTypeTagGeneric] mapToSignal:^SSignal *(TGNetworkWorkerGuard *worker) {
+            TLRPCupload_getCdnFileHashes$upload_getCdnFileHashes *getCdnFileHashes = [[TLRPCupload_getCdnFileHashes$upload_getCdnFileHashes alloc] init];
+            getCdnFileHashes.file_token = fileData.token;
+            getCdnFileHashes.offset = maxOffset;
+            return [[TGTelegramNetworking instance] requestSignal:getCdnFileHashes worker:worker];
+        }] startWithNext:^(NSArray *hashes) {
+            [ActionStageInstance() dispatchOnStageQueue:^{
+                __strong TGMultipartFileDownloadActor *strongSelf = weakSelf;
+                if (strongSelf != nil) {
+                    for (TLCdnFileHash$cdnFileHash *nHash in hashes) {
+                        dict[@(nHash.offset)] = nHash.n_hash;
+                    }
+                    
+                    int32_t maxOffset = 0;
+                    for (NSNumber *nOffset in dict.keyEnumerator) {
+                        maxOffset = MAX(maxOffset, [nOffset intValue] + 128 * 1024);
+                    }
+                    
+                    if (maxOffset < strongSelf->_size) {
+                        [strongSelf switchToCdnWithFileData:fileData partHashes:dict];
+                    } else {
+                        strongSelf->_cdnFilePartHashes = dict;
+                        [strongSelf switchToCdn:fileData];
+                    }
+                }
+            }];
+        } error:nil completed:nil]];
+    } else {
+        _cdnFilePartHashes = dict;
+        [self switchToCdn:fileData];
+    }
+}
+    
+- (void)switchToCdn:(TGCdnFileData *)fileData {
+    if (_cdnFileData != nil) {
+        return;
+    }
+    
+    _cdnFileData = fileData;
+    
+    _worker1 = nil;
+    _worker2 = nil;
+    
+    __weak TGMultipartFileDownloadActor *weakSelf = self;
+    _worker1Token = [[TGTelegramNetworking instance] requestDownloadWorkerForDatacenterId:fileData.cdnId type:_mediaTypeTag isCdn:true completion:^(TGNetworkWorkerGuard *worker)
+    {
+        __strong TGMultipartFileDownloadActor *strongSelf = weakSelf;
+        if (strongSelf != nil)
+        {
+            [strongSelf downloadFilePartsWithWorker:worker];
+        }
+    }];
+    
+    _worker2Token = [[TGTelegramNetworking instance] requestDownloadWorkerForDatacenterId:fileData.cdnId type:_mediaTypeTag isCdn:true completion:^(TGNetworkWorkerGuard *worker)
+    {
+        __strong TGMultipartFileDownloadActor *strongSelf = weakSelf;
+        if (strongSelf != nil)
+        {
+            [strongSelf assignAdditionalWorker:worker];
+        }
+    }];
+}
+    
+- (void)reuploadToCdn:(NSData *)requestToken {
+    if (_isReuploading) {
+        return;
+    }
+    _isReuploading = true;
+    if (_reuploadDisposable == nil) {
+        _reuploadDisposable = [[SMetaDisposable alloc] init];
+    }
+    NSData *fileToken = _cdnFileData.token;
+    __weak TGMultipartFileDownloadActor *weakSelf = self;
+    [_reuploadDisposable setDisposable:[[[[TGTelegramNetworking instance] downloadWorkerForDatacenterId:_datacenterId type:TGNetworkMediaTypeTagGeneric] mapToSignal:^SSignal *(TGNetworkWorkerGuard *worker) {
+        TLRPCupload_reuploadCdnFile$upload_reuploadCdnFile *reupload = [[TLRPCupload_reuploadCdnFile$upload_reuploadCdnFile alloc] init];
+        reupload.file_token = fileToken;
+        reupload.request_token = requestToken;
+        return [[TGTelegramNetworking instance] requestSignal:reupload worker:worker];
+    }] startWithNext:^(__unused id next) {
+        [ActionStageInstance() dispatchOnStageQueue:^{
+            __strong TGMultipartFileDownloadActor *strongSelf = weakSelf;
+            if (strongSelf != nil) {
+                strongSelf->_isReuploading = false;
+                [strongSelf downloadFileParts];
+            }
+        }];
+    } error:nil completed:nil]];
 }
 
 - (void)filePartDownloadProgress:(TLInputFileLocation *)__unused location offset:(int)offset length:(int)__unused length packetLength:(int)packetLength progress:(float)progress
@@ -539,6 +718,30 @@
                             _currentEncryptionContextStreamCount++;
                         
                         [_encryptionContextStream writeData:_runningEncryptionIv];
+                    }
+                    
+                    if (_cdnFilePartHashes != nil) {
+                        int32_t basePartOffset = [nOffset intValue];
+                        for (int32_t localOffset = 0; localOffset < (int32_t)dataToWrite.length; localOffset += 128 * 1024) {
+                            int32_t partOffset = basePartOffset + localOffset;
+                            NSData *hashData = _cdnFilePartHashes[@(partOffset)];
+                            if (hashData == nil) {
+                                TGLog(@"File CDN part hash missing at %d", partOffset);
+                                [ActionStageInstance() actionFailed:self.path reason:-1];
+                                return;
+                            }
+                            NSData *localHash = nil;
+                            if (partOffset + 128 * 1024 > (int32_t)dataToWrite.length) {
+                                localHash = MTSha256([[NSData alloc] initWithBytesNoCopy:(void *)dataToWrite.bytes + localOffset length:(int32_t)dataToWrite.length - localOffset freeWhenDone:false]);
+                            } else {
+                                localHash = MTSha256([[NSData alloc] initWithBytesNoCopy:(void *)dataToWrite.bytes + localOffset length:128 * 1024 freeWhenDone:false]);
+                            }
+                            if (![localHash isEqual:hashData]) {
+                                TGLog(@"File CDN part hash mismatch at %d", partOffset);
+                                [ActionStageInstance() actionFailed:self.path reason:-1];
+                                return;
+                            }
+                        }
                     }
                     
                     [_fileStream writeData:dataToWrite];

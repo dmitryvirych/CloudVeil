@@ -1,21 +1,12 @@
-/*
- * This is the source code of Telegram for iOS v. 1.1
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Peter Iakovlev, 2013.
- */
-
 #import "TGWallpaperManager.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGWallpaperInfo.h"
-#import "TGColorWallpaperInfo.h"
-#import "TGBuiltinWallpaperInfo.h"
+#import <LegacyComponents/ActionStage.h>
 
-#import "TGImageUtils.h"
-#import "TGViewController.h"
+#import <LegacyComponents/TGWallpaperInfo.h>
+#import <LegacyComponents/TGColorWallpaperInfo.h>
+#import <LegacyComponents/TGBuiltinWallpaperInfo.h>
 
 #import "TGAppDelegate.h"
 
@@ -82,7 +73,7 @@
             
             if ([wallpaperInfo hasData])
             {
-                _wallpaperImageData = [[NSData alloc] initWithContentsOfFile:fileName];
+                _wallpaperImageData = [[NSData alloc] initWithContentsOfFile:fileName options:NSDataReadingMappedIfSafe error:nil];
                 
                 if (_wallpaperImageData != nil)
                 {
@@ -90,7 +81,9 @@
                     _wallpaperInfo = [TGWallpaperInfo infoWithDictionary:infoDict];
                 }
                 
-                if (_wallpaperInfo == nil)
+                if ([_wallpaperInfo isKindOfClass:[TGBuiltinWallpaperInfo class]] && ((TGBuiltinWallpaperInfo *)_wallpaperInfo).isDefault && ((TGBuiltinWallpaperInfo *)_wallpaperInfo).version < TGBuilitinWallpaperCurrentVersion)
+                    [self setCurrentWallpaperWithInfo:[self builtinWallpaperList][0] force:true];
+                else if (_wallpaperInfo == nil)
                     [self setCurrentWallpaperWithInfo:[self builtinWallpaperList][0]];
             }
             else
@@ -160,7 +153,12 @@
 
 - (void)setCurrentWallpaperWithInfo:(TGWallpaperInfo *)wallpaperInfo
 {
-    if (![_wallpaperInfo isEqual:wallpaperInfo])
+    [self setCurrentWallpaperWithInfo:wallpaperInfo force:false];
+}
+
+- (void)setCurrentWallpaperWithInfo:(TGWallpaperInfo *)wallpaperInfo force:(bool)force
+{
+    if (force || ![_wallpaperInfo isEqual:wallpaperInfo])
     {
         if ([wallpaperInfo hasData])
         {
@@ -254,7 +252,7 @@
         }
         else
         {
-            [array addObject:[[TGBuiltinWallpaperInfo alloc] initWithBuiltinId:i tintColor:tintColor systemAlpha:systemAlpha buttonsAlpha:buttonsAlpha highlightedButtonAlpha:highlightedButtonAlpha progressAlpha:progressAlpha]];
+            [array addObject:[[TGBuiltinWallpaperInfo alloc] initWithBuiltinId:i tintColor:tintColor systemAlpha:systemAlpha buttonsAlpha:buttonsAlpha highlightedButtonAlpha:highlightedButtonAlpha progressAlpha:progressAlpha version:TGBuilitinWallpaperCurrentVersion]];
         }
     }
     

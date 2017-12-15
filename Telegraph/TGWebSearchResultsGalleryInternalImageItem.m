@@ -1,14 +1,11 @@
 #import "TGWebSearchResultsGalleryInternalImageItem.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGWebSearchResultsGalleryImageItemView.h"
 #import "TGWebSearchInternalImageResult+TGMediaItem.h"
 
-#import "TGImageInfo.h"
-#import "TGRemoteImageView.h"
-
-#import "TGStringUtils.h"
-
-#import "TGUser.h"
+#import <LegacyComponents/TGRemoteImageView.h>
 
 @implementation TGWebSearchResultsGalleryInternalImageItem
 
@@ -74,7 +71,7 @@
 
 - (TGPhotoEditorTab)toolbarTabs
 {
-    return TGPhotoEditorCaptionTab | TGPhotoEditorCropTab | TGPhotoEditorToolsTab;
+    return TGPhotoEditorCropTab | TGPhotoEditorToolsTab;
 }
 
 - (NSString *)uniqueId

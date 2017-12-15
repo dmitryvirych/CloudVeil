@@ -1,19 +1,16 @@
 #import "TGMusicPlayerView.h"
 
-#import "TGImageUtils.h"
-#import "TGFont.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGModernButton.h"
+#import <MediaPlayer/MediaPlayer.h>
 
 #import "TGTelegraph.h"
+#import "TGInterfaceManager.h"
+
+#import <LegacyComponents/TGModernButton.h>
 
 #import "TGMusicPlayerController.h"
-
-#import "TGNavigationController.h"
-
-#import "TGDateUtils.h"
-
-#import <pop/POP.h>
+#import "TGVideoMessagePIPController.h"
 
 @interface TGMusicPlayerView ()
 {
@@ -39,8 +36,11 @@
     bool _isVoice;
     
     bool _updateLabelsLayout;
+    
+    MPVolumeView *_volumeOverlayFixView;
+    
+    TGVideoMessagePIPController *_pipController;
 }
-
 @end
 
 @implementation TGMusicPlayerView
@@ -67,20 +67,20 @@
         
         _closeButton = [[TGModernButton alloc] init];
         _closeButton.adjustsImageWhenHighlighted = false;
-        [_closeButton setImage:[UIImage imageNamed:@"MusicPlayerMinimizedClose.png"] forState:UIControlStateNormal];
+        [_closeButton setImage:TGImageNamed(@"MusicPlayerMinimizedClose.png") forState:UIControlStateNormal];
         [_closeButton addTarget:self action:@selector(closeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [_minimizedBar addSubview:_closeButton];
         
         _playButton = [[TGModernButton alloc] init];
         _playButton.adjustsImageWhenHighlighted = false;
-        [_playButton setImage:[UIImage imageNamed:@"MusicPlayerMinimizedPlay.png"] forState:UIControlStateNormal];
+        [_playButton setImage:TGImageNamed(@"MusicPlayerMinimizedPlay.png") forState:UIControlStateNormal];
         [_playButton addTarget:self action:@selector(playButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [_minimizedBar addSubview:_playButton];
         _playButton.hidden = true;
         
         _pauseButton = [[TGModernButton alloc] init];
         _pauseButton.adjustsImageWhenHighlighted = false;
-        [_pauseButton setImage:[UIImage imageNamed:@"MusicPlayerMinimizedPause.png"] forState:UIControlStateNormal];
+        [_pauseButton setImage:TGImageNamed(@"MusicPlayerMinimizedPause.png") forState:UIControlStateNormal];
         [_pauseButton addTarget:self action:@selector(pauseButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         [_minimizedBar addSubview:_pauseButton];
         _pauseButton.hidden = true;
@@ -112,6 +112,16 @@
         }];
         
         _updateLabelsLayout = true;
+        
+        _pipController = [[TGVideoMessagePIPController alloc] init];
+        _pipController.messageVisibilitySignal = ^SSignal *(int64_t peerId, int32_t messageId)
+        {
+            return [[[TGInterfaceManager instance] messageVisibilitySignalWithConversationId:peerId messageId:messageId] deliverOn:[SQueue mainQueue]];
+        };
+        _pipController.requestedDismissal = ^
+        {
+            [TGTelegraphInstance.musicPlayer setPlaylist:nil initialItemKey:nil metadata:nil];
+        };
     }
     return self;
 }
@@ -128,6 +138,24 @@
     
     if (_updateLabelsLayout)
         [self setNeedsLayout];
+}
+
+- (void)inhibitVolumeOverlay
+{
+    if (_volumeOverlayFixView != nil)
+        return;
+    
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    UIView *rootView = keyWindow.rootViewController.view;
+    
+    _volumeOverlayFixView = [[MPVolumeView alloc] initWithFrame:CGRectMake(10000, 10000, 20, 20)];
+    [rootView addSubview:_volumeOverlayFixView];
+}
+
+- (void)releaseVolumeOverlay
+{
+    [_volumeOverlayFixView removeFromSuperview];
+    _volumeOverlayFixView = nil;
 }
 
 - (void)setStatus:(TGMusicPlayerStatus *)status
@@ -148,7 +176,13 @@
                 title = authorName;
                 performer = [TGDateUtils stringForApproximateDate:status.item.date];
             } else {
-                title = TGLocalized(@"MusicPlayer.VoiceNote");
+                if (status.item.isVideo) {
+                    title = TGLocalized(@"Message.VideoMessage");
+                } else {
+                    title = TGLocalized(@"MusicPlayer.VoiceNote");
+                }
+                if (status.item.date > 0)
+                    performer = [TGDateUtils stringForApproximateDate:status.item.date];
             }
         } else {
             title = status.item.title;
@@ -177,6 +211,11 @@
         }
     }
     
+    if (_currentStatus != nil)
+        [self inhibitVolumeOverlay];
+    else
+        [self releaseVolumeOverlay];
+    
     static POPAnimatableProperty *property = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
@@ -200,7 +239,7 @@
     _pauseButton.hidden = status.paused;
     _scrubbingIndicator.hidden = status.isVoice;
     
-    if (status == nil || status.paused || status.duration < FLT_EPSILON || status.offset < 0.01)
+    if (status == nil || status.paused || status.duration < FLT_EPSILON || status.offset < 0.01 || _scrubbingIndicator.hidden)
     {
         [self pop_removeAnimationForKey:@"scrubbingIndicator"];
         
@@ -292,36 +331,29 @@
 
 - (void)minimizedButtonPressed
 {
-    if (_currentStatus.item == nil || _currentStatus.item.isVoice)
+    if (_currentStatus.item == nil)
         return;
     
+    if (_currentStatus.item.isVoice)
+    {
+        NSNumber *key = (NSNumber *)_currentStatus.item.key;
+        int32_t mid = 0;
+        if ([key isKindOfClass:[NSNumber class]])
+            mid = [key int32Value];
+        
+        if (mid == 0)
+            return;
+        
+        [[TGInterfaceManager instance] navigateToConversationWithId:_currentStatus.item.peerId conversation:nil performActions:nil atMessage:@{ @"mid": @(mid), @"useExisting": @true } clearStack:true openKeyboard:false canOpenKeyboardWhileInTransition:false animated:true];
+        return;
+    }
+    
     TGMusicPlayerController *controller = [[TGMusicPlayerController alloc] init];
-    UINavigationController *navigationController = _navigationController;
+    UIViewController *rootController = _navigationController.parentViewController;
+    [rootController.view endEditing:true];
     
-    UIViewController *presentedController = controller;
-    
-    CGSize preferredSize = CGSizeMake(414.0f, 667.0f);
-    if (TGIsPad())
-    {
-        TGNavigationController *playerNavigationController = [TGNavigationController navigationControllerWithControllers:@[controller]];
-        playerNavigationController.presentationStyle = TGNavigationControllerPresentationStyleInFormSheet;
-        playerNavigationController.modalPresentationStyle = UIModalPresentationFormSheet;
-        playerNavigationController.preferredContentSize = preferredSize;
-        presentedController = playerNavigationController;
-    }
-    else
-    {
-        navigationController.modalPresentationStyle = UIModalPresentationCurrentContext;
-        presentedController.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-    }
-    
-    NSNumber *value = [NSNumber numberWithInt:UIInterfaceOrientationPortrait];
-    [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
-    
-    [navigationController presentViewController:presentedController animated:true completion:nil];
-    
-    if (TGIsPad() && iosMajorVersion() < 8)
-        presentedController.view.superview.bounds = CGRectMake(0, 0, preferredSize.width, preferredSize.height);
+    [rootController addChildViewController:controller];
+    [rootController.view addSubview:controller.view];
 }
 
 @end

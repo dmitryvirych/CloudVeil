@@ -2,15 +2,7 @@
 #import <SSignalKit/SSignalKit.h>
 #import <AVFoundation/AVFoundation.h>
 
-typedef enum {
-    TGAudioSessionTypePlayVoice,
-    TGAudioSessionTypePlayMusic,
-    TGAudioSessionTypePlayVideo,
-    TGAudioSessionTypePlayAndRecord,
-    TGAudioSessionTypePlayAndRecordHeadphones,
-    TGAudioSessionTypeCall
-} TGAudioSessionType;
-
+#import <LegacyComponents/LegacyComponentsGlobals.h>
 
 typedef enum {
     TGAudioSessionRouteChangePause,

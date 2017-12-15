@@ -1,10 +1,10 @@
 #import "TGRootController.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGAppDelegate.h"
-#import "TGImageUtils.h"
 
 #import "TGTabletMainView.h"
-#import "TGNavigationController.h"
 
 #import "TGDialogListController.h"
 #import "TGTelegraphDialogListCompanion.h"
@@ -14,6 +14,9 @@
 #import "TGMainTabsController.h"
 
 #import "TGCallStatusBarView.h"
+#import "TGVolumeBarView.h"
+
+#import "TGPresentation.h"
 
 @interface TGRootController ()
 {
@@ -26,6 +29,9 @@
     
     SVariable *_sizeClassVariable;
     SMetaDisposable *_callDisposable;
+    
+    id<SDisposable> _presentationDisposable;
+    TGPresentation *_presentation;
 }
 
 @end
@@ -40,16 +46,24 @@
         [self setNavigationBarHidden:true animated:false];
         self.automaticallyManageScrollViewInsets = false;
         
+        __weak TGRootController *weakSelf = self;
+        _presentationDisposable = [TGPresentation.signal startWithNext:^(TGPresentation *next)
+        {
+            __strong TGRootController *strongSelf = weakSelf;
+            if (strongSelf != nil)
+                [strongSelf setPresentation:next];
+        }];
+        
         TGTelegraphDialogListCompanion *dialogListCompanion = [[TGTelegraphDialogListCompanion alloc] init];
-        dialogListCompanion.showBroadcastsMenu = true;
         _dialogListController = [[TGDialogListController alloc] initWithCompanion:dialogListCompanion];
+        _dialogListController.presentation = _presentation;
         
         _contactsController = [[TGContactsController alloc] initWithContactsMode:TGContactsModeMainContacts | TGContactsModeRegistered | TGContactsModePhonebook | TGContactsModeSortByLastSeen];
         
         _accountSettingsController = [[TGAccountSettingsController alloc] initWithUid:0];
         
-        __weak TGRootController *weakSelf = self;
         _callsController = [[TGRecentCallsController alloc] init];
+        _callsController.presentation = _presentation;
         _callsController.missedCountChanged = ^(NSInteger count)
         {
             __strong TGRootController *strongSelf = weakSelf;
@@ -57,10 +71,15 @@
                 [strongSelf->_mainTabsController setMissedCallsCount:(int)count];
         };
         
-        _mainTabsController = [[TGMainTabsController alloc] init];
+        _mainTabsController = [[TGMainTabsController alloc] initWithPresentation:_presentation];
         [_mainTabsController setViewControllers:[NSArray arrayWithObjects:_contactsController, _callsController, _dialogListController, _accountSettingsController, nil]];
-        [_mainTabsController setSelectedIndex:2];
         [_mainTabsController setCallsHidden:!TGAppDelegateInstance.showCallsTab animated:false];
+        _mainTabsController.onControllerInsetUpdated = ^(CGFloat inset)
+        {
+            __strong TGRootController *strongSelf = weakSelf;
+            if (strongSelf != nil)
+                [strongSelf->_mainView updateBottomInset:inset];
+        };
         
         _masterNavigationController = [TGNavigationController navigationControllerWithControllers:@[]];
         _detailNavigationController = [TGNavigationController navigationControllerWithControllers:@[]];
@@ -90,6 +109,14 @@
     return self;
 }
 
+- (void)setPresentation:(TGPresentation *)presentation
+{
+    _presentation = presentation;
+    
+    [_mainTabsController setPresentation:presentation];
+    [_dialogListController setPresentation:presentation];
+}
+
 - (bool)shouldAutorotate {
     if (self.associatedWindowStack.count > 0) {
         return [[self.associatedWindowStack.lastObject rootViewController] shouldAutorotate];
@@ -101,7 +128,7 @@
 {
     [super loadView];
     
-    self.view.backgroundColor = UIColorRGBA(0xf2f2f5, 1.0f);
+    self.view.backgroundColor = UIColorRGB(0xefeff4);
     
     _mainView = [[TGTabletMainView alloc] initWithFrame:self.view.bounds];
     _mainView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -130,6 +157,31 @@
             [strongSelf->_detailNavigationController setShowCallStatusBar:!hidden];
         }
     };
+    
+    if (!TGIsPad())
+    {
+        TGDispatchAfter(3.0, dispatch_get_main_queue(), ^
+        {
+            CGFloat inset = self.controllerSafeAreaInset.top > FLT_EPSILON ? self.controllerSafeAreaInset.top - 13.0f : 0.0f;
+            _volumeBarView = [[TGVolumeBarView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 16.0f + inset)];
+            _volumeBarView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+            _volumeBarView.safeAreaInset = self.controllerSafeAreaInset;
+        });
+    }
+}
+
+- (void)controllerInsetUpdated:(UIEdgeInsets)previousInset
+{
+    [super controllerInsetUpdated:previousInset];
+    if ([self isViewLoaded])
+    {
+        CGFloat inset = self.controllerSafeAreaInset.top > FLT_EPSILON ? self.controllerSafeAreaInset.top - 13.0f : 0.0f;
+        _volumeBarView.safeAreaInset = self.controllerSafeAreaInset;
+        _volumeBarView.frame = CGRectMake(0, 0, self.view.frame.size.width, 16.0f + inset);
+        
+        if (TGIsPad())
+            [_mainTabsController controllerInsetUpdated:self.controllerInset];
+    }
 }
 
 - (void)pushContentController:(UIViewController *)contentController {
@@ -145,7 +197,16 @@
 - (void)replaceContentController:(UIViewController *)contentController {
     if (_currentSizeClass == UIUserInterfaceSizeClassCompact) {
         bool addDetail = _detailNavigationController.viewControllers.count == 0;
-        [_detailNavigationController setViewControllers:@[_mainTabsController, contentController] animated:true];
+        if (iosMajorVersion() >= 11 && _detailNavigationController.viewControllers.count == 1)
+        {
+            if (_detailNavigationController.viewControllers.firstObject != _mainTabsController)
+                [_detailNavigationController setViewControllers:@[_mainTabsController]];
+            [_detailNavigationController pushViewController:contentController animated:true];
+        }
+        else
+        {
+            [_detailNavigationController setViewControllers:@[_mainTabsController, contentController] animated:true];
+        }
         if (addDetail) {
             [self addDetailController];
         }
@@ -183,6 +244,8 @@
         [self updateSizeClass];
         [_sizeClassVariable set:[SSignal single:@(_currentSizeClass)]];
     }
+    
+    //[self setNeedsStatusBarAppearanceUpdate];
 }
 
 - (void)updateSizeClass {
@@ -285,6 +348,13 @@
     }
 }
 
+- (void)resetControllers
+{
+    if (_masterNavigationController.viewControllers.count > 1)
+        [_masterNavigationController popToRootViewControllerAnimated:false];
+    [self clearContentControllers];
+}
+
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
     if (_mainTabsController.presentedViewController != nil)
@@ -299,18 +369,36 @@
     }
 }
 
+- (BOOL)prefersStatusBarHidden
+{
+    if (!TGIsPad() && iosMajorVersion() >= 11 && UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation))
+        return true;
+    
+    return [super prefersStatusBarHidden];
+}
+
 - (SSignal *)sizeClass {
     return [_sizeClassVariable signal];
 }
 
 - (bool)isSplitView {
-    if (iosMajorVersion() < 9 || [UIDevice currentDevice].userInterfaceIdiom != UIUserInterfaceIdiomPad)
+    if (iosMajorVersion() < 9 || !TGIsPad())
         return false;
     
     if (self.traitCollection.horizontalSizeClass == UIUserInterfaceSizeClassCompact)
         return true;
     
     if (fabs(self.view.frame.size.width - [UIScreen mainScreen].bounds.size.width) > FLT_EPSILON)
+        return true;
+    
+    return false;
+}
+
+- (bool)isSlideOver {
+    if (![self isSplitView])
+        return false;
+    
+    if (fabs(self.view.frame.size.height - [UIScreen mainScreen].bounds.size.height) > FLT_EPSILON)
         return true;
     
     return false;

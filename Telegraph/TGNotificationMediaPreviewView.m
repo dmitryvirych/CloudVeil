@@ -1,14 +1,11 @@
 #import "TGNotificationMediaPreviewView.h"
-#import "TGMessage.h"
 
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
-#import "TGFont.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGImageView.h"
+#import <LegacyComponents/TGImageView.h>
 #import "TGImageMessageViewModel.h"
 #import "TGVideoMessageViewModel.h"
-#import "TGRemoteImageView.h"
+#import <LegacyComponents/TGRemoteImageView.h>
 
 const int32_t TGNotificationMediaCornerRadius = 5;
 
@@ -26,6 +23,7 @@ const int32_t TGNotificationMediaCornerRadius = 5;
     NSString *_legacyThumbnailCacheUri;
     bool _hasCaption;
     bool _hasDuration;
+    bool _round;
     
     UIImageView *_durationBackground;
     UILabel *_durationLabel;
@@ -110,6 +108,9 @@ const int32_t TGNotificationMediaCornerRadius = 5;
                     if (legacyFilePath != nil)
                         [previewUri appendFormat:@"&legacy-file-path=%@", legacyFilePath];
                     
+                    if (message.messageLifetime > 0 && message.messageLifetime <= 60)
+                        [previewUri appendString:@"&secret=1"];
+                    
                     if (legacyThumbnailCacheUrl != nil)
                         [previewUri appendFormat:@"&legacy-thumbnail-cache-url=%@", [TGStringUtils stringByEscapingForURL:legacyThumbnailCacheUrl]];
                     
@@ -125,8 +126,7 @@ const int32_t TGNotificationMediaCornerRadius = 5;
             case TGVideoMediaAttachmentType:
             {
                 TGVideoMediaAttachment *video = (TGVideoMediaAttachment *)attachment;
-
-                NSString *text = TGLocalized(@"Message.Video");
+                NSString *text = video.roundMessage ? TGLocalized(@"Message.VideoMessage") : TGLocalized(@"Message.Video");
                 if (video.caption.length > 0)
                 {
                     _hasCaption = true;
@@ -161,10 +161,10 @@ const int32_t TGNotificationMediaCornerRadius = 5;
                     if (legacyThumbnailCacheUri != nil)
                         [previewUri appendFormat:@"&legacy-thumbnail-cache-url=%@", legacyThumbnailCacheUri];
                     
-                    if (message.messageLifetime > 0 && message.messageLifetime <= 60 && message.layer >= 17)
+                    if (message.messageLifetime > 0 && message.messageLifetime <= 60)
                         [previewUri appendString:@"&secret=1"];
                     
-                    [previewUri appendFormat:@"&flat=1&cornerRadius=%" PRId32 "", TGNotificationMediaCornerRadius];
+                    [previewUri appendFormat:@"&flat=1&cornerRadius=%d", !video.roundMessage ? TGNotificationMediaCornerRadius : (int)imageSize.width / 2];
                     [imageInfo addImageWithSize:renderSize url:previewUri];
                     
                     NSMutableString *imageUri = [[imageInfo imageUrlForLargestSize:NULL] mutableCopy];
@@ -186,24 +186,27 @@ const int32_t TGNotificationMediaCornerRadius = 5;
                     UIGraphicsEndImageContext();
                 });
                 
-                _durationBackground = [[UIImageView alloc] initWithImage:backgroundImage];
-                _durationBackground.alpha = 0.0f;
-                [_wrapperView addSubview:_durationBackground];
+                if (!video.roundMessage)
+                {
+                    _durationBackground = [[UIImageView alloc] initWithImage:backgroundImage];
+                    _durationBackground.alpha = 0.0f;
+                    [_wrapperView addSubview:_durationBackground];
 
-                int minutes = video.duration / 60;
-                int seconds = video.duration % 60;
-                
-                _durationLabel = [[UILabel alloc] init];
-                _durationLabel.backgroundColor = [UIColor clearColor];
-                _durationLabel.font = TGSystemFontOfSize(11.0f);
-                _durationLabel.text = [[NSString alloc] initWithFormat:@"%d:%02d", minutes, seconds];
-                _durationLabel.textAlignment = NSTextAlignmentCenter;
-                _durationLabel.textColor = [UIColor whiteColor];
-                [_durationBackground addSubview:_durationLabel];
-                
-                [_durationLabel sizeToFit];
-                _durationBackground.frame = CGRectMake(0, 0, MAX(35, ceil(_durationLabel.frame.size.width) + 12), 18);
-                _durationLabel.frame = CGRectMake(0, (_durationBackground.frame.size.height - ceil(_durationLabel.frame.size.height)) / 2, _durationBackground.frame.size.width, ceil(_durationLabel.frame.size.height));
+                    int minutes = video.duration / 60;
+                    int seconds = video.duration % 60;
+                    
+                    _durationLabel = [[UILabel alloc] init];
+                    _durationLabel.backgroundColor = [UIColor clearColor];
+                    _durationLabel.font = TGSystemFontOfSize(11.0f);
+                    _durationLabel.text = [[NSString alloc] initWithFormat:@"%d:%02d", minutes, seconds];
+                    _durationLabel.textAlignment = NSTextAlignmentCenter;
+                    _durationLabel.textColor = [UIColor whiteColor];
+                    [_durationBackground addSubview:_durationLabel];
+                    
+                    [_durationLabel sizeToFit];
+                    _durationBackground.frame = CGRectMake(0, 0, MAX(35, ceil(_durationLabel.frame.size.width) + 12), 18);
+                    _durationLabel.frame = CGRectMake(0, (_durationBackground.frame.size.height - ceil(_durationLabel.frame.size.height)) / 2, _durationBackground.frame.size.width, ceil(_durationLabel.frame.size.height));
+                }
             }
                 break;
                 
@@ -211,10 +214,11 @@ const int32_t TGNotificationMediaCornerRadius = 5;
             {
                 TGLocationMediaAttachment *locationAttachment = (TGLocationMediaAttachment *)attachment;
                 
-                [self setIcon:[UIImage imageNamed:@"MediaLocation"] text:TGLocalized(@"Message.Location")];
+                NSString *text = locationAttachment.period > 0 ? TGLocalized(@"Message.LiveLocation") : TGLocalized(@"Message.Location");
+                [self setIcon:[UIImage imageNamed:@"MediaLocation"] text:text];
                 
                 imageSize = CGSizeMake(240, 128);
-                _imageUri = [NSString stringWithFormat:@"map-thumbnail://?latitude=%f&longitude=%f&width=%d&height=%d&flat=1&cornerRadius=%" PRId32 "", locationAttachment.latitude, locationAttachment.longitude, (int)imageSize.width, (int)imageSize.height, TGNotificationMediaCornerRadius];
+                _imageUri = [NSString stringWithFormat:@"map-thumbnail://?latitude=%f&longitude=%f&width=%d&height=%d&flat=1&offset=-10&cornerRadius=%" PRId32 "", locationAttachment.latitude, locationAttachment.longitude, (int)imageSize.width, (int)imageSize.height, TGNotificationMediaCornerRadius];
             }
                 break;
                 

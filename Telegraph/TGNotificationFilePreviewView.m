@@ -1,14 +1,13 @@
 #import "TGNotificationFilePreviewView.h"
+
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGNotificationView.h"
 
-#import "TGDocumentMediaAttachment.h"
 #import "TGSharedMediaController.h"
 
-#import "TGImageView.h"
+#import <LegacyComponents/TGImageView.h>
 #import "TGSharedMediaFileThumbnailView.h"
-
-#import "TGStringUtils.h"
-#import "TGFont.h"
 
 @interface TGNotificationFilePreviewView ()
 {
@@ -123,11 +122,11 @@
         
         NSString *sizeString = @"";
         if (attachment.size >= 1024 * 1024)
-            sizeString = [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.Megabytes"), (float)attachment.size / (1024 * 1024)];
+            sizeString = [[NSString alloc] initWithFormat:TGLocalized(@"Conversation.Megabytes"), (float)attachment.size / (1024 * 1024)];
         else if (attachment.size >= 1024)
-            sizeString = [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.Kilobytes"), (int)(attachment.size / 1024)];
+            sizeString = [[NSString alloc] initWithFormat:TGLocalized(@"Conversation.Kilobytes"), (int)(attachment.size / 1024)];
         else
-            sizeString = [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.Bytes"), (int)(attachment.size)];
+            sizeString = [[NSString alloc] initWithFormat:TGLocalized(@"Conversation.Bytes"), (int)(attachment.size)];
         
         _sizeLabel = [[UILabel alloc] initWithFrame:CGRectZero];
         _sizeLabel.backgroundColor = [UIColor clearColor];

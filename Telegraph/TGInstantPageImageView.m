@@ -1,21 +1,21 @@
 #import "TGInstantPageImageView.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGSignalImageView.h"
 #import "TGSharedMediaSignals.h"
-#import "TGImageMediaAttachment.h"
 #import "TGSharedPhotoSignals.h"
 #import "TGSharedMediaUtils.h"
 
 #import "TransformImageView.h"
 
 #import "TGTelegraph.h"
-#import "TGImageUtils.h"
 #import "PhotoResources.h"
-#import "TGMessageImageViewOverlayView.h"
+#import <LegacyComponents/TGMessageImageViewOverlayView.h>
 
 #import "TGVTAcceleratedVideoView.h"
 
-#import "TGModernGalleryTransitionView.h"
+#import <LegacyComponents/TGModernGalleryTransitionView.h>
 
 @interface TGInstantPageImageView () <TGModernGalleryTransitionView> {
     TGInstantPageMediaArguments *_arguments;
@@ -26,7 +26,7 @@
     id<MediaResource> _fullSizeResource;
     SMetaDisposable *_fetchDisposable;
     SVariable *_data;
-    TGVTAcceleratedVideoView *_videoView;
+    UIView<TGInlineVideoPlayerView> *_videoView;
     bool _isVisible;
     SMetaDisposable *_dataDisposable;
     MediaResourceStatus *_resourceStatus;
@@ -137,6 +137,9 @@
             [self addSubview:_button];
             [_button addTarget:self action:@selector(buttonPressed) forControlEvents:UIControlEventTouchUpInside];
         }
+        
+        if (iosMajorVersion() >= 11)
+            self.accessibilityIgnoresInvertColors = true;
     }
     return self;
 }
@@ -192,7 +195,7 @@
             if ([_media.media isKindOfClass:[TGVideoMediaAttachment class]]) {
                 if ([_arguments isKindOfClass:[TGInstantPageVideoMediaArguments class]] && ((TGInstantPageVideoMediaArguments *)_arguments).autoplay) {
                     if (_videoView == nil) {
-                        _videoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:self.bounds];
+                        _videoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:self.bounds];
                         _videoView.userInteractionEnabled = false;
                         [self addSubview:_videoView];
                         __weak TGInstantPageImageView *weakSelf = self;

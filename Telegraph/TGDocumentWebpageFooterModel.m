@@ -1,16 +1,13 @@
 #import "TGDocumentWebpageFooterModel.h"
 
-#import "TGWebPageMediaAttachment.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 #import "TGModernLabelViewModel.h"
 #import "TGDocumentMessageIconModel.h"
 #import "TGMessageImageViewModel.h"
 #import "TGAppDelegate.h"
-#import "TGFont.h"
-#import "TGStringUtils.h"
 #import "TGMessageImageView.h"
 #import "TGDocumentMessageIconView.h"
-#import "TGImageUtils.h"
 
 @interface TGDocumentWebpageFooterModel () <TGMessageImageViewDelegate> {
     TGWebPageMediaAttachment *_webPage;
@@ -107,15 +104,15 @@
             }
             else if (document.size >= 1024 * 1024)
             {
-                sizeString = [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.Megabytes"), (float)(float)document.size / (1024 * 1024)];
+                sizeString = [[NSString alloc] initWithFormat:TGLocalized(@"Conversation.Megabytes"), (float)(float)document.size / (1024 * 1024)];
             }
             else if (document.size >= 1024)
             {
-                sizeString = [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.Kilobytes"), (int)(int)(document.size / 1024)];
+                sizeString = [[NSString alloc] initWithFormat:TGLocalized(@"Conversation.Kilobytes"), (int)(int)(document.size / 1024)];
             }
             else
             {
-                sizeString = [[NSString alloc] initWithFormat:TGLocalizedStatic(@"Conversation.Bytes"), (int)(int)(document.size)];
+                sizeString = [[NSString alloc] initWithFormat:TGLocalized(@"Conversation.Bytes"), (int)(int)(document.size)];
             }
             
             _sizeText = sizeString;

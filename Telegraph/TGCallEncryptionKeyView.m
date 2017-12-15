@@ -1,20 +1,15 @@
 #import "TGCallEncryptionKeyView.h"
 
-#import "TGStringUtils.h"
-#import "TGImageUtils.h"
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGCallUtils.h"
-#import "TGFont.h"
-#import "TGBlurEffect.h"
-#import "TGTimerTarget.h"
+#import <LegacyComponents/TGTimerTarget.h>
 
-#import "TGViewController.h"
-
-#import "UIControl+HitTestEdgeInsets.h"
-#import "TGModernButton.h"
-#import "TGMenuView.h"
+#import <LegacyComponents/UIControl+HitTestEdgeInsets.h>
+#import <LegacyComponents/TGModernButton.h>
+#import <LegacyComponents/TGMenuView.h>
 
 #import "TGCallSession.h"
-#import "TGUser.h"
 
 typedef enum
 {
@@ -122,10 +117,8 @@ typedef enum
         CGSize screenSize = TGScreenSize();
         if (iosMajorVersion() < 8 || (NSInteger)screenSize.height == 480)
             type = TGCallKeyViewTransitionTypeLegacy;
-        else if (iosMajorVersion() == 8)
-            type = TGCallKeyViewTransitionTypeSimplified;
         else
-            type = TGCallKeyViewTransitionTypeUsual;
+            type = TGCallKeyViewTransitionTypeSimplified;
     });
     return type;
 }
@@ -140,14 +133,9 @@ typedef enum
     
     _backButton.hidden = false;
     
-    TGCallKeyViewTransitionType type = [self _transitionType];
     [UIView animateWithDuration:0.3 animations:^
     {
-        if (type == TGCallKeyViewTransitionTypeUsual)
-            ((UIVisualEffectView *)_backgroundView).effect = [TGBlurEffect callBlurEffect];
-        else
-            _backgroundView.alpha = 1.0f;
-
+        _backgroundView.alpha = 1.0f;
         _wrapperView.alpha = 1.0f;
     }];
     
@@ -177,14 +165,9 @@ typedef enum
     _animating = true;
     _backButton.hidden = true;
     
-    TGCallKeyViewTransitionType type = [self _transitionType];
     [UIView animateWithDuration:0.3 animations:^
     {
-        if (type == TGCallKeyViewTransitionTypeUsual)
-            ((UIVisualEffectView *)_backgroundView).effect = nil;
-        else
-            _backgroundView.alpha = 0.0f;
-        
+        _backgroundView.alpha = 0.0f;
         _wrapperView.alpha = 0.0f;
     } completion:nil];
     
@@ -243,10 +226,18 @@ typedef enum
     [self setNeedsLayout];
 }
 
+- (void)setSafeAreaInset:(UIEdgeInsets)safeAreaInset
+{
+    _safeAreaInset = safeAreaInset;
+    [self setNeedsLayout];
+}
+
 - (void)layoutSubviews
 {
+    CGFloat topOffset = self.safeAreaInset.top > FLT_EPSILON ? self.safeAreaInset.top : 20.0f;
+    
     [_backButton sizeToFit];
-    _backButton.frame = CGRectMake(27, 25, MAX(55.0f, _backButton.frame.size.width + 5.0f), MAX(33.0f, _backButton.frame.size.height));
+    _backButton.frame = CGRectMake(27.0f, topOffset + 5.0f, MAX(55.0f, _backButton.frame.size.width + 5.0f), MAX(33.0f, _backButton.frame.size.height));
     
     CGSize screenSize = TGScreenSize();
         

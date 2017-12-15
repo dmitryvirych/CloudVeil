@@ -1,14 +1,14 @@
 #import "TGCallAlertView.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGAppDelegate.h"
 
-#import "TGFont.h"
-#import "TGImageUtils.h"
-#import "TGObserverProxy.h"
+#import <LegacyComponents/TGObserverProxy.h>
 
-#import "TGOverlayControllerWindow.h"
+#import <LegacyComponents/TGModernButton.h>
 
-#import "TGModernButton.h"
+#import "TGLegacyComponentsContext.h"
 
 const CGFloat TGCallAlertViewWidth = 270.0f;
 const CGFloat TGCallAlertViewButtonHeight = 44.0f;
@@ -43,7 +43,7 @@ const CGFloat TGCallAlertViewButtonHeight = 44.0f;
     if (self != nil)
     {
         self.alpha = 0.0f;
-        
+        self.tag = 0xbeef;
         _completionBlock = [completionBlock copy];
         
         _dimView = [[UIButton alloc] init];
@@ -72,7 +72,7 @@ const CGFloat TGCallAlertViewButtonHeight = 44.0f;
             [_titleLabel sizeToFit];
             [_backgroundView addSubview:_titleLabel];
             
-            CGSize size = [_titleLabel sizeThatFits:CGSizeMake(TGCallAlertViewWidth, FLT_MAX)];
+            CGSize size = [_titleLabel sizeThatFits:CGSizeMake(TGCallAlertViewWidth - 20.0f * 2, FLT_MAX)];
             _titleLabel.frame = CGRectMake(0.0f, 0.0f, ceil(size.width), ceil(size.height));
         }
         
@@ -94,7 +94,7 @@ const CGFloat TGCallAlertViewButtonHeight = 44.0f;
             [_messageLabel sizeToFit];
             [_backgroundView addSubview:_messageLabel];
             
-            CGSize size = [_messageLabel sizeThatFits:CGSizeMake(TGCallAlertViewWidth, FLT_MAX)];
+            CGSize size = [_messageLabel sizeThatFits:CGSizeMake(TGCallAlertViewWidth - 20.0f * 2, FLT_MAX)];
             _messageLabel.frame = CGRectMake(0.0f, 0.0f, ceil(size.width), ceil(size.height));
         }
         
@@ -266,6 +266,9 @@ const CGFloat TGCallAlertViewButtonHeight = 44.0f;
     
     if (_messageLabel != nil)
     {
+        if (_customView == nil && _titleLabel != nil)
+            height -= 9.0f;
+        
         _messageLabel.frame = CGRectMake((width - _messageLabel.frame.size.width) / 2.0f, height, _messageLabel.frame.size.width, _messageLabel.frame.size.height);
         
         height = CGRectGetMaxY(_messageLabel.frame);
@@ -310,7 +313,7 @@ const CGFloat TGCallAlertViewButtonHeight = 44.0f;
 {
     TGCallAlertView *alertView = [[TGCallAlertView alloc] initWithTitle:title message:message customView:customView cancelButtonTitle:cancelButtonTitle doneButtonTitle:doneButtonTitle completionBlock:completionBlock];
     TGCallAlertViewController *controller = [[TGCallAlertViewController alloc] initWithView:alertView];
-    TGOverlayControllerWindow *window = [[TGOverlayControllerWindow alloc] initWithParentController:TGAppDelegateInstance.rootController contentController:controller];
+    TGOverlayControllerWindow *window = [[TGOverlayControllerWindow alloc] initWithManager:[[TGLegacyComponentsContext shared] makeOverlayWindowManager] parentController:TGAppDelegateInstance.rootController contentController:controller];
     window.hidden = false;
     
     return alertView;

@@ -1,12 +1,16 @@
 #import "TGWebSearchInternalImageResult+TGMediaItem.h"
-#import <objc/runtime.h>
+
+#import <LegacyComponents/LegacyComponents.h>
 
 #import <objc/runtime.h>
-#import "TGImageInfo.h"
-#import "TGImageUtils.h"
-#import "TGPhotoEditorUtils.h"
+#import <LegacyComponents/TGPhotoEditorUtils.h>
 
 @implementation TGWebSearchInternalImageResult (TGMediaItem)
+
+- (bool)isVideo
+{
+    return false;
+}
 
 - (NSString *)uniqueIdentifier
 {

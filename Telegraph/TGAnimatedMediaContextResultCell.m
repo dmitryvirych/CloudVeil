@@ -1,15 +1,13 @@
 #import "TGAnimatedMediaContextResultCell.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/ActionStage.h>
 
 #import "TGBotContextExternalResult.h"
 #import "TGBotContextMediaResult.h"
 
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
-#import "TGFont.h"
-
-#import "TGImageView.h"
+#import <LegacyComponents/TGImageView.h>
 #import "TGVTAcceleratedVideoView.h"
 
 #import "TGSharedPhotoSignals.h"
@@ -17,11 +15,11 @@
 
 #import "TGPreparedLocalDocumentMessage.h"
 #import "TGTelegraph.h"
-#import "TGGifConverter.h"
+#import <LegacyComponents/TGGifConverter.h>
 
 #import "TGMediaStoreContext.h"
 
-#import "TGMessageImageViewOverlayView.h"
+#import <LegacyComponents/TGMessageImageViewOverlayView.h>
 
 #import "TGSharedMediaSignals.h"
 
@@ -29,7 +27,7 @@
 
 @interface TGAnimatedMediaContextResultCellContents () <ASWatcher> {
     TGImageView *_imageView;
-    TGVTAcceleratedVideoView *_videoView;
+    UIView<TGInlineVideoPlayerView> *_videoView;
     TGMessageImageViewOverlayView *_overlayView;
     
     NSString *_downloadPath;
@@ -279,7 +277,7 @@
                                 if (exists) {
                                     if ([document.mimeType isEqualToString:@"video/mp4"]) {
                                         [strongSelf->_videoView removeFromSuperview];
-                                        strongSelf->_videoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:strongSelf.bounds];
+                                        strongSelf->_videoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:strongSelf.bounds];
                                         [strongSelf insertSubview:strongSelf->_videoView aboveSubview:strongSelf->_overlayView];
                                         [strongSelf->_videoView setPath:filePath];
                                         strongSelf->_isReady = true;
@@ -332,7 +330,7 @@
                                                 
                                                 if ([currentDocument isEqual:document]) {
                                                     [strongSelf->_videoView removeFromSuperview];
-                                                    strongSelf->_videoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:strongSelf.bounds];
+                                                    strongSelf->_videoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:strongSelf.bounds];
                                                     [strongSelf insertSubview:strongSelf->_videoView aboveSubview:strongSelf->_overlayView];
                                                     [strongSelf->_videoView setPath:path];
                                                     strongSelf->_isReady = true;
@@ -367,7 +365,7 @@
                             if (path != nil) {
                                 if ([externalResult.contentType isEqualToString:@"video/mp4"]) {
                                     [strongSelf->_videoView removeFromSuperview];
-                                    strongSelf->_videoView = [[TGVTAcceleratedVideoView alloc] initWithFrame:strongSelf.bounds];
+                                    strongSelf->_videoView = [[[TGVTAcceleratedVideoView videoViewClass] alloc] initWithFrame:strongSelf.bounds];
                                     [strongSelf insertSubview:strongSelf->_videoView aboveSubview:strongSelf->_overlayView];
                                     [strongSelf->_videoView setPath:path];
                                     strongSelf->_isReady = true;
@@ -390,7 +388,7 @@
                 } else if ([externalResult.sendMessage isKindOfClass:[TGBotContextResultSendMessageGeo class]]) {
                     TGBotContextResultSendMessageGeo *concreteMessage = (TGBotContextResultSendMessageGeo *)externalResult.sendMessage;
                     CGSize mapImageSize = CGSizeMake(75.0f, 75.0f);
-                    NSString *mapUri = [[NSString alloc] initWithFormat:@"map-thumbnail://?latitude=%f&longitude=%f&width=%d&height=%d&flat=1&cornerRadius=-1", concreteMessage.location.latitude, concreteMessage.location.longitude, (int)mapImageSize.width, (int)mapImageSize.height];
+                    NSString *mapUri = [[NSString alloc] initWithFormat:@"map-thumbnail://?latitude=%f&longitude=%f&width=%d&height=%d&flat=1&cornerRadius=-1&offset=-10", concreteMessage.location.latitude, concreteMessage.location.longitude, (int)mapImageSize.width, (int)mapImageSize.height];
                     imageUrl = mapUri;
                 }
                 

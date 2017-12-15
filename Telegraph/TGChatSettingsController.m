@@ -8,6 +8,8 @@
 
 #import "TGChatSettingsController.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGHeaderCollectionItem.h"
 #import "TGVariantCollectionItem.h"
 #import "TGSwitchCollectionItem.h"
@@ -19,12 +21,11 @@
 
 #import "TGTelegraphConversationMessageAssetsSource.h"
 #import "TGAppDelegate.h"
-#import "ActionStage.h"
+#import <LegacyComponents/ActionStage.h>
 
-#import "TGProgressWindow.h"
+#import <LegacyComponents/TGProgressWindow.h>
+#import "TGLegacyComponentsContext.h"
 #import "TGAlertView.h"
-
-#import "TGStringUtils.h"
 
 #import "TGCacheController.h"
 
@@ -33,24 +34,38 @@
 #import "TGNetworkUsageController.h"
 #import "TGCallDataSettingsController.h"
 
+#import "TGUsernameCollectionItem.h"
+
+#import "TGProxySetupController.h"
+#import "TGAutoDownloadSettingsController.h"
+
+#import <MTProtoKit/MTProtoKit.h>
+#import "TGTelegramNetworking.h"
+
+#import "TGDatabase.h"
+
 @interface TGChatSettingsController () <TGTextSizeControllerDelegate>
 {
     TGVariantCollectionItem *_textSizeItem;
     
-    TGSwitchCollectionItem *_privateAutoDownloadItem;
-    TGSwitchCollectionItem *_groupAutoDownloadItem;
-    TGSwitchCollectionItem *_autosavePhotosItem;
+    TGSwitchCollectionItem *_autoDownloadEnabledItem;
+    TGVariantCollectionItem *_autoDownloadPhotosItem;
+    TGVariantCollectionItem *_autoDownloadVideosItem;
+    TGVariantCollectionItem *_autoDownloadDocumentsItem;
+    TGVariantCollectionItem *_autoDownloadVoiceMessagesItem;
+    TGVariantCollectionItem *_autoDownloadVideoMessagesItem;
+    TGButtonCollectionItem *_autoDownloadResetItem;
+    
+    TGVariantCollectionItem *_autosavePhotosItem;
     TGSwitchCollectionItem *_saveEditedPhotosItem;
+    TGSwitchCollectionItem *_autoPlayAnimationsItem;
     TGVariantCollectionItem *_useLessDataItem;
     
-    TGSwitchCollectionItem *_privateAudioAutoDownloadItem;
-    TGSwitchCollectionItem *_groupAudioAutoDownloadItem;
-    
-    TGSwitchCollectionItem *_autoPlayAnimationsItem;
-    
-    TGSwitchCollectionItem *_useRTLItem;
+    TGVariantCollectionItem *_useProxyItem;
     
     TGProgressWindow *_progressWindow;
+    
+    MTSocksProxySettings *_proxySettings;
 }
 
 @end
@@ -78,21 +93,10 @@
         if (iosMajorVersion() < 7 && [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone)
             [self.menuSections addSection:appearanceSection];
         
-        _privateAutoDownloadItem = [[TGSwitchCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.PrivateChats") isOn:TGAppDelegateInstance.autoDownloadPhotosInPrivateChats];
-        _privateAutoDownloadItem.interfaceHandle = _actionHandle;
-        _groupAutoDownloadItem = [[TGSwitchCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.Groups") isOn:TGAppDelegateInstance.autoDownloadPhotosInGroups];
-        _groupAutoDownloadItem.interfaceHandle = _actionHandle;
-        
-        _autosavePhotosItem = [[TGSwitchCollectionItem alloc] initWithTitle:TGLocalized(@"Settings.SaveIncomingPhotos") isOn:TGAppDelegateInstance.autosavePhotos];
-        _autosavePhotosItem.interfaceHandle = _actionHandle;
+        _autosavePhotosItem = [[TGVariantCollectionItem alloc] initWithTitle:TGLocalized(@"Settings.SaveIncomingPhotos") action:@selector(autosavePhotosPressed)];
         
         _saveEditedPhotosItem = [[TGSwitchCollectionItem alloc] initWithTitle:TGLocalized(@"Settings.SaveEditedPhotos") isOn:TGAppDelegateInstance.saveEditedPhotos];
         _saveEditedPhotosItem.interfaceHandle = _actionHandle;
-        
-        _privateAudioAutoDownloadItem = [[TGSwitchCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.PrivateChats") isOn:TGAppDelegateInstance.autoDownloadAudioInPrivateChats];
-        _privateAudioAutoDownloadItem.interfaceHandle = _actionHandle;
-        _groupAudioAutoDownloadItem = [[TGSwitchCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.Groups") isOn:TGAppDelegateInstance.autoDownloadAudioInGroups];
-        _groupAudioAutoDownloadItem.interfaceHandle = _actionHandle;
         
         _autoPlayAnimationsItem = [[TGSwitchCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutoPlayAnimations") isOn:TGAppDelegateInstance.autoPlayAnimations];
         _autoPlayAnimationsItem.interfaceHandle = _actionHandle;
@@ -113,19 +117,34 @@
         }
         [self.menuSections addSection:usageSection];
         
-        TGCollectionMenuSection *autoDownloadPhotoSection = [[TGCollectionMenuSection alloc] initWithItems:@[
-            [[TGHeaderCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutomaticPhotoDownload")],
-            _privateAutoDownloadItem,
-            _groupAutoDownloadItem
-        ]];
-        [self.menuSections addSection:autoDownloadPhotoSection];
+        _autoDownloadEnabledItem = [[TGSwitchCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutoDownloadEnabled") isOn:!TGAppDelegateInstance.autoDownloadPreferences.disabled];
+        _autoDownloadEnabledItem.interfaceHandle = _actionHandle;
         
-        TGCollectionMenuSection *autoDownloadAudioSection = [[TGCollectionMenuSection alloc] initWithItems:@[
-            [[TGHeaderCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutomaticAudioDownload")],
-            _privateAudioAutoDownloadItem,
-            _groupAudioAutoDownloadItem,
+        _autoDownloadPhotosItem = [[TGVariantCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutoDownloadPhotos") action:@selector(autoDownloadPhotosPressed)];
+        _autoDownloadPhotosItem.enabled = _autoDownloadEnabledItem.isOn;
+        _autoDownloadVideosItem = [[TGVariantCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutoDownloadVideos") action:@selector(autoDownloadVideosPressed)];
+        _autoDownloadVideosItem.enabled = _autoDownloadEnabledItem.isOn;
+        _autoDownloadDocumentsItem = [[TGVariantCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutoDownloadDocuments") action:@selector(autoDownloadDocumentsPressed)];
+        _autoDownloadDocumentsItem.enabled = _autoDownloadEnabledItem.isOn;
+        _autoDownloadVoiceMessagesItem = [[TGVariantCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutoDownloadVoiceMessages") action:@selector(autoDownloadVoiceMessagesPressed)];
+        _autoDownloadVoiceMessagesItem.enabled = _autoDownloadEnabledItem.isOn;
+        _autoDownloadVideoMessagesItem = [[TGVariantCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutoDownloadVideoMessages") action:@selector(autoDownloadVideoMessagesPressed)];
+        _autoDownloadVideoMessagesItem.enabled = _autoDownloadEnabledItem.isOn;
+        _autoDownloadResetItem = [[TGButtonCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutoDownloadReset") action:@selector(autoDownloadResetPressed)];
+        _autoDownloadResetItem.enabled = !TGAppDelegateInstance.autoDownloadPreferences.isDefaultPreferences;
+        _autoDownloadResetItem.deselectAutomatically = true;
+        
+        TGCollectionMenuSection *autoDownloadSection = [[TGCollectionMenuSection alloc] initWithItems:@[
+            [[TGHeaderCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.AutoDownloadTitle")],
+            _autoDownloadEnabledItem,
+            _autoDownloadPhotosItem,
+            _autoDownloadVideosItem,
+            _autoDownloadDocumentsItem,
+            _autoDownloadVoiceMessagesItem,
+            _autoDownloadVideoMessagesItem,
+            _autoDownloadResetItem
         ]];
-        [self.menuSections addSection:autoDownloadAudioSection];
+        [self.menuSections addSection:autoDownloadSection];
         
         _useLessDataItem = [[TGVariantCollectionItem alloc] initWithTitle:TGLocalized(@"CallSettings.UseLessData") action:@selector(useLessDataPressed)];
         _useLessDataItem.variant = [self labelForCallDataMode:TGAppDelegateInstance.callsDataUsageMode];
@@ -136,42 +155,23 @@
         ]];
         [self.menuSections addSection:callsSection];
         
-        bool preCondition = TGIsRTL();
-#ifdef DEBUG
-        preCondition = true;
-#endif
-        
-        if (preCondition && false)
-        {
-            _useRTLItem = [[TGSwitchCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.UseExperimentalRTLLayout") isOn:[TGViewController useExperimentalRTL]];
-            _useRTLItem.interfaceHandle = _actionHandle;
-            
-            TGCollectionMenuSection *languageSection = [[TGCollectionMenuSection alloc] initWithItems:@[
-                [[TGHeaderCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.Language")],
-                _useRTLItem
-            ]];
-            [self.menuSections addSection:languageSection];
-        }
-        
-        if (TGIsCustomLocalizationActive())
-        {
-            TGButtonCollectionItem *resetLanguageItem = [[TGButtonCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.RevertLanguage") action:@selector(resetLanguagePressed)];
-            resetLanguageItem.deselectAutomatically = [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
-            TGCollectionMenuSection *languageSection = [[TGCollectionMenuSection alloc] initWithItems:@[
-                [[TGHeaderCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.Language")],
-                resetLanguageItem
-            ]];
-            [self.menuSections addSection:languageSection];
-        }
-        
         TGCollectionMenuSection *otherSection = [[TGCollectionMenuSection alloc] initWithItems:@[
             [[TGHeaderCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.Other")],
             _autosavePhotosItem,
             _saveEditedPhotosItem,
             _autoPlayAnimationsItem
         ]];
-        otherSection.insets = (UIEdgeInsets){otherSection.insets.top - 12.0f, otherSection.insets.left, otherSection.insets.bottom, otherSection.insets.right};
         [self.menuSections addSection:otherSection];
+        
+        _proxySettings = [[TGTelegramNetworking instance] context].apiEnvironment.socksProxySettings;
+        
+        _useProxyItem = [[TGVariantCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.ConnectionType.UseProxy") variant:_proxySettings != nil ? TGLocalized(@"ChatSettings.ConnectionType.UseSocks5") : TGLocalized(@"GroupInfo.SharedMediaNone") action:@selector(useProxyPressed)];
+        _useProxyItem.deselectAutomatically = true;
+        TGCollectionMenuSection *proxySection = [[TGCollectionMenuSection alloc] initWithItems:@[
+            [[TGHeaderCollectionItem alloc] initWithTitle:TGLocalized(@"ChatSettings.ConnectionType.Title")],
+            _useProxyItem
+        ]];
+        [self.menuSections addSection:proxySection];
         
         self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:TGLocalized(@"Common.Back") style:UIBarButtonItemStylePlain target:self action:@selector(backPressed)];
     }
@@ -214,34 +214,9 @@
     {
         TGSwitchCollectionItem *switchItem = options[@"item"];
         
-        if (switchItem == _privateAutoDownloadItem)
-        {
-            TGAppDelegateInstance.autoDownloadPhotosInPrivateChats = switchItem.isOn;
-            [TGAppDelegateInstance saveSettings];
-        }
-        else if (switchItem == _groupAutoDownloadItem)
-        {
-            TGAppDelegateInstance.autoDownloadPhotosInGroups = switchItem.isOn;
-            [TGAppDelegateInstance saveSettings];
-        }
-        else if (switchItem == _autosavePhotosItem)
-        {
-            TGAppDelegateInstance.autosavePhotos = switchItem.isOn;
-            [TGAppDelegateInstance saveSettings];
-        }
-        else if (switchItem == _saveEditedPhotosItem)
+        if (switchItem == _saveEditedPhotosItem)
         {
             TGAppDelegateInstance.saveEditedPhotos = switchItem.isOn;
-            [TGAppDelegateInstance saveSettings];
-        }
-        else if (switchItem == _privateAudioAutoDownloadItem)
-        {
-            TGAppDelegateInstance.autoDownloadAudioInPrivateChats = switchItem.isOn;
-            [TGAppDelegateInstance saveSettings];
-        }
-        else if (switchItem == _groupAudioAutoDownloadItem)
-        {
-            TGAppDelegateInstance.autoDownloadAudioInGroups = switchItem.isOn;
             [TGAppDelegateInstance saveSettings];
         }
         else if (switchItem == _autoPlayAnimationsItem)
@@ -249,30 +224,22 @@
             TGAppDelegateInstance.autoPlayAnimations = switchItem.isOn;
             [TGAppDelegateInstance saveSettings];
         }
-        else if (switchItem == _useRTLItem)
+        else if (switchItem == _autoDownloadEnabledItem)
         {
-            [TGViewController setUseExperimentalRTL:switchItem.isOn];
+            TGAppDelegateInstance.autoDownloadPreferences = [TGAppDelegateInstance.autoDownloadPreferences updateDisabled:!_autoDownloadEnabledItem.isOn];
+            _autoDownloadPhotosItem.enabled = _autoDownloadEnabledItem.isOn;
+            _autoDownloadVideosItem.enabled = _autoDownloadEnabledItem.isOn;
+            _autoDownloadDocumentsItem.enabled = _autoDownloadEnabledItem.isOn;
+            _autoDownloadVoiceMessagesItem.enabled = _autoDownloadEnabledItem.isOn;
+            _autoDownloadVideoMessagesItem.enabled = _autoDownloadEnabledItem.isOn;
             
-            [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"ChatSettings.LayoutSettingsNeedsAppRestart") delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil] show];
+            _autoDownloadResetItem.enabled = !TGAppDelegateInstance.autoDownloadPreferences.isDefaultPreferences;
         }
     }
 }
 
 - (void)actorCompleted:(int)__unused status path:(NSString *)__unused path result:(id)__unused result
 {
-}
-
-- (void)resetLanguagePressed
-{
-    TGResetLocalization();
-    [TGAppDelegateInstance resetLocalization];
-    
-    [TGAppDelegateInstance resetControllerStack];
-    [self.navigationController popToRootViewControllerAnimated:true];
-    
-    TGProgressWindow *progressWindow = [[TGProgressWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    [progressWindow show:false];
-    [progressWindow dismissWithSuccess];
 }
 
 - (void)stickersPressed
@@ -317,6 +284,143 @@
         default:
             return TGLocalized(@"CallSettings.Never");
     }
+}
+
+- (void)autoDownloadPhotosPressed {
+    TGAutoDownloadSettingsController *controller = [[TGAutoDownloadSettingsController alloc] initWithMode:TGAutoDownloadSettingsModePhotos];
+    __weak TGChatSettingsController *weakSelf = self;
+    controller.settingsUpdated = ^{
+        __strong TGChatSettingsController *strongSelf = weakSelf;
+        if (strongSelf != nil)
+            [strongSelf updateAutoDownloadReset];
+    };
+    [self.navigationController pushViewController:controller animated:true];
+}
+
+- (void)autoDownloadVideosPressed {
+    TGAutoDownloadSettingsController *controller = [[TGAutoDownloadSettingsController alloc] initWithMode:TGAutoDownloadSettingsModeVideos];
+    __weak TGChatSettingsController *weakSelf = self;
+    controller.settingsUpdated = ^{
+        __strong TGChatSettingsController *strongSelf = weakSelf;
+        if (strongSelf != nil)
+            [strongSelf updateAutoDownloadReset];
+    };
+    [self.navigationController pushViewController:controller animated:true];
+}
+
+- (void)autoDownloadDocumentsPressed {
+    TGAutoDownloadSettingsController *controller = [[TGAutoDownloadSettingsController alloc] initWithMode:TGAutoDownloadSettingsModeDocuments];
+    __weak TGChatSettingsController *weakSelf = self;
+    controller.settingsUpdated = ^{
+        __strong TGChatSettingsController *strongSelf = weakSelf;
+        if (strongSelf != nil)
+            [strongSelf updateAutoDownloadReset];
+    };
+    [self.navigationController pushViewController:controller animated:true];
+}
+
+- (void)autoDownloadVoiceMessagesPressed {
+    TGAutoDownloadSettingsController *controller = [[TGAutoDownloadSettingsController alloc] initWithMode:TGAutoDownloadSettingsModeVoiceMessages];
+    __weak TGChatSettingsController *weakSelf = self;
+    controller.settingsUpdated = ^{
+        __strong TGChatSettingsController *strongSelf = weakSelf;
+        if (strongSelf != nil)
+            [strongSelf updateAutoDownloadReset];
+    };
+    [self.navigationController pushViewController:controller animated:true];
+}
+
+- (void)autoDownloadVideoMessagesPressed {
+    TGAutoDownloadSettingsController *controller = [[TGAutoDownloadSettingsController alloc] initWithMode:TGAutoDownloadSettingsModeVideoMessages];
+    __weak TGChatSettingsController *weakSelf = self;
+    controller.settingsUpdated = ^{
+        __strong TGChatSettingsController *strongSelf = weakSelf;
+        if (strongSelf != nil)
+            [strongSelf updateAutoDownloadReset];
+    };
+    [self.navigationController pushViewController:controller animated:true];
+}
+
+- (void)autoDownloadResetPressed {
+    TGMenuSheetController *controller = [[TGMenuSheetController alloc] initWithContext:[TGLegacyComponentsContext shared] dark:false];
+    controller.dismissesByOutsideTap = true;
+    
+    __weak TGChatSettingsController *weakSelf = self;
+    __weak TGMenuSheetController *weakController = controller;
+    TGMenuSheetTitleItemView *titleItem = [[TGMenuSheetTitleItemView alloc] initWithTitle:nil subtitle:TGLocalized(@"AutoDownloadSettings.ResetHelp")];
+    TGMenuSheetButtonItemView *resetItem = [[TGMenuSheetButtonItemView alloc] initWithTitle:TGLocalized(@"AutoDownloadSettings.Reset") type:TGMenuSheetButtonTypeDestructive action:^
+    {
+        __strong TGMenuSheetController *strongController = weakController;
+        if (strongController != nil)
+            [strongController dismissAnimated:true];
+        
+        __strong TGChatSettingsController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        
+        TGAppDelegateInstance.autoDownloadPreferences = [TGAutoDownloadPreferences defaultPreferences];
+        strongSelf->_autoDownloadEnabledItem.isOn = true;
+        strongSelf->_autoDownloadPhotosItem.enabled = true;
+        strongSelf->_autoDownloadVideosItem.enabled = true;
+        strongSelf->_autoDownloadDocumentsItem.enabled = true;
+        strongSelf->_autoDownloadVoiceMessagesItem.enabled = true;
+        strongSelf->_autoDownloadVideoMessagesItem.enabled = true;
+        strongSelf->_autoDownloadResetItem.enabled = false;
+    }];
+    TGMenuSheetButtonItemView *cancelItem = [[TGMenuSheetButtonItemView alloc] initWithTitle:TGLocalized(@"Common.Cancel") type:TGMenuSheetButtonTypeCancel action:^
+    {
+        __strong TGMenuSheetController *strongController = weakController;
+        if (strongController != nil)
+            [strongController dismissAnimated:true];
+    }];
+    
+    [controller setItemViews:@[titleItem, resetItem, cancelItem]];
+    [controller presentInViewController:self sourceView:self.view animated:true];
+}
+
+- (void)updateAutoDownloadReset {
+    _autoDownloadResetItem.enabled = !TGAppDelegateInstance.autoDownloadPreferences.isDefaultPreferences;
+}
+
+- (void)autosavePhotosPressed {
+    [self.navigationController pushViewController:[[TGAutoDownloadSettingsController alloc] initWithMode:TGAutoDownloadSettingsModeSaveIncomingPhotos] animated:true];
+}
+
+- (void)useProxyPressed {
+    TGProxySetupController *controller = [[TGProxySetupController alloc] initWithCurrentSettings];
+    __weak TGChatSettingsController *weakSelf = self;
+    controller.completion = ^(MTSocksProxySettings *updatedSettings, bool inactive) {
+        __strong TGChatSettingsController *strongSelf = weakSelf;
+        if (strongSelf != nil) {
+            NSData *data = nil;
+            if (updatedSettings != nil) {
+                NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+                if (updatedSettings.ip != nil && updatedSettings.port != 0) {
+                    dict[@"ip"] = updatedSettings.ip;
+                    dict[@"port"] = @(updatedSettings.port);
+                }
+                if (updatedSettings.username.length != 0) {
+                    dict[@"username"] = updatedSettings.username;
+                }
+                if (updatedSettings.password.length != 0) {
+                    dict[@"password"] = updatedSettings.password;
+                }
+                dict[@"inactive"] = @(inactive);
+                data = [NSKeyedArchiver archivedDataWithRootObject:dict];
+            } else {
+                data = [NSData data];
+            }
+            [TGDatabaseInstance() setCustomProperty:@"socksProxyData" value:data];
+            strongSelf->_proxySettings = inactive ? nil : updatedSettings;
+            strongSelf->_useProxyItem.variant = (!inactive && updatedSettings != nil) ? TGLocalized(@"ChatSettings.ConnectionType.UseSocks5") : TGLocalized(@"GroupInfo.SharedMediaNone");
+            
+            [[[TGTelegramNetworking instance] context] updateApiEnvironment:^MTApiEnvironment *(MTApiEnvironment *apiEnvironment) {
+                return [apiEnvironment withUpdatedSocksProxySettings:inactive ? nil : updatedSettings];
+            }];
+        }
+    };
+    TGNavigationController *navigationController = [TGNavigationController navigationControllerWithControllers:@[controller]];
+    [self presentViewController:navigationController animated:true completion:nil];
 }
 
 @end

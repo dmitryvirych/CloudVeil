@@ -82,12 +82,17 @@
 {
 }
 
-- (CGSize)sizeForContainerSize:(CGSize)containerSize
+- (CGSize)sizeForContainerSize:(CGSize)containerSize viewStorage:(TGModernViewStorage *)__unused viewStorage
 {
     return CGSizeMake(containerSize.width, 0.0f);
 }
 
-- (void)updateToItem:(TGModernConversationItem *)__unused updatedItem viewStorage:(TGModernViewStorage *)__unused viewStorage sizeChanged:(bool *)__unused sizeChanged delayAvailability:(bool)__unused delayAvailability
+- (void)updateToItem:(TGModernConversationItem *)__unused updatedItem viewStorage:(TGModernViewStorage *)__unused viewStorage sizeChanged:(bool *)__unused sizeChanged delayAvailability:(bool)__unused delayAvailability containerSize:(CGSize)__unused containerSize
+{
+    [self updateToItem:updatedItem viewStorage:viewStorage sizeChanged:sizeChanged delayAvailability:delayAvailability containerSize:containerSize force:false];
+}
+
+- (void)updateToItem:(TGModernConversationItem *)__unused updatedItem viewStorage:(TGModernViewStorage *)__unused viewStorage sizeChanged:(bool *)__unused sizeChanged delayAvailability:(bool)__unused delayAvailability containerSize:(CGSize)__unused containerSize force:(bool)__unused force
 {
 }
 
@@ -103,11 +108,15 @@
 {
 }
 
-- (void)stopInlineMedia
+- (void)stopInlineMedia:(int32_t)__unused excludeMid
 {
 }
 
 - (void)resumeInlineMedia
+{
+}
+
+- (void)updateMessageGroupedLayout:(TGMessageGroupedLayout *)__unused groupedLayout
 {
 }
 

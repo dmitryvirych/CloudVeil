@@ -11,7 +11,7 @@
 
 #import "TL/TLMetaScheme.h"
 
-#import "TGProgressWindow.h"
+#import <LegacyComponents/TGProgressWindow.h>
 #import "TGAlertView.h"
 
 #import "TGDatabase.h"
@@ -24,10 +24,17 @@
 
 #import "TGTelegraph.h"
 
-@interface TGDebugController () <MFMailComposeViewControllerDelegate, UINavigationControllerDelegate>
+#import "TGDatabase.h"
+
+#import "TGAccountSignals.h"
+
+@interface TGDebugController () <MFMailComposeViewControllerDelegate, UINavigationControllerDelegate, ASWatcher>
 {
     TGSwitchCollectionItem *_logsEnabledItem;
+    TGProgressWindow *_progressWindow;
 }
+
+@property (nonatomic, strong) ASHandle *actionHandle;
 
 @end
 
@@ -38,8 +45,10 @@
     self = [super init];
     if (self != nil)
     {
+        _actionHandle = [[ASHandle alloc] initWithDelegate:self];
+        
         _logsEnabledItem = [[TGSwitchCollectionItem alloc] initWithTitle:@"Enable Logging" isOn:[TGAppDelegateInstance enableLogging]];
-        _logsEnabledItem.toggled = ^(bool logsEnabled)
+        _logsEnabledItem.toggled = ^(bool logsEnabled, __unused TGSwitchCollectionItem *item)
         {
             [TGAppDelegateInstance setEnableLogging:logsEnabled];
         };
@@ -72,6 +81,24 @@
         TGButtonCollectionItem *resetPaymentsItem = [[TGButtonCollectionItem alloc] initWithTitle:@"Reset Saved Payment Info" action:@selector(resetPaymentsPressed)];
         TGCollectionMenuSection *resetPaymentsSection = [[TGCollectionMenuSection alloc] initWithItems:@[resetPaymentsItem]];
         [self.menuSections addSection:resetPaymentsSection];
+        
+        TGButtonCollectionItem *databaseItem = [[TGButtonCollectionItem alloc] initWithTitle:@"Switch to WAL" action:@selector(walPressed)];
+        TGCollectionMenuSection *databaseSection = [[TGCollectionMenuSection alloc] initWithItems:@[databaseItem]];
+        [self.menuSections addSection:databaseSection];
+        
+        TGButtonCollectionItem *fetchDebugIpsItem = [[TGButtonCollectionItem alloc] initWithTitle:@"Fetch IPs" action:@selector(fetchDebugIps)];
+        TGCollectionMenuSection *fetchDebugIpsItemSection = [[TGCollectionMenuSection alloc] initWithItems:@[fetchDebugIpsItem]];
+        [self.menuSections addSection:fetchDebugIpsItemSection];
+        
+        TGButtonCollectionItem *clearCacheItem = [[TGButtonCollectionItem alloc] initWithTitle:@"Wipe Cache" action:@selector(clearCachePressed)];
+        clearCacheItem.deselectAutomatically = true;
+        TGCollectionMenuSection *clearCacheSection = [[TGCollectionMenuSection alloc] initWithItems:@[clearCacheItem]];
+        [self.menuSections addSection:clearCacheSection];
+        
+        TGButtonCollectionItem *resetContactsItem = [[TGButtonCollectionItem alloc] initWithTitle:@"Reset Server Contacts" action:@selector(resetContactsPressed)];
+        resetContactsItem.deselectAutomatically = true;
+        TGCollectionMenuSection *resetContactsItemSection = [[TGCollectionMenuSection alloc] initWithItems:@[resetContactsItem]];
+        [self.menuSections addSection:resetContactsItemSection];
         
         NSString *version = [NSString stringWithFormat:@"v%@", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]];
         version = [NSString stringWithFormat:@"%@ (%@)", version, [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleVersionKey]];
@@ -223,10 +250,16 @@
 - (void)resetTooltipsPressed {
     NSArray *keys = @
     [
-        @"TG_didShowSilentBroadcastTooltip",
         @"TG_displayedGifsTooltip_v0",
         @"TG_displayedCameraHoldToVideoTooltip_v0",
-        @"TG_displayedBotResultsPreviewTooltip_v0"
+        @"TG_displayedPrivateRecordModeTooltip_v0",
+        @"TG_displayedChannelRecordModeTooltip_v0",
+        @"TG_displayedPrivateRevertRecordModeTooltip_v0",
+        @"TG_displayedChannelRevertRecordModeTooltip_v0",
+        @"TG_lastPrivateRecordModeIsVideo_v0",
+        @"TG_lastChannelRecordModeIsAudio_v0",
+        @"TG_displayedMediaTimerTooltip_v0",
+        @"TG_displayedGroupTooltip_v0"
     ];
 
     for (NSString *key in keys)
@@ -234,6 +267,8 @@
     
 
     [[NSUserDefaults standardUserDefaults] synchronize];
+    
+    [TGDatabaseInstance() setCustomProperty:@"checkedLocalization" value:nil];
 }
 
 - (void)mailComposeController:(MFMailComposeViewController *)__unused controller didFinishWithResult:(MFMailComposeResult)__unused result error:(NSError *)__unused error
@@ -260,6 +295,55 @@
 - (void)resetCallsTabPressed {
     [TGAppDelegateInstance resetCallsTab];
     [TGAppDelegateInstance.rootController.mainTabsController setCallsHidden:true animated:false];
+}
+
+- (void)walPressed {
+    [TGDatabaseInstance() switchToWal];
+}
+
+- (void)fetchDebugIps {
+    TGProgressWindow *progressWindow = [[TGProgressWindow alloc] init];
+    [progressWindow show:true];
+    [[[TGAccountSignals fetchBackupIps:false] onDispose:^{
+        TGDispatchOnMainThread(^{
+            [progressWindow dismiss:true];
+        });
+    }] startWithNext:nil completed:^{
+        
+    }];
+}
+
+- (void)clearCachePressed {
+    [TGDatabaseInstance() setCustomProperty:@"cachedStickersByQuery" value:nil];
+    
+    [[TGRemoteImageView sharedCache] clearCache:TGCacheBoth];
+    
+    NSString *documentsPath = [TGAppDelegate documentsPath];
+    
+    NSString *filesPath = [[NSString alloc] initWithFormat:@"%@/files", documentsPath];
+    [[NSFileManager defaultManager] removeItemAtPath:filesPath error:nil];
+    
+    NSString *stickerCachePath = [[NSString alloc] initWithFormat:@"%@/sticker-cache", documentsPath];
+    [[NSFileManager defaultManager] removeItemAtPath:stickerCachePath error:nil];
+}
+
+- (void)resetContactsPressed {
+    [_progressWindow dismiss:true];
+    
+    _progressWindow = [[TGProgressWindow alloc] init];
+    [_progressWindow show:true];
+    [[[TGTelegramNetworking instance] requestSignal:[[TLRPCcontacts_resetSaved$contacts_resetSaved alloc] init]] startWithNext:nil completed:^{
+        [ActionStageInstance() requestActor:@"/tg/synchronizeContacts/(sync)" options:@{@"forceFirstTime": @(true)} watcher:self];
+    }];
+}
+
+- (void)actorCompleted:(int)__unused status path:(NSString *)path result:(id)__unused result {
+    if ([path isEqualToString:@"/tg/synchronizeContacts/(sync)"]) {
+        TGDispatchOnMainThread(^{
+            [_progressWindow dismissWithSuccess];
+            _progressWindow = nil;
+        });
+    }
 }
 
 @end

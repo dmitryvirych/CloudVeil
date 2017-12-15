@@ -1,10 +1,13 @@
 #import "TGCallManager.h"
 
+#import "TGAppDelegate.h"
+
 #import "TGCallContext.h"
 #import "TGCallSignals.h"
 #import "TGCallSession.h"
 #import "TGCallKitAdapter.h"
-#import "TGBridgeServer.h"
+
+#import "TGDatabase.h"
 
 #import <MTProtoKit/MTProtoKit.h>
 
@@ -19,6 +22,8 @@
     SPipe *_incomingCallInternalIdsPipe;
     SPipe *_endedIncomingCallInternalIdsPipe;
     
+    NSMutableArray<NSNumber *> *_discardedCallIds;
+    
     TGCallKitAdapter *_callKitAdapter;
 }
 @end
@@ -30,6 +35,7 @@
     if (self != nil) {
         _queue = [[SQueue alloc] init];
         _callContexts = [[NSMutableDictionary alloc] init];
+        _discardedCallIds = [[NSMutableArray alloc] init];
         _incomingCallInternalIdsPipe = [[SPipe alloc] init];
         _endedIncomingCallInternalIdsPipe = [[SPipe alloc] init];
         
@@ -37,6 +43,11 @@
             _callKitAdapter = [[TGCallKitAdapter alloc] init];
     }
     return self;
+}
+
++ (bool)useCallKit {
+    
+    return [TGCallKitAdapter callKitAvailable] && !TGAppDelegateInstance.callsDisableCallKit;
 }
 
 - (void)reset {
@@ -62,7 +73,9 @@
             TGCallContext *context = [[TGCallContext alloc] init];
             context.uuid = uuid;
             context.session = session;
-            [_callKitAdapter addCallSession:session uuid:uuid];
+            context.session.hasCallKit = [TGCallManager useCallKit];
+            if ([TGCallManager useCallKit])
+                [_callKitAdapter addCallSession:session uuid:uuid];
             
             __weak TGCallManager *weakSelf = self;
             _callContexts[@(internalId)] = context;
@@ -75,19 +88,22 @@
             
             [self setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:0 accessHash:0 state:TGCallStateRequesting peerId:peerId connection:nil hungUpOutside:false needsRating:false needsDebug:false error:nil]];
             
-            [_callKitAdapter startCallWithPeerId:peerId uuid:context.uuid];
-            session.onStartedConnecting = ^{
-                __strong TGCallManager *strongSelf = weakSelf;
-                if (strongSelf != nil) {
-                    [strongSelf->_callKitAdapter updateCallWithUUID:uuid connectingAtDate:[NSDate date]];
-                }
-            };
-            session.onConnected = ^{
-                __strong TGCallManager *strongSelf = weakSelf;
-                if (strongSelf != nil) {
-                    [strongSelf->_callKitAdapter updateCallWithUUID:uuid connectedAtDate:[NSDate date]];
-                }
-            };
+            if ([TGCallManager useCallKit])
+            {
+                [_callKitAdapter startCallWithPeerId:peerId uuid:context.uuid];
+                session.onStartedConnecting = ^{
+                    __strong TGCallManager *strongSelf = weakSelf;
+                    if (strongSelf != nil) {
+                        [strongSelf->_callKitAdapter updateCallWithUUID:uuid connectingAtDate:[NSDate date]];
+                    }
+                };
+                session.onConnected = ^{
+                    __strong TGCallManager *strongSelf = weakSelf;
+                    if (strongSelf != nil) {
+                        [strongSelf->_callKitAdapter updateCallWithUUID:uuid connectedAtDate:[NSDate date]];
+                    }
+                };
+            }
             
             [context.disposable setDisposable:[[[TGCallSignals requestedOutgoingCallWithPeerId:peerId] deliverOn:_queue] startWithNext:^(id next) {
                 __strong TGCallManager *strongSelf = weakSelf;
@@ -138,6 +154,11 @@
                 [self performCallContextTransitionWithInternalId:internalId toCallContext:callContext];
             }
         } else if ([callContext isKindOfClass:[TGCallRequestedContext class]]) {
+            if ([_discardedCallIds containsObject:@(callId)]) {
+                TGLog(@"CallManager: ignoring incoming call id %lld, because it's already discarded", callId);
+                return;
+            }
+            
             TGCallRequestedContext *requestedContext = (TGCallRequestedContext *)callContext;
             bool hasActiveCall = false;
             for (TGCallContext *context in [_callContexts allValues])
@@ -158,18 +179,28 @@
             if (!hasActiveCall)
             {
                 context.session = [[TGCallSession alloc] initWithSignal:[self callStateWithInternalId:@(internalId)] outgoing:false];
-                [_callKitAdapter addCallSession:context.session uuid:context.uuid];
+                if ([TGCallManager useCallKit])
+                    [_callKitAdapter addCallSession:context.session uuid:context.uuid];
                 [self performCallContextTransitionWithInternalId:internalId toCallContext:callContext];
             }
             else
             {
                 context.context = [[TGCallRequestedContext alloc] initWithCallId:requestedContext.callId accessHash:requestedContext.accessHash date:requestedContext.date adminId:requestedContext.adminId participantId:requestedContext.participantId gAHash:requestedContext.gAHash declined:true];
-                context.session = [[TGCallSession alloc] initWithSignal:[self discardCallWithInternalId:@(internalId) reason:TGCallDiscardReasonBusy] outgoing:false];
+                context.session = [[TGCallSession alloc] initWithSignal:[self callStateWithInternalId:@(internalId)] outgoing:false];
+                [self discardCallWithInternalId:@(internalId) reason:TGCallDiscardReasonBusy];
             }
+        } else if ([callContext isKindOfClass:[TGCallDiscardedContext class]]) {
+            [_discardedCallIds addObject:@(callId)];
+            TGLog(@"CallManager: Added unknown discarded call with id %lld", callId);
         } else {
             TGLog(@"CallManager: Unknown call context with id %lld", callId);
         }
     }];
+}
+
+- (void)_dispatch:(dispatch_block_t)block
+{
+    [_queue dispatch:block];
 }
 
 - (void)performCallContextTransitionWithInternalId:(int32_t)internalId toCallContext:(id)toCallContext {
@@ -178,39 +209,33 @@
     TGCallContext *context = _callContexts[@(internalId)];
     NSAssert(context != nil, @"context != nil");
     
+    void (^invalidTransition)(id, id) = ^(id from, id to)
+    {
+        [self setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:0 accessHash:0 state:TGCallStateEnded peerId:0 connection:nil hungUpOutside:false needsRating:false needsDebug:false error:@"INVALID_TRANSITION"]];
+        
+        TGLog(@"CallManager: Invalid call context transition %@ -> %@", from, to);
+        [self cleanupContext:internalId];
+    };
+    
     if (context.context == nil) {
         if ([toCallContext isKindOfClass:[TGCallRequestedContext class]]) {
             TGCallRequestedContext *requestedContext = (TGCallRequestedContext *)toCallContext;
             context.context = toCallContext;
             
+            bool isSimulator = false;
+#if TARGET_OS_SIMULATOR
+            isSimulator = true;
+#endif
             __weak TGCallManager *weakSelf = self;
-            if ([TGCallSession hasMicrophoneAccess]) {
-                if (![TGCallKitAdapter callKitAvailable]) {
-                    [context.session presentCallNotification:requestedContext.adminId];
-                }
-                else {
-                    NSUUID *uuid = context.uuid;
-                    [_callKitAdapter reportIncomingCallWithPeerId:requestedContext.adminId session:context.session uuid:context.uuid completion:^(bool silent) {
-                        if (silent)
-                            [context.session presentCallNotification:requestedContext.adminId];
-                    }];
-                    
-                    context.session.onStartedConnecting = ^{
-                        __strong TGCallManager *strongSelf = weakSelf;
-                        if (strongSelf != nil) {
-                            [strongSelf->_callKitAdapter updateCallWithUUID:uuid connectingAtDate:[NSDate date]];
-                        }
-                    };
-                    context.session.onConnected = ^{
-                        __strong TGCallManager *strongSelf = weakSelf;
-                        if (strongSelf != nil) {
-                            [strongSelf->_callKitAdapter updateCallWithUUID:uuid connectedAtDate:[NSDate date]];
-                        }
-                    };
-                }
-            }
-            else {
+            if (![TGCallManager useCallKit] || ![TGCallKitAdapter callKitAvailable] || ![TGCallSession hasMicrophoneAccess] || isSimulator) {
                 [context.session presentCallNotification:requestedContext.adminId];
+            } else {
+                context.session.hasCallKit = true;
+                
+                [_callKitAdapter reportIncomingCallWithPeerId:requestedContext.adminId session:context.session uuid:context.uuid completion:^(bool silent) {
+                    if (silent)
+                        [context.session presentCallNotification:requestedContext.adminId];
+                }];    
             }
             
             [self setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:requestedContext.callId accessHash:requestedContext.accessHash state:TGCallStateHandshake peerId:requestedContext.adminId connection:nil hungUpOutside:false needsRating:false needsDebug:false error:nil]];
@@ -224,12 +249,23 @@
             } error:^(__unused id error) {
                 __strong TGCallManager *strongSelf = weakSelf;
                 if (strongSelf != nil) {
-                    [strongSelf cleanupContext:internalId];
+                    NSString *rpcError = nil;
+                    if ([error isKindOfClass:[MTRpcError class]])
+                        rpcError = ((MTRpcError *)error).errorDescription;
+                    if ([rpcError isEqualToString:@"CALL_ALREADY_ACCEPTED"])
+                        rpcError = nil;
+                    
+                    if (rpcError != nil)
+                    {
+                        [strongSelf setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:0 accessHash:0 state:TGCallStateEnded peerId:0 connection:nil hungUpOutside:false needsRating:false needsDebug:false error:rpcError]];
+                        
+                        TGLog(@"CallManager: call received error %@", rpcError);
+                        [strongSelf cleanupContext:internalId];
+                    }
                 }
             } completed:nil]];
         } else {
-            TGLog(@"Invalid call context transition none -> %@", toCallContext);
-            [self cleanupContext:internalId];
+            invalidTransition(nil, toCallContext);
         }
     } else if ([toCallContext isKindOfClass:[TGCallDiscardedContext class]]) {
         if ([context.context isKindOfClass:[TGCallDiscardedContext class]]) {
@@ -243,12 +279,18 @@
             TGCallState callState = TGCallStateEnded;
             switch (discardedContext.reason) {
                 case TGCallDiscardReasonBusy:
-                case TGCallDiscardReasonMissedTimeout:
                     callState = TGCallStateBusy;
                     break;
                     
                 case TGCallDiscardReasonMissed:
                     callState = TGCallStateMissed;
+                    break;
+                    
+                case TGCallDiscardReasonMissedTimeout:
+                    if (context.session.outgoing)
+                        callState = TGCallStateNoAnswer;
+                    else
+                        callState = TGCallStateMissed;
                     break;
                     
                 default:
@@ -258,7 +300,7 @@
             
             _endedIncomingCallInternalIdsPipe.sink(@(internalId));
             
-            if (declined || ![TGCallKitAdapter callKitAvailable] || context.session.completed || (discardedContext.reason == TGCallDiscardReasonBusy && !discardedContext.outside)) {
+            if (!context.session.hasCallKit || declined || context.session.completed || (discardedContext.reason == TGCallDiscardReasonBusy && !discardedContext.outside)) {
                 [self cleanupContext:internalId];
             } else {
                 [_callKitAdapter endCallWithUUID:context.uuid reason:discardedContext.reason completion:^{
@@ -274,8 +316,7 @@
             context.context = toCallContext;
             [self setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:waitingContext.callId accessHash:waitingContext.accessHash state:TGCallStateWaiting peerId:waitingContext.participantId connection:nil hungUpOutside:false needsRating:false needsDebug:false error:nil]];
         } else {
-            TGLog(@"Invalid call context transition TGCallRequestingContext -> %@", toCallContext);
-            [self cleanupContext:internalId];
+            invalidTransition(context.context, toCallContext);
         }
     } else if ([context.context isKindOfClass:[TGCallWaitingContext class]]) {
         if ([toCallContext isKindOfClass:[TGCallWaitingContext class]]) {
@@ -318,12 +359,18 @@
             } error:^(__unused id error) {
                 __strong TGCallManager *strongSelf = weakSelf;
                 if (strongSelf != nil) {
+                    NSString *rpcError = nil;
+                    if ([error isKindOfClass:[MTRpcError class]])
+                        rpcError = ((MTRpcError *)error).errorDescription;
+                    
+                    [strongSelf setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:0 accessHash:0 state:TGCallStateEnded peerId:0 connection:nil hungUpOutside:false needsRating:false needsDebug:false error:rpcError]];
+                    
+                    TGLog(@"CallManager: call confirmed error %@", rpcError);
                     [strongSelf cleanupContext:internalId];
                 }
             } completed:nil]];
         } else {
-            TGLog(@"Invalid call context transition TGCallWaitingContext -> %@", toCallContext);
-            [self cleanupContext:internalId];
+            invalidTransition(context.context, toCallContext);
         }
     } else if ([context.context isKindOfClass:[TGCallRequestedContext class]]) {
         if ([toCallContext isKindOfClass:[TGCallRequestedContext class]]) {
@@ -337,8 +384,7 @@
             [self setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:receivedContext.callId accessHash:receivedContext.accessHash state:TGCallStateReady peerId:receivedContext.adminId connection:nil hungUpOutside:false needsRating:false needsDebug:false error:nil]];
         }
         else {
-            TGLog(@"Invalid call context transition TGCallRequestedContext -> %@", toCallContext);
-            [self cleanupContext:internalId];
+            invalidTransition(context.context, toCallContext);
         }
     } else if ([context.context isKindOfClass:[TGCallReceivedContext class]]) {
         if ([toCallContext isKindOfClass:[TGCallWaitingConfirmContext class]]) {
@@ -346,8 +392,7 @@
             context.context = waitingConfirmContext;
         }
         else {
-            TGLog(@"Invalid call context transition TGCallRequestedContext -> %@", toCallContext);
-            [self cleanupContext:internalId];
+            invalidTransition(context.context, toCallContext);
         }
     } else if ([context.context isKindOfClass:[TGCallWaitingConfirmContext class]]) {
         if ([toCallContext isKindOfClass:[TGCallConfirmedContext class]]) {
@@ -381,6 +426,8 @@
                 context.context = [[TGCallOngoingContext alloc] initWithCallId:confirmedContext.callId accessHash:confirmedContext.accessHash date:confirmedContext.date adminId:confirmedContext.adminId participantId:confirmedContext.participantId key:key keyFingerprint:keyId defaultConnection:confirmedContext.defaultConnection alternativeConnections:confirmedContext.alternativeConnections];
                 [self setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:confirmedContext.callId accessHash:confirmedContext.accessHash state:TGCallStateOngoing peerId:confirmedContext.participantId connection:[[TGCallConnection alloc] initWithKey:key keyHash:visKeyHash defaultConnection:confirmedContext.defaultConnection alternativeConnections:confirmedContext.alternativeConnections] hungUpOutside:false needsRating:false needsDebug:false error:nil]];
             } else {
+                [self setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:0 accessHash:0 state:TGCallStateEnded peerId:0 connection:nil hungUpOutside:false needsRating:false needsDebug:false error:@"FINGERPRINT_MISMATCH"]];
+                
                 TGLog(@"Call key gA hash or fingerprint mismatch");
                 [self cleanupContext:internalId];
             }
@@ -398,8 +445,10 @@
             [self setContextState:internalId state:[[TGCallStateData alloc] initWithInternalId:@(internalId) callId:ongoingContext.callId accessHash:ongoingContext.accessHash state:TGCallStateOngoing peerId:ongoingContext.participantId connection:[[TGCallConnection alloc] initWithKey:ongoingContext.key keyHash:visKeyHash defaultConnection:ongoingContext.defaultConnection alternativeConnections:ongoingContext.alternativeConnections] hungUpOutside:false needsRating:false needsDebug:false error:nil]];
         }
     } else if ([context.context isKindOfClass:[TGCallOngoingContext class]]) {
-        TGLog(@"Invalid call context transition TGCallOngoingContext -> %@", toCallContext);
-        [self cleanupContext:internalId];
+        if ([toCallContext isKindOfClass:[TGCallConfirmedContext class]])
+            return;
+        
+        invalidTransition(context.context, toCallContext);
     }
 }
 
@@ -463,145 +512,111 @@
     return _endedIncomingCallInternalIdsPipe.signalProducer();
 }
 
-- (SSignal *)acceptCallWithInternalId:(id)internalId {
+- (void)acceptCallWithInternalId:(id)internalId {
     if (internalId == nil)
-        return [SSignal fail:nil];
+        return;
     
-    return [[[[[self callStateWithInternalId:internalId] mapToSignal:^SSignal *(TGCallStateData *state) {
+    [[[[[self callStateWithInternalId:internalId] mapToSignal:^SSignal *(TGCallStateData *state) {
         if (state.state != TGCallStateHandshake && state.state != TGCallStateReady)
             return [SSignal fail:nil];
         return [SSignal single:state];
     }] filter:^bool(TGCallStateData *state) {
         return state.state == TGCallStateReady;
-    }] take:1] mapToSignal:^SSignal *(__unused TGCallStateData *state) {
-        return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber)
-        {
-            int32_t internalIdVal = [internalId int32Value];
-            SMetaDisposable *disposable = [[SMetaDisposable alloc] init];
-            [_queue dispatch:^ {
-                TGCallContext *context = _callContexts[internalId];
-                __weak TGCallManager *weakSelf = self;
-            
-                void (^stateUpdated)(TGCallStateData *) = ^(TGCallStateData *state) {
-                    [subscriber putNext:state];
-                };
-                NSInteger index = [context.stateSubscribers addItem:[stateUpdated copy]];
-                
-                TGCallReceivedContext *receivedContext = (TGCallReceivedContext *)context.context;
-                [self setContextState:internalIdVal state:[[TGCallStateData alloc] initWithInternalId:internalId callId:receivedContext.callId accessHash:receivedContext.accessHash state:TGCallStateAccepting peerId:state.peerId connection:nil hungUpOutside:false needsRating:false needsDebug:false error:nil]];
-                
-                [context.disposable setDisposable:[[[TGCallSignals acceptedIncomingCallWithCallId:receivedContext.callId accessHash:receivedContext.accessHash dhConfig:receivedContext.dhConfig bBytes:receivedContext.b gBBytes:receivedContext.gB gAHash:receivedContext.gAHash] deliverOn:_queue] startWithNext:^(id next) {
-                    __strong TGCallManager *strongSelf = weakSelf;
-                    if (strongSelf != nil) {
-                        [strongSelf performCallContextTransitionWithInternalId:internalIdVal toCallContext:next];
-                    }
-                } error:^(id error) {
-                    __strong TGCallManager *strongSelf = weakSelf;
-                    if (strongSelf != nil) {
-                        NSString *rpcError = nil;
-                        if ([error isKindOfClass:[MTRpcError class]])
-                            rpcError = ((MTRpcError *)error).errorDescription;
-                        TGCallDiscardedContext *discardedContext = [[TGCallDiscardedContext alloc] initWithCallId:receivedContext.callId reason:TGCallDiscardReasonDisconnect outside:false needsRating:false needsDebug:false error:rpcError];
-                        [strongSelf->_queue dispatch:^{
-                            [strongSelf performCallContextTransitionWithInternalId:internalIdVal toCallContext:discardedContext];
-                        }];
-                    }
-                } completed:nil]];
-                
-                [disposable setDisposable:[[SBlockDisposable alloc] initWithBlock:^{
-                    [_queue dispatch:^{
-                        TGCallContext *context = _callContexts[internalId];
-                        [context.stateSubscribers removeItem:index];
-                        if ([context.stateSubscribers isEmpty]) {
-                            [self cleanupContext:internalIdVal];
-                        }
-                    }];
-                }]];
-            }];
-            return disposable;
-        }];
-    }];
-}
-
-- (SSignal *)discardCallWithInternalId:(id)internalId reason:(TGCallDiscardReason)reason {
-    return [self discardCallWithInternalId:internalId reason:reason error:nil];
-}
-
-- (SSignal *)discardCallWithInternalId:(id)internalId reason:(TGCallDiscardReason)reason error:(NSString *)error {
-    return [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber) {
+    }] take:1] startWithNext:^(TGCallStateData *state) {
         int32_t internalIdVal = [internalId int32Value];
-        SMetaDisposable *disposable = [[SMetaDisposable alloc] init];
         [_queue dispatch:^{
+            TGCallContext *context = _callContexts[internalId];
             __weak TGCallManager *weakSelf = self;
             
-            TGCallContext *context = _callContexts[internalId];
-            if (context == nil) {
-                [subscriber putNext:[[TGCallStateData alloc] initWithInternalId:internalId callId:0 accessHash:0 state:TGCallStateEnded peerId:0 connection:nil hungUpOutside:false needsRating:false needsDebug:false error:nil]];
-                [subscriber putCompletion];
-                return;
-            }
+            TGCallReceivedContext *receivedContext = (TGCallReceivedContext *)context.context;
+            [self setContextState:internalIdVal state:[[TGCallStateData alloc] initWithInternalId:internalId callId:receivedContext.callId accessHash:receivedContext.accessHash state:TGCallStateAccepting peerId:state.peerId connection:nil hungUpOutside:false needsRating:false needsDebug:false error:nil]];
             
-            void (^stateUpdated)(TGCallStateData *) = ^(TGCallStateData *state) {
-                [subscriber putNext:state];
-            };
-            NSInteger index = [context.stateSubscribers addItem:[stateUpdated copy]];
-            
-            int64_t callId = 0;
-            int64_t accessHash = 0;
-            
-            if ([context.context conformsToProtocol:@protocol(TGCallIdentifiableContext)]) {
-                id<TGCallIdentifiableContext> identifiableContext = context.context;
-                callId = identifiableContext.callId;
-                if ([identifiableContext respondsToSelector:@selector(accessHash)])
-                    accessHash = identifiableContext.accessHash;
-            }
-            
-            TGCallDiscardReason localReason = (reason == TGCallDiscardReasonBusy) ? TGCallDiscardReasonHangup : reason;
-            if (reason != TGCallDiscardReasonMissedTimeout)
-            {
-                [self setContextState:internalIdVal state:[[TGCallStateData alloc] initWithInternalId:internalId callId:callId accessHash:accessHash state:TGCallStateEnding peerId:context.state.peerId connection:nil hungUpOutside:false needsRating:false needsDebug:false error:error]];
-            }
-            
-            if ([context.context isKindOfClass:[TGCallRequestingContext class]]) {
-                TGCallDiscardedContext *callContext = [[TGCallDiscardedContext alloc] initWithCallId:callId reason:localReason outside:false needsRating:false needsDebug:false error:nil];
-                [self performCallContextTransitionWithInternalId:internalIdVal toCallContext:callContext];
-            } else if (callId != 0) {
-                [context.disposable setDisposable:[[[TGCallSignals discardedCallWithCallId:callId accessHash:accessHash reason:reason duration:(int32_t)context.session.duration] deliverOn:_queue] startWithNext:^(TGCallDiscardedContext *next) {
-                    __strong TGCallManager *strongSelf = weakSelf;
-                    if (strongSelf != nil) {
-                        if (next.reason != localReason)
-                            next = [[TGCallDiscardedContext alloc] initWithCallId:next.callId reason:localReason outside:next.outside needsRating:next.needsRating needsDebug:next.needsDebug error:next.error];
-                        [strongSelf performCallContextTransitionWithInternalId:internalIdVal toCallContext:next];
-                    }
-                } error:^(__unused id error) {
-                    __strong TGCallManager *strongSelf = weakSelf;
-                    if (strongSelf != nil) {
-                        NSString *rpcError = nil;
-                        if ([error isKindOfClass:[MTRpcError class]])
-                            rpcError = ((MTRpcError *)error).errorDescription;
-                        if ([rpcError isEqualToString:@"CALL_ALREADY_DECLINED"])
-                            rpcError = nil;
-                        
-                        TGCallDiscardedContext *callContext = [[TGCallDiscardedContext alloc] initWithCallId:callId reason:localReason outside:false needsRating:false needsDebug:false error:rpcError];
-                        [strongSelf->_queue dispatch:^{
-                            [strongSelf performCallContextTransitionWithInternalId:internalIdVal toCallContext:callContext];
-                        }];
-                    }
-                } completed:nil]];
-            }
-            
-            [disposable setDisposable:[[SBlockDisposable alloc] initWithBlock:^{
-                [_queue dispatch:^{
-                    TGCallContext *context = _callContexts[@(internalIdVal)];
-                    [context.stateSubscribers removeItem:index];
-                    if ([context.stateSubscribers isEmpty]) {
-                        [self cleanupContext:internalIdVal];
-                    }
-                }];
-            }]];
+            [context.disposable setDisposable:[[[TGCallSignals acceptedIncomingCallWithCallId:receivedContext.callId accessHash:receivedContext.accessHash dhConfig:receivedContext.dhConfig bBytes:receivedContext.b gBBytes:receivedContext.gB gAHash:receivedContext.gAHash] deliverOn:_queue] startWithNext:^(id next) {
+                __strong TGCallManager *strongSelf = weakSelf;
+                if (strongSelf != nil) {
+                    [strongSelf performCallContextTransitionWithInternalId:internalIdVal toCallContext:next];
+                }
+            } error:^(id error) {
+                __strong TGCallManager *strongSelf = weakSelf;
+                if (strongSelf != nil) {
+                    NSString *rpcError = nil;
+                    if ([error isKindOfClass:[MTRpcError class]])
+                        rpcError = ((MTRpcError *)error).errorDescription;
+                    TGCallDiscardedContext *discardedContext = [[TGCallDiscardedContext alloc] initWithCallId:receivedContext.callId reason:TGCallDiscardReasonDisconnect outside:false needsRating:false needsDebug:false error:rpcError];
+                    [strongSelf->_queue dispatch:^{
+                        [strongSelf performCallContextTransitionWithInternalId:internalIdVal toCallContext:discardedContext];
+                    }];
+                }
+            } completed:nil]];
         }];
-        return disposable;
     }];
+}
+
+- (void)discardCallWithInternalId:(id)internalId reason:(TGCallDiscardReason)reason
+{
+    [self discardCallWithInternalId:internalId reason:reason error:nil];
+}
+
+- (void)discardCallWithInternalId:(id)internalId reason:(TGCallDiscardReason)reason error:(NSString *)error {
+    int32_t internalIdVal = [internalId int32Value];
+    [_queue dispatch:^{
+        __weak TGCallManager *weakSelf = self;
+        
+        TGCallContext *context = _callContexts[internalId];
+        if (context == nil)
+            return;
+        
+        int64_t callId = 0;
+        int64_t accessHash = 0;
+        
+        if ([context.context conformsToProtocol:@protocol(TGCallIdentifiableContext)]) {
+            id<TGCallIdentifiableContext> identifiableContext = context.context;
+            callId = identifiableContext.callId;
+            if ([identifiableContext respondsToSelector:@selector(accessHash)])
+                accessHash = identifiableContext.accessHash;
+        }
+        
+        TGCallDiscardReason localReason = (reason == TGCallDiscardReasonBusy) ? TGCallDiscardReasonHangup : reason;
+        if (reason != TGCallDiscardReasonMissedTimeout)
+        {
+            [self setContextState:internalIdVal state:[[TGCallStateData alloc] initWithInternalId:internalId callId:callId accessHash:accessHash state:TGCallStateEnding peerId:context.state.peerId connection:nil hungUpOutside:false needsRating:false needsDebug:false error:error]];
+        }
+        
+        if (callId == 0 || accessHash == 0)
+        {
+            TGCallDiscardedContext *callContext = [[TGCallDiscardedContext alloc] initWithCallId:callId reason:localReason outside:false needsRating:false needsDebug:false error:nil];
+            [self performCallContextTransitionWithInternalId:internalIdVal toCallContext:callContext];
+            return;
+        }
+        
+        if ([context.context isKindOfClass:[TGCallRequestingContext class]]) {
+            TGCallDiscardedContext *callContext = [[TGCallDiscardedContext alloc] initWithCallId:callId reason:localReason outside:false needsRating:false needsDebug:false error:nil];
+            [self performCallContextTransitionWithInternalId:internalIdVal toCallContext:callContext];
+        } else {
+            [context.disposable setDisposable:[[[[TGCallSignals discardedCallWithCallId:callId accessHash:accessHash reason:reason duration:(int32_t)context.session.duration] timeout:5.0 onQueue:_queue orSignal:[SSignal single:[[TGCallDiscardedContext alloc] initWithCallId:callId reason:localReason outside:false needsRating:false needsDebug:false error:nil]]] deliverOn:_queue] startWithNext:^(TGCallDiscardedContext *next) {
+                __strong TGCallManager *strongSelf = weakSelf;
+                if (strongSelf != nil) {
+                    if (next.reason != localReason)
+                        next = [[TGCallDiscardedContext alloc] initWithCallId:next.callId reason:localReason outside:next.outside needsRating:next.needsRating needsDebug:next.needsDebug error:next.error];
+                    [strongSelf performCallContextTransitionWithInternalId:internalIdVal toCallContext:next];
+                }
+            } error:^(__unused id error) {
+                __strong TGCallManager *strongSelf = weakSelf;
+                if (strongSelf != nil) {
+                    NSString *rpcError = nil;
+                    if ([error isKindOfClass:[MTRpcError class]])
+                        rpcError = ((MTRpcError *)error).errorDescription;
+                    if ([rpcError isEqualToString:@"CALL_ALREADY_DECLINED"])
+                        rpcError = nil;
+                    
+                    TGCallDiscardedContext *callContext = [[TGCallDiscardedContext alloc] initWithCallId:callId reason:localReason outside:false needsRating:false needsDebug:false error:rpcError];
+                    [strongSelf->_queue dispatch:^{
+                        [strongSelf performCallContextTransitionWithInternalId:internalIdVal toCallContext:callContext];
+                    }];
+                }
+            } completed:nil]];
+        }
+     }];
 }
 
 - (TGCallSession *)sessionForIncomingCallWithInternalId:(id)internalId {
@@ -616,9 +631,12 @@
     NSUUID *uuid = [NSUUID UUID];
     TGCallSession *session = [[TGCallSession alloc] initOutgoing:true];
     [session startWithSignal:[self requestCallWithPeerId:peerId uuid:uuid session:session]];
-    [_queue dispatch:^{
-        [_callKitAdapter addCallSession:session uuid:uuid];
-    }];
+    if ([TGCallManager useCallKit])
+    {
+        [_queue dispatch:^{
+            [_callKitAdapter addCallSession:session uuid:uuid];
+        }];
+    }
     return session;
 }
 

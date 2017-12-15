@@ -2,6 +2,7 @@
 "Share.Next" = "Siguiente";
 "Share.OK" = "OK";
 "Share.Search" = "Buscar";
+"Share.Send" = "Enviar";
 
 "Share.Title" = "Compartir";
 "Share.ShareWithPerson" = "¿Compartir con %@?";
@@ -24,4 +25,16 @@
 "Share.RecentSection" = "Recientes";
 "Share.RecentSectionClear" = "Borrar";
 
+"Share.PeopleSection" = "Personas";
+
 "Share.TouchId" = "Pon tu código de acceso";
+
+"Share.AddCaption" = "Escribe un comentario...";
+
+"Share.PasscodeFailedAttempts_1" = "1 intento fallido";
+"Share.PasscodeFailedAttempts_2" = "2 intentos fallidos";
+"Share.PasscodeFailedAttempts_3_10" = "%@ intentos fallidos";
+"Share.PasscodeFailedAttempts_any" = "%@ intento fallido";
+"Share.PasscodeTryAgainIn1Minute" = "Vuelve a intentarlo en 1 minuto";
+
+"Share.SavedMessages" = "Mensajes guardados";

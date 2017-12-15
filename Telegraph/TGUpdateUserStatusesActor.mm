@@ -4,7 +4,7 @@
 
 #import "TGUserDataRequestBuilder.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/ActionStage.h>
 
 #import "TGUser+Telegraph.h"
 
@@ -26,7 +26,7 @@
 
 - (void)contactStatusesRequestSuccess:(NSArray *)contactStatuses currentDate:(int)__unused currentDate
 {
-    std::tr1::shared_ptr<std::map<int, TGUserPresence> > presenceMap(new std::map<int, TGUserPresence>());
+    std::shared_ptr<std::map<int, TGUserPresence> > presenceMap(new std::map<int, TGUserPresence>());
     
     for (TLContactStatus *statusDesc in contactStatuses)
     {

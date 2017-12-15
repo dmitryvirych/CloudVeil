@@ -1,10 +1,12 @@
-#import "TGMenuSheetItemView.h"
+#import <LegacyComponents/TGMenuSheetItemView.h>
 
 @class TGWebPageMediaAttachment;
 @class TGLocationMediaAttachment;
 @class TGDocumentMediaAttachment;
 
 @interface TGPreviewAboutItemView : TGMenuSheetItemView
+
+@property (nonatomic, assign) bool singleLine;
 
 - (instancetype)initWithWebPageAttachment:(TGWebPageMediaAttachment *)attachment;
 - (instancetype)initWithLocationAttachment:(TGLocationMediaAttachment *)attachment;

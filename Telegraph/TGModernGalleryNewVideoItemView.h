@@ -1,4 +1,4 @@
-#import "TGModernGalleryZoomableItemView.h"
+#import <LegacyComponents/TGModernGalleryZoomableItemView.h>
 
 @protocol TGPIPAblePlayerView;
 @class TGModernButton;
@@ -13,6 +13,7 @@
     bool _playerViewDetached;
     
     CGSize _videoDimensions;
+    bool _disablePictureInPicture;
 }
 
 - (bool)shouldLoopVideo:(NSUInteger)currentLoopCount;

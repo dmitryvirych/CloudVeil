@@ -8,12 +8,12 @@
 
 #import "TGLiveUploadActor.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/ActionStage.h>
 
 #import "TGTelegramNetworking.h"
 #import "TGNetworkWorker.h"
 
-#import <MtProtoKit/MTRequest.h>
+#import <MTProtoKit/MTRequest.h>
 #import "TL/TLMetaScheme.h"
 
 #import <CommonCrypto/CommonDigest.h>

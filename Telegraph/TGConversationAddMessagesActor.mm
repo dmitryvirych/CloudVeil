@@ -1,20 +1,19 @@
 #import "TGConversationAddMessagesActor.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/ActionStage.h>
 
 #import "TGTelegraph.h"
 #import "TGTelegramNetworking.h"
 
 #import "TGDatabase.h"
-#import "TGMessage.h"
 
 #import "TGAppDelegate.h"
 
-#import "SGraphObjectNode.h"
+#import <LegacyComponents/SGraphObjectNode.h>
 
 #import "TGInterfaceManager.h"
-
-#import "TGPeerIdAdapter.h"
 
 #import "TGRecentGifsSignal.h"
 #import "TGRecentStickersSignal.h"
@@ -98,7 +97,7 @@
     bool playNotification = false;
     bool needsSound = false;
     
-    std::tr1::shared_ptr<std::map<int64_t, std::set<int> > > pProcessedUsersStoppedTyping(new std::map<int64_t, std::set<int> >());
+    std::shared_ptr<std::map<int64_t, std::set<int> > > pProcessedUsersStoppedTyping(new std::map<int64_t, std::set<int> >());
 
     NSMutableDictionary *messagesByConversation = [[NSMutableDictionary alloc] init];
     std::set<int64_t> conversationsWithNotification;

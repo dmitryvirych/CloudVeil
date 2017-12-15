@@ -20,7 +20,7 @@
     return 0;
 }
 
-- (id<TLObject>)TLbuildFromMetaObject:(std::tr1::shared_ptr<TLMetaObject>)__unused metaObject
+- (id<TLObject>)TLbuildFromMetaObject:(std::shared_ptr<TLMetaObject>)__unused metaObject
 {
     TGLog(@"TLbuildFromMetaObject is not implemented for base type");
     return nil;
@@ -47,7 +47,7 @@
     return (int32_t)0xb4b18174;
 }
 
-- (id<TLObject>)TLbuildFromMetaObject:(std::tr1::shared_ptr<TLMetaObject>)metaObject
+- (id<TLObject>)TLbuildFromMetaObject:(std::shared_ptr<TLMetaObject>)metaObject
 {
     TLInputPaymentCredentials$inputPaymentCredentialsSaved *object = [[TLInputPaymentCredentials$inputPaymentCredentialsSaved alloc] init];
     object.n_id = metaObject->getString((int32_t)0x7a5601fb);
@@ -87,7 +87,7 @@
     return (int32_t)0xe941b9bc;
 }
 
-- (id<TLObject>)TLbuildFromMetaObject:(std::tr1::shared_ptr<TLMetaObject>)metaObject
+- (id<TLObject>)TLbuildFromMetaObject:(std::shared_ptr<TLMetaObject>)metaObject
 {
     TLInputPaymentCredentials$inputPaymentCredentials *object = [[TLInputPaymentCredentials$inputPaymentCredentials alloc] init];
     object.flags = metaObject->getInt32((int32_t)0x81915c23);
@@ -108,6 +108,39 @@
         value.type = TLConstructedValueTypeObject;
         value.nativeObject = self.data;
         values->insert(std::pair<int32_t, TLConstructedValue>((int32_t)0xa361765d, value));
+    }
+}
+
+
+@end
+
+@implementation TLInputPaymentCredentials$inputPaymentCredentialsApplePay : TLInputPaymentCredentials
+
+
+- (int32_t)TLconstructorSignature
+{
+    return (int32_t)0xaa1c39f;
+}
+
+- (int32_t)TLconstructorName
+{
+    return (int32_t)0xc3a14b22;
+}
+
+- (id<TLObject>)TLbuildFromMetaObject:(std::shared_ptr<TLMetaObject>)metaObject
+{
+    TLInputPaymentCredentials$inputPaymentCredentialsApplePay *object = [[TLInputPaymentCredentials$inputPaymentCredentialsApplePay alloc] init];
+    object.payment_data = metaObject->getObject((int32_t)0x90a8fd6c);
+    return object;
+}
+
+- (void)TLfillFieldsWithValues:(std::map<int32_t, TLConstructedValue> *)values
+{
+    {
+        TLConstructedValue value;
+        value.type = TLConstructedValueTypeObject;
+        value.nativeObject = self.payment_data;
+        values->insert(std::pair<int32_t, TLConstructedValue>((int32_t)0x90a8fd6c, value));
     }
 }
 

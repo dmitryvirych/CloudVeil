@@ -1,11 +1,11 @@
 #import "TGModernSendCommonMessageActor.h"
 
-#import "ASCommon.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "ActionStage.h"
-#import "SGraphObjectNode.h"
 
-#import "TGPeerIdAdapter.h"
+
+#import <LegacyComponents/ActionStage.h>
+#import <LegacyComponents/SGraphObjectNode.h>
 
 #import "TGPreparedTextMessage.h"
 #import "TGPreparedMapMessage.h"
@@ -32,25 +32,25 @@
 #import "TGTelegraph.h"
 #import "TGTelegramNetworking.h"
 #import "TGDatabase.h"
+#import "TGMessageViewedContentProperty.h"
 
-#import "TGRemoteImageView.h"
+#import <LegacyComponents/TGRemoteImageView.h>
 #import "TGImageDownloadActor.h"
 #import "TGVideoDownloadActor.h"
 
-#import "TGMediaAssetsLibrary.h"
-#import "TGMediaAssetImageSignals.h"
-#import "TGMediaVideoConverter.h"
+#import <LegacyComponents/TGMediaAssetsLibrary.h>
+#import <LegacyComponents/TGMediaAssetImageSignals.h>
+#import "TGVideoConverter.h"
+#import <LegacyComponents/TGMediaVideoConverter.h>
 #import "TGMediaLiveUploadWatcher.h"
 
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
-#import "TGFileUtils.h"
+#import <LegacyComponents/TGFileUtils.h>
 
 #import "TGMessage+Telegraph.h"
 
 #import "TGMediaStoreContext.h"
 
-#import "PSLMDBKeyValueStore.h"
+#import <LegacyComponents/PSLMDBKeyValueStore.h>
 
 #import "TLMessage$modernMessage.h"
 #import "TLMessage$modernMessageService.h"
@@ -58,7 +58,7 @@
 
 #import "TLUpdates+TG.h"
 
-#import "UIImage+TG.h"
+#import <LegacyComponents/UIImage+TG.h>
 
 #import <WebP/decode.h>
 
@@ -69,8 +69,6 @@
 #import "TGAlertView.h"
 
 #import "TGWebpageSignals.h"
-
-#import "TGBotContextResultAttachment.h"
 
 #import "TGRecentGifsSignal.h"
 #import "TGRecentStickersSignal.h"
@@ -91,7 +89,6 @@
 
 #import "TLInputMediaUploadedPhoto.h"
 #import "TLInputMediaUploadedDocument.h"
-#import "TLInputMediaUploadedThumbDocument.h"
 
 #import "TGRecentMaskStickersSignal.h"
 
@@ -338,6 +335,9 @@
         [self _fail];
     else
     {
+        if (self.preparedMessage.postingContext != nil)
+            [self.preparedMessage.postingContext startMediaUploadForPreparedMessage:self.preparedMessage actor:self];
+        
         if (self.preparedMessage.botContextResult != nil) {
             self.cancelToken = [TGTelegraphInstance doConversationBotContextResult:_conversationId accessHash:_accessHash botContextResult:self.preparedMessage.botContextResult tmpId:self.preparedMessage.randomId replyMessageId:self.preparedMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
         } else if ([self.preparedMessage isKindOfClass:[TGPreparedTextMessage class]]) {
@@ -358,14 +358,13 @@
             TGPreparedMapMessage *mapMessage = (TGPreparedMapMessage *)self.preparedMessage;
 
             [self setupFailTimeout:[TGModernSendMessageActor defaultTimeoutInterval]];
-            self.cancelToken = [TGTelegraphInstance doConversationSendLocation:_conversationId accessHash:_accessHash latitude:mapMessage.latitude longitude:mapMessage.longitude venue:mapMessage.venue messageGuid:nil tmpId:mapMessage.randomId replyMessageId:mapMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+            self.cancelToken = [TGTelegraphInstance doConversationSendLocation:_conversationId accessHash:_accessHash latitude:mapMessage.latitude longitude:mapMessage.longitude venue:mapMessage.venue period:mapMessage.period messageGuid:nil tmpId:mapMessage.randomId replyMessageId:mapMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
         }
         else if ([self.preparedMessage isKindOfClass:[TGPreparedLocalImageMessage class]])
         {
             TGPreparedLocalImageMessage *localImageMessage = (TGPreparedLocalImageMessage *)self.preparedMessage;
             
             [self setupFailTimeout:[TGModernSendCommonMessageActor defaultTimeoutInterval]];
-            
             [self uploadFilesWithExtensions:@[@[localImageMessage.localImageDataPath, @"jpg", @(true)]] mediaTypeTag:TGNetworkMediaTypeTagImage];
         }
         else if ([self.preparedMessage isKindOfClass:[TGPreparedRemoteImageMessage class]])
@@ -535,8 +534,12 @@
                 fromPeerAccessHash = ((TGConversation *)[TGDatabaseInstance() loadChannels:@[@(forwardedMessage.forwardSourcePeerId)]][@(forwardedMessage.forwardSourcePeerId)]).accessHash;
             }
             
-            [self setupFailTimeout:[TGModernSendCommonMessageActor defaultTimeoutInterval]];
-            self.cancelToken = [TGTelegraphInstance doConversationForwardMessage:_conversationId accessHash:_accessHash messageId:forwardedMessage.forwardMid fromPeer:forwardedMessage.forwardSourcePeerId fromPeerAccessHash:fromPeerAccessHash postAsChannel:_postAsChannel notifyMembers:_notifyMembers tmpId:forwardedMessage.randomId actor:self];
+            if (forwardedMessage.forwardSourcePeerId == 0) {
+                [self _fail];
+            } else {
+                [self setupFailTimeout:[TGModernSendCommonMessageActor defaultTimeoutInterval]];
+                self.cancelToken = [TGTelegraphInstance doConversationForwardMessage:_conversationId accessHash:_accessHash messageId:forwardedMessage.forwardMid fromPeer:forwardedMessage.forwardSourcePeerId fromPeerAccessHash:fromPeerAccessHash postAsChannel:_postAsChannel notifyMembers:_notifyMembers tmpId:forwardedMessage.randomId actor:self];
+            }
         }
         else if ([self.preparedMessage isKindOfClass:[TGPreparedContactMessage class]])
         {
@@ -805,7 +808,23 @@
                         remotePhoto.n_id = inputId;
                         remotePhoto.caption = assetImageMessage.caption;
                         
-                        self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:remotePhoto messageGuid:nil tmpId:assetImageMessage.randomId replyMessageId:assetImageMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                        if (assetImageMessage.groupedId == 0)
+                        {
+                            SSignal *readySignal = assetImageMessage.postingContext ? [assetImageMessage.postingContext readyToPostPreparedMessage:assetImageMessage] : [SSignal complete];
+                            [self.disposables add:[[readySignal deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:nil completed:^
+                            {
+                                self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:remotePhoto messageGuid:nil tmpId:assetImageMessage.randomId replyMessageId:assetImageMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                                [assetImageMessage.postingContext notifyPostedMessage:assetImageMessage];
+                            }]];
+                        }
+                        else
+                        {
+                            [assetImageMessage.postingContext saveMessageMedia:remotePhoto forPreparedMessage:assetImageMessage];
+                            [strongSelf maybeCommitGroupedMediaPosting:assetImageMessage.groupedId postingContext:assetImageMessage.postingContext];
+                        }
+                        
+                        if (assetImageMessage.groupedId != 0)
+                            [self setUploadProgress:1.0f];
                     }
                     else
                     {
@@ -872,7 +891,6 @@
         else if ([self.preparedMessage isKindOfClass:[TGPreparedAssetVideoMessage class]])
         {
             TGPreparedAssetVideoMessage *assetVideoMessage = (TGPreparedAssetVideoMessage *)self.preparedMessage;
-            
             [self beginUploadProgress];
 
             TGVideoEditAdjustments *adjustments = [TGVideoEditAdjustments editAdjustmentsWithDictionary:assetVideoMessage.adjustments];
@@ -884,107 +902,141 @@
             
             NSString *tempFilePath = TGTemporaryFileName(nil);
             
-            SSignal *sourceSignal = nil;
-            if (assetVideoMessage.assetIdentifier != nil)
+            SSignal *signal = [SSignal fail:nil];
+            if (assetVideoMessage.roundMessage && assetVideoMessage.adjustments == nil)
             {
-                sourceSignal = [[[TGMediaAssetsLibrary sharedLibrary] assetWithIdentifier:assetVideoMessage.assetIdentifier] mapToSignal:^SSignal *(TGMediaAsset *asset)
-                {
-                    if (!assetVideoMessage.document || assetVideoMessage.isAnimation)
-                    {
-                        return [[TGMediaAssetImageSignals avAssetForVideoAsset:asset allowNetworkAccess:false] catch:^SSignal *(id error)
-                        {
-                            if (![error isKindOfClass:[NSNumber class]] && !assetVideoMessage.isCloud)
-                                return [SSignal fail:error];
-                            
-                            return [TGMediaAssetImageSignals avAssetForVideoAsset:asset allowNetworkAccess:true];
-                        }];
-                    }
-                    else
-                    {
-                        if (asset.subtypes & TGMediaAssetSubtypeVideoHighFrameRate)
-                            self.uploadProgressContainsPreDownloads = true;
-                        
-                        return [[TGMediaAssetImageSignals saveUncompressedVideoForAsset:asset toPath:tempFilePath allowNetworkAccess:false] catch:^SSignal *(id error)
-                        {
-                            if (![error isKindOfClass:[NSNumber class]] && !assetVideoMessage.isCloud)
-                                return [SSignal fail:error];
-                            
-                            self.uploadProgressContainsPreDownloads = true;
-                            return [TGMediaAssetImageSignals saveUncompressedVideoForAsset:asset toPath:tempFilePath allowNetworkAccess:true];
-                        }];
-                    }
-                }];
-            }
-            else if (assetVideoMessage.assetURL != nil)
-            {
-                sourceSignal = [SSignal single:[[AVURLAsset alloc] initWithURL:assetVideoMessage.assetURL options:nil]];
+                NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+                if ([[NSFileManager defaultManager] fileExistsAtPath:assetVideoMessage.assetURL.path])
+                    dict[@"fileUrl"] = assetVideoMessage.assetURL;
+                else
+                    dict[@"fileUrl"] = [NSURL fileURLWithPath:assetVideoMessage.localVideoPath];
+                dict[@"duration"] = @(assetVideoMessage.duration);
+                dict[@"dimensions"] = [NSValue valueWithCGSize:assetVideoMessage.dimensions];
+                dict[@"previewImage"] = [UIImage imageWithContentsOfFile:assetVideoMessage.localThumbnailDataPath];
+                if (assetVideoMessage.liveData)
+                    dict[@"liveUploadData"] = assetVideoMessage.liveData;
+                
+                signal = [SSignal single:@{ @"convertResult": dict }];
             }
             else
             {
-                sourceSignal = [SSignal fail:nil];
-            }
-            
-            SSignal *signal = [videoDownloadQueue() enqueue:[sourceSignal mapToSignal:^SSignal *(id value)
-            {
-                if ([value isKindOfClass:[AVAsset class]])
+                SSignal *sourceSignal = nil;
+                if (assetVideoMessage.assetIdentifier != nil)
                 {
-                    AVAsset *avAsset = (AVAsset *)value;
-                    
-                    SSignal *(^convertSignal)(NSString *) = ^SSignal *(NSString *hash)
+                    sourceSignal = [[[TGMediaAssetsLibrary sharedLibrary] assetWithIdentifier:assetVideoMessage.assetIdentifier] mapToSignal:^SSignal *(TGMediaAsset *asset)
                     {
-                        assetVideoMessage.videoHash = hash;
-                                                
-                        return [[TGMediaVideoConverter convertAVAsset:avAsset adjustments:adjustments watcher:liveUpload ? [[TGMediaLiveUploadWatcher alloc] init] : nil] map:^id(id value)
+                        if (!assetVideoMessage.document || assetVideoMessage.isAnimation)
                         {
-                            if ([value isKindOfClass:[TGMediaVideoConversionResult class]])
+                            return [[TGMediaAssetImageSignals avAssetForVideoAsset:asset allowNetworkAccess:false] catch:^SSignal *(id error)
                             {
-                                NSMutableDictionary *dict = [[(TGMediaVideoConversionResult *)value dictionary] mutableCopy];
-                                if (hash != nil)
-                                    dict[@"hash"] = hash;
-
-                                return @{ @"convertResult": dict };
-                            }
-                            else if ([value isKindOfClass:[NSNumber class]])
-                            {
-                                return @{ @"convertProgress": value };
-                            }
-                            return nil;
-                        }];
-                    };
-                    
-                    if (useMediaCache)
-                    {
-                        return [[TGMediaVideoConverter hashForAVAsset:avAsset adjustments:adjustments] mapToSignal:^SSignal *(NSString *hash)
+                                if (![error isKindOfClass:[NSNumber class]] && !assetVideoMessage.isCloud)
+                                    return [SSignal fail:error];
+                                
+                                return [TGMediaAssetImageSignals avAssetForVideoAsset:asset allowNetworkAccess:true];
+                            }];
+                        }
+                        else
                         {
-                            if (hash != nil && [TGImageDownloadActor serverMediaDataForAssetUrl:hash])
+                            if (asset.subtypes & TGMediaAssetSubtypeVideoHighFrameRate)
+                                self.uploadProgressContainsPreDownloads = true;
+                            
+                            return [[TGMediaAssetImageSignals saveUncompressedVideoForAsset:asset toPath:tempFilePath allowNetworkAccess:false] catch:^SSignal *(id error)
                             {
-                                NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-                                dict[@"hash"] = hash;
-                                return [SSignal single:@{ @"remote": dict }];
-                            }
-
-                            return convertSignal(hash);
-                        }];
-                    }
-                    else
-                    {
-                        return convertSignal(nil);
-                    }
+                                if (![error isKindOfClass:[NSNumber class]] && !assetVideoMessage.isCloud)
+                                    return [SSignal fail:error];
+                                
+                                self.uploadProgressContainsPreDownloads = true;
+                                return [TGMediaAssetImageSignals saveUncompressedVideoForAsset:asset toPath:tempFilePath allowNetworkAccess:true];
+                            }];
+                        }
+                    }];
                 }
-                else if ([value isKindOfClass:[NSString class]])
+                else if (assetVideoMessage.assetURL != nil)
                 {
-                    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
-                    dict[@"filePath"] = tempFilePath;
-                    dict[@"fileName"] = value;
-                    return [SSignal single:@{ @"fileResult": dict }];
+                    sourceSignal = [SSignal single:[[AVURLAsset alloc] initWithURL:assetVideoMessage.assetURL options:nil]];
                 }
-                else if ([value isKindOfClass:[NSNumber class]])
+                else
                 {
-                    return [SSignal single:@{ @"downloadProgress": value }];
+                    sourceSignal = [SSignal fail:nil];
                 }
                 
-                return [SSignal single:value];
-            }]];
+                signal = [videoDownloadQueue() enqueue:[sourceSignal mapToSignal:^SSignal *(id value)
+                {
+                    if ([value isKindOfClass:[AVAsset class]])
+                    {
+                        AVAsset *avAsset = (AVAsset *)value;
+                        
+                        SSignal *(^convertSignal)(NSString *) = ^SSignal *(NSString *hash)
+                        {
+                            assetVideoMessage.videoHash = hash;
+                            bool updatedLiveUpload = liveUpload;
+                            if (CMTimeGetSeconds(avAsset.duration) > 20.0 * 60.0) {
+                                updatedLiveUpload = false;
+                            }
+                            
+                            SSignal *innerConvertSignal = iosMajorVersion() < 8 ? [TGVideoConverter convertSignalForAVAsset:avAsset adjustments:adjustments liveUpload:updatedLiveUpload passthrough:false] : [TGMediaVideoConverter convertAVAsset:avAsset adjustments:adjustments watcher:updatedLiveUpload ? [[TGMediaLiveUploadWatcher alloc] init] : nil];
+                            
+                            return [innerConvertSignal map:^id(id value)
+                            {
+                                if ([value isKindOfClass:[TGMediaVideoConversionResult class]])
+                                {
+                                    NSMutableDictionary *dict = [[(TGMediaVideoConversionResult *)value dictionary] mutableCopy];
+                                    if (hash != nil)
+                                        dict[@"hash"] = hash;
+
+                                    return @{ @"convertResult": dict };
+                                }
+                                else if ([value isKindOfClass:[NSDictionary class]])
+                                {
+                                    NSMutableDictionary *dict = [value mutableCopy];
+                                    if (hash != nil)
+                                        dict[@"hash"] = hash;
+
+                                    return @{ @"convertResult": dict };
+                                }
+                                else if ([value isKindOfClass:[NSNumber class]])
+                                {
+                                    return @{ @"convertProgress": value };
+                                }
+                                return nil;
+                            }];
+                        };
+                        
+                        if (useMediaCache && assetVideoMessage.messageLifetime == 0)
+                        {
+                            SSignal *innerHashSignal = iosMajorVersion() < 8 ? [TGVideoConverter hashSignalForAVAsset:avAsset] : [TGMediaVideoConverter hashForAVAsset:avAsset adjustments:adjustments];
+                            return [innerHashSignal mapToSignal:^SSignal *(NSString *hash)
+                            {
+                                if (hash != nil && [TGImageDownloadActor serverMediaDataForAssetUrl:hash])
+                                {
+                                    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+                                    dict[@"hash"] = hash;
+                                    return [SSignal single:@{ @"remote": dict }];
+                                }
+
+                                return convertSignal(hash);
+                            }];
+                        }
+                        else
+                        {
+                            return convertSignal(nil);
+                        }
+                    }
+                    else if ([value isKindOfClass:[NSString class]])
+                    {
+                        NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+                        dict[@"filePath"] = tempFilePath;
+                        dict[@"fileName"] = value;
+                        return [SSignal single:@{ @"fileResult": dict }];
+                    }
+                    else if ([value isKindOfClass:[NSNumber class]])
+                    {
+                        return [SSignal single:@{ @"downloadProgress": value }];
+                    }
+                    
+                    return [SSignal single:value];
+                }]];
+            }
             
             __weak TGModernSendCommonMessageActor *weakSelf = self;
             [self.disposables add:[[signal deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:^(id next)
@@ -1007,8 +1059,24 @@
                         inputMediaDocument.n_id = inputDocument;
                         inputMediaDocument.caption = assetVideoMessage.caption;
                         
-                        [self setupFailTimeout:[TGModernSendMessageActor defaultTimeoutInterval]];
-                        self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:inputMediaDocument messageGuid:nil tmpId:assetVideoMessage.randomId replyMessageId:assetVideoMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                        if (assetVideoMessage.groupedId == 0)
+                        {
+                            SSignal *readySignal = assetVideoMessage.postingContext ? [assetVideoMessage.postingContext readyToPostPreparedMessage:assetVideoMessage] : [SSignal complete];
+                            [self.disposables add:[[readySignal deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:nil completed:^
+                            {
+                                [self setupFailTimeout:[TGModernSendMessageActor defaultTimeoutInterval]];
+                                self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:inputMediaDocument messageGuid:nil tmpId:assetVideoMessage.randomId replyMessageId:assetVideoMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                                [assetVideoMessage.postingContext notifyPostedMessage:assetVideoMessage];
+                            }]];
+                        }
+                        else
+                        {
+                            [assetVideoMessage.postingContext saveMessageMedia:inputMediaDocument forPreparedMessage:assetVideoMessage];
+                            [self maybeCommitGroupedMediaPosting:assetVideoMessage.groupedId postingContext:assetVideoMessage.postingContext];
+                        }
+                        
+                        if (assetVideoMessage.groupedId != 0)
+                            [self setUploadProgress:1.0f];
                     }
                     else
                     {
@@ -1039,17 +1107,13 @@
                     assetVideoMessage.dimensions = [result[@"dimensions"] CGSizeValue];
                     assetVideoMessage.fileSize = [[[NSFileManager defaultManager] attributesOfItemAtPath:[result[@"fileUrl"] path] error:NULL][NSFileSize] intValue];
                     
-                    TGMessage *updatedMessage = self.preparedMessage.message;
-                    updatedMessage.deliveryState = TGMessageDeliveryStatePending;
-                    updatedMessage.cid = _conversationId;
-                    updatedMessage.outgoing = true;
-                    updatedMessage.fromUid = TGTelegraphInstance.clientUserId;
+                    TGMessage *updatedMessage = [TGDatabaseInstance() loadMessageWithMid:self.preparedMessage.mid peerId:_conversationId];
+                    updatedMessage.mediaAttachments = self.preparedMessage.message.mediaAttachments;
+
                     TGDatabaseUpdateMessageWithMessage *messageUpdate = [[TGDatabaseUpdateMessageWithMessage alloc] initWithPeerId:_conversationId messageId:self.preparedMessage.mid message:updatedMessage dispatchEdited:false];
                     [TGDatabaseInstance() transactionUpdateMessages:@[messageUpdate] updateConversationDatas:nil];
                     
                     updatedMessage = [TGDatabaseInstance() loadMessageWithMid:self.preparedMessage.mid peerId:_conversationId];
-                    id resource = [[SGraphObjectNode alloc] initWithObject:[[NSArray alloc] initWithObjects:[[NSNumber alloc] initWithInt:self.preparedMessage.mid], updatedMessage, nil]];
-                    [ActionStageInstance() dispatchResource:[[NSString alloc] initWithFormat:@"/tg/conversation/(%lld)/messagesChanged", _conversationId] resource:resource];
                     
                     if (assetVideoMessage.isAnimation)
                     {
@@ -1081,14 +1145,15 @@
                             [ActionStageInstance() dispatchResource:[[NSString alloc] initWithFormat:@"/as/media/imageThumbnailUpdated"] resource:thumbnailUrl];
                         
                         [self uploadFilesWithExtensions:files mediaTypeTag:TGNetworkMediaTypeTagVideo];
-
                     }
                     else
                     {
-                        [[NSFileManager defaultManager] removeItemAtPath:[assetVideoMessage localVideoPath] error:nil];
-                        [[NSFileManager defaultManager] moveItemAtPath:[result[@"fileUrl"] path] toPath:[assetVideoMessage localVideoPath] error:nil];
-                        [[NSFileManager defaultManager] createSymbolicLinkAtPath:[result[@"fileUrl"] path] withDestinationPath:[assetVideoMessage localVideoPath] error:nil];
-                        
+                        if (![[result[@"fileUrl"] path] isEqualToString:assetVideoMessage.localVideoPath])
+                        {
+                            [[NSFileManager defaultManager] removeItemAtPath:[assetVideoMessage localVideoPath] error:nil];
+                            [[NSFileManager defaultManager] moveItemAtPath:[result[@"fileUrl"] path] toPath:[assetVideoMessage localVideoPath] error:nil];
+                            [[NSFileManager defaultManager] createSymbolicLinkAtPath:[result[@"fileUrl"] path] withDestinationPath:[assetVideoMessage localVideoPath] error:nil];
+                        }
                         NSString *thumbnailUrl = [assetVideoMessage.imageInfo closestImageUrlWithSize:CGSizeZero resultingSize:NULL];
                         if (thumbnailUrl != nil)
                             [ActionStageInstance() dispatchResource:[[NSString alloc] initWithFormat:@"/as/media/imageThumbnailUpdated"] resource:thumbnailUrl];
@@ -1104,9 +1169,12 @@
                         NSMutableArray *desc = [[NSMutableArray alloc] initWithArray:@[[assetVideoMessage localVideoPath], @"mp4", @(true)]];
                         if (result[@"liveUploadData"] != nil)
                             [desc addObject:result[@"liveUploadData"]];
-                        
+                    
                         [self uploadFilesWithExtensions:@[desc, @[thumbnailData, @"jpg", @(false)]] mediaTypeTag:TGNetworkMediaTypeTagVideo];
                     }
+                    
+                    id resource = [[SGraphObjectNode alloc] initWithObject:[[NSArray alloc] initWithObjects:[[NSNumber alloc] initWithInt:self.preparedMessage.mid], updatedMessage, nil]];
+                    [ActionStageInstance() dispatchResource:[[NSString alloc] initWithFormat:@"/tg/conversation/(%lld)/messagesChanged", _conversationId] resource:resource];
                 }
                 else if (dict[@"fileResult"] != nil)
                 {
@@ -1264,7 +1332,7 @@
     return imagePath;
 }
 
-- (void)_fail
+- (void)_fail:(bool)manual
 {
     TGDatabaseUpdateMessageFailedDeliveryInBackground *messageUpdate = [[TGDatabaseUpdateMessageFailedDeliveryInBackground alloc] initWithPeerId:_conversationId messageId:self.preparedMessage.mid];
     [TGDatabaseInstance() transactionUpdateMessages:@[messageUpdate] updateConversationDatas:nil];
@@ -1272,8 +1340,18 @@
     [ActionStageInstance() dispatchMessageToWatchers:self.path messageType:@"messageDeliveryFailed" message:@{
         @"previousMid": @(self.preparedMessage.mid)
     }];
+
+    if (!manual)
+        [self.preparedMessage.postingContext failPreparedMessage:self.preparedMessage];
     
-    [super _fail];
+    [super _fail:manual];
+}
+
+- (void)cancel
+{
+    [super cancel];
+    
+    [self.preparedMessage.postingContext cancelPreparedMessage:self.preparedMessage];
 }
 
 #pragma mark -
@@ -1546,6 +1624,8 @@
 - (void)uploadProgressChanged
 {
     [self restartFailTimeoutIfRunning];
+    
+    [self.preparedMessage.postingContext maybeNotifyGroupedUploadProgressWithPreparedMessage:self.preparedMessage];
 }
 
 - (NSArray *)attributesForNativeAttributes:(NSArray *)nativeAttributes
@@ -1609,6 +1689,15 @@
     return attributes;
 }
 
+- (void)maybeCommitGroupedMediaPosting:(int64_t)groupedId postingContext:(TGMediaPostingContext *)postingContext
+{
+    [self.disposables add:[[[postingContext readyToPostGroupedId:groupedId force:false] deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:nil completed:^
+    {
+        self.cancelToken = [TGTelegraphInstance doConversationSendMultiMedia:_conversationId accessHash:_accessHash multiMedia:[postingContext multiMediaForGroupedId:groupedId] replyMessageId:[postingContext replyToIdForGroupedId:groupedId] postAsChannel:_postAsChannel notifyMembers:_notifyMembers groupedId:groupedId actors:[postingContext actorsForGroupedId:groupedId]];
+        [postingContext notifyPostedGroupedId:groupedId];
+    }]];
+}
+
 - (void)uploadsCompleted:(NSDictionary *)filePathToUploadedFile
 {
     [self restartFailTimeoutIfRunning];
@@ -1623,6 +1712,10 @@
             TLInputMediaUploadedPhoto *uploadedPhoto = [[TLInputMediaUploadedPhoto alloc] init];
             uploadedPhoto.file = fileInfo[@"file"];
             uploadedPhoto.caption = localImageMessage.caption;
+            if (localImageMessage.messageLifetime > 0) {
+                uploadedPhoto.flags |= (1 << 1);
+                uploadedPhoto.ttl_seconds = localImageMessage.messageLifetime;
+            }
             
             if (localImageMessage.stickerDocuments.count != 0) {
                 NSMutableArray *inputStickers = [[NSMutableArray alloc] init];
@@ -1638,7 +1731,49 @@
                 uploadedPhoto.stickers = inputStickers;
                 uploadedPhoto.flags |= (1 << 0);
             }
-            self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedPhoto messageGuid:nil tmpId:localImageMessage.randomId replyMessageId:localImageMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+            
+            if (localImageMessage.groupedId == 0)
+            {
+                SSignal *readySignal = localImageMessage.postingContext ? [localImageMessage.postingContext readyToPostPreparedMessage:localImageMessage] : [SSignal complete];
+                [self.disposables add:[[readySignal deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:nil completed:^
+                {
+                    self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedPhoto messageGuid:nil tmpId:localImageMessage.randomId replyMessageId:localImageMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                    [localImageMessage.postingContext notifyPostedMessage:localImageMessage];
+                }]];
+            }
+            else
+            {
+                TLRPCmessages_uploadMedia$messages_uploadMedia *uploadMedia = [[TLRPCmessages_uploadMedia$messages_uploadMedia alloc] init];
+                uploadMedia.peer = [TGTelegraphInstance createInputPeerForConversation:_conversationId accessHash:_accessHash];
+                uploadMedia.media = uploadedPhoto;
+                
+                [self.disposables add:[[[[TGTelegramNetworking instance] requestSignal:uploadMedia] deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:^(TLMessageMedia *next)
+                {
+                    if ([next isKindOfClass:[TLMessageMedia$messageMediaPhotoMeta class]])
+                    {
+                        TLMessageMedia$messageMediaPhotoMeta *mediaPhoto = (TLMessageMedia$messageMediaPhotoMeta *)next;
+                        
+                        if ([mediaPhoto.photo isKindOfClass:[TLPhoto$photo class]])
+                        {
+                            TLPhoto$photo *photo = (TLPhoto$photo *)mediaPhoto.photo;
+                            
+                            TLInputMedia$inputMediaPhoto *inputMedia = [[TLInputMedia$inputMediaPhoto alloc] init];
+                            TLInputPhoto$inputPhoto *inputPhoto = [[TLInputPhoto$inputPhoto alloc] init];
+                            inputPhoto.n_id = photo.n_id;
+                            inputPhoto.access_hash = photo.access_hash;
+                            inputMedia.n_id = inputPhoto;
+                            inputMedia.caption = localImageMessage.caption;
+                            
+                            [localImageMessage.postingContext saveMessageMedia:inputMedia forPreparedMessage:localImageMessage];
+                            [self maybeCommitGroupedMediaPosting:localImageMessage.groupedId postingContext:localImageMessage.postingContext];
+                        }
+                    }
+                } error:^(__unused id error) {
+                    [self _fail];
+                } completed:^{
+                    
+                }]];
+            }
         }
         else
             [self _fail];
@@ -1651,9 +1786,15 @@
         NSDictionary *thumbnailFileInfo = filePathToUploadedFile[@"embedded-data://0"];
         if (videoFileInfo != nil && thumbnailFileInfo != nil)
         {
-            TLInputMediaUploadedThumbDocument *uploadedDocument = [[TLInputMediaUploadedThumbDocument alloc] init];
+            TLInputMediaUploadedDocument *uploadedDocument = [[TLInputMediaUploadedDocument alloc] init];
             uploadedDocument.file = videoFileInfo[@"file"];
             uploadedDocument.thumb = thumbnailFileInfo[@"file"];
+            uploadedDocument.flags |= (1 << 2);
+            if (localVideoMessage.messageLifetime > 0) {
+                uploadedDocument.flags |= (1 << 1);
+                uploadedDocument.ttl_seconds = localVideoMessage.messageLifetime;
+            }
+            uploadedDocument.flags |= (1 << 3);
             
             TLDocumentAttribute$documentAttributeVideo *video = [[TLDocumentAttribute$documentAttributeVideo alloc] init];
             video.duration = (int32_t)localVideoMessage.duration;
@@ -1687,7 +1828,8 @@
             
             if (localDocumentMessage.localThumbnailDataPath != nil && thumbnailFileInfo != nil)
             {
-                TLInputMediaUploadedThumbDocument *thumbUploadedDocument = [[TLInputMediaUploadedThumbDocument alloc] init];
+                TLInputMediaUploadedDocument *thumbUploadedDocument = [[TLInputMediaUploadedDocument alloc] init];
+                thumbUploadedDocument.flags |= (1 << 2);
                 thumbUploadedDocument.file = documentFileInfo[@"file"];
                 thumbUploadedDocument.attributes = [self attributesForNativeAttributes:localDocumentMessage.attributes];
                 thumbUploadedDocument.mime_type = localDocumentMessage.mimeType.length == 0 ? @"application/octet-stream" : localDocumentMessage.mimeType;
@@ -1740,8 +1882,53 @@
                 TLInputMediaUploadedPhoto *uploadedPhoto = [[TLInputMediaUploadedPhoto alloc] init];
                 uploadedPhoto.file = fileInfo[@"file"];
                 uploadedPhoto.caption = assetImageMessage.caption;
+                if (assetImageMessage.messageLifetime > 0) {
+                    uploadedPhoto.flags |= (1 << 1);
+                    uploadedPhoto.ttl_seconds = assetImageMessage.messageLifetime;
+                }
                 
-                self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedPhoto messageGuid:nil tmpId:assetImageMessage.randomId replyMessageId:assetImageMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                if (assetImageMessage.groupedId == 0)
+                {
+                    SSignal *readySignal = assetImageMessage.postingContext ? [assetImageMessage.postingContext readyToPostPreparedMessage:assetImageMessage] : [SSignal complete];
+                    [self.disposables add:[[readySignal deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:nil completed:^
+                    {
+                        self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedPhoto messageGuid:nil tmpId:assetImageMessage.randomId replyMessageId:assetImageMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                        [assetImageMessage.postingContext notifyPostedMessage:assetImageMessage];
+                    }]];
+                }
+                else
+                {
+                    TLRPCmessages_uploadMedia$messages_uploadMedia *uploadMedia = [[TLRPCmessages_uploadMedia$messages_uploadMedia alloc] init];
+                    uploadMedia.peer = [TGTelegraphInstance createInputPeerForConversation:_conversationId accessHash:_accessHash];
+                    uploadMedia.media = uploadedPhoto;
+                    
+                    [self.disposables add:[[[[TGTelegramNetworking instance] requestSignal:uploadMedia] deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:^(TLMessageMedia *next)
+                    {
+                        if ([next isKindOfClass:[TLMessageMedia$messageMediaPhotoMeta class]])
+                        {
+                            TLMessageMedia$messageMediaPhotoMeta *mediaPhoto = (TLMessageMedia$messageMediaPhotoMeta *)next;
+                            
+                            if ([mediaPhoto.photo isKindOfClass:[TLPhoto$photo class]])
+                            {
+                                TLPhoto$photo *photo = (TLPhoto$photo *)mediaPhoto.photo;
+                                
+                                TLInputMedia$inputMediaPhoto *inputMedia = [[TLInputMedia$inputMediaPhoto alloc] init];
+                                TLInputPhoto$inputPhoto *inputPhoto = [[TLInputPhoto$inputPhoto alloc] init];
+                                inputPhoto.n_id = photo.n_id;
+                                inputPhoto.access_hash = photo.access_hash;
+                                inputMedia.n_id = inputPhoto;
+                                inputMedia.caption = assetImageMessage.caption;
+                                
+                                [assetImageMessage.postingContext saveMessageMedia:inputMedia forPreparedMessage:assetImageMessage];
+                                [self maybeCommitGroupedMediaPosting:assetImageMessage.groupedId postingContext:assetImageMessage.postingContext];
+                            }
+                        }
+                    } error:^(__unused id error) {
+                        [self _fail];
+                    } completed:^{
+                        
+                    }]];
+                }
             }
             else
                 [self _fail];
@@ -1757,7 +1944,8 @@
                 
                 if (assetImageMessage.localThumbnailDataPath != nil && thumbnailFileInfo != nil)
                 {
-                    TLInputMediaUploadedThumbDocument *thumbUploadedDocument = [[TLInputMediaUploadedThumbDocument alloc] init];
+                    TLInputMediaUploadedDocument *thumbUploadedDocument = [[TLInputMediaUploadedDocument alloc] init];
+                    thumbUploadedDocument.flags |= (1 << 2);
                     thumbUploadedDocument.file = documentFileInfo[@"file"];
                     thumbUploadedDocument.attributes = [self attributesForNativeAttributes:assetImageMessage.attributes];
                     thumbUploadedDocument.mime_type = assetImageMessage.mimeType.length == 0 ? @"application/octet-stream" : assetImageMessage.mimeType;
@@ -1779,7 +1967,12 @@
                     uploadedDocument = plainUploadedDocument;
                 }
                 
-                self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedDocument messageGuid:nil tmpId:assetImageMessage.randomId replyMessageId:assetImageMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                SSignal *readySignal = assetImageMessage.postingContext ? [assetImageMessage.postingContext readyToPostPreparedMessage:assetImageMessage] : [SSignal complete];
+                [self.disposables add:[[readySignal deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:nil completed:^
+                {
+                    self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedDocument messageGuid:nil tmpId:assetImageMessage.randomId replyMessageId:assetImageMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                    [assetImageMessage.postingContext notifyPostedMessage:assetImageMessage];
+                }]];
             }
             else
                 [self _fail];
@@ -1795,11 +1988,20 @@
             NSDictionary *thumbnailFileInfo = filePathToUploadedFile[@"embedded-data://0"];
             if (videoFileInfo != nil && thumbnailFileInfo != nil)
             {
-                TLInputMediaUploadedThumbDocument *uploadedDocument = [[TLInputMediaUploadedThumbDocument alloc] init];
+                TLInputMediaUploadedDocument *uploadedDocument = [[TLInputMediaUploadedDocument alloc] init];
+                uploadedDocument.flags |= (1 << 2);
                 uploadedDocument.file = videoFileInfo[@"file"];
                 uploadedDocument.thumb = thumbnailFileInfo[@"file"];
+                if (assetVideoMessage.messageLifetime > 0) {
+                    uploadedDocument.flags |= (1 << 1);
+                    uploadedDocument.ttl_seconds = assetVideoMessage.messageLifetime;
+                }
+                if (!assetVideoMessage.roundMessage)
+                    uploadedDocument.flags |= (1 << 3);
                 
                 TLDocumentAttribute$documentAttributeVideo *video = [[TLDocumentAttribute$documentAttributeVideo alloc] init];
+                if (assetVideoMessage.roundMessage)
+                    video.flags |= (1 << 0);
                 video.duration = (int32_t)assetVideoMessage.duration;
                 video.w = (int32_t)assetVideoMessage.dimensions.width;
                 video.h = (int32_t)assetVideoMessage.dimensions.height;
@@ -1828,7 +2030,48 @@
                     uploadedDocument.flags |= (1 << 0);
                 }
                 
-                self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedDocument messageGuid:nil tmpId:assetVideoMessage.randomId replyMessageId:assetVideoMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                if (assetVideoMessage.groupedId == 0)
+                {
+                    SSignal *readySignal = assetVideoMessage.postingContext ? [assetVideoMessage.postingContext readyToPostPreparedMessage:assetVideoMessage] : [SSignal complete];
+                    [self.disposables add:[[readySignal deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:nil completed:^
+                    {
+                        self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedDocument messageGuid:nil tmpId:assetVideoMessage.randomId replyMessageId:assetVideoMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                        [assetVideoMessage.postingContext notifyPostedMessage:assetVideoMessage];
+                    }]];
+                }
+                else
+                {
+                    TLRPCmessages_uploadMedia$messages_uploadMedia *uploadMedia = [[TLRPCmessages_uploadMedia$messages_uploadMedia alloc] init];
+                    uploadMedia.peer = [TGTelegraphInstance createInputPeerForConversation:_conversationId accessHash:_accessHash];
+                    uploadMedia.media = uploadedDocument;
+                    
+                    [self.disposables add:[[[[TGTelegramNetworking instance] requestSignal:uploadMedia] deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:^(TLMessageMedia *next)
+                    {
+                        if ([next isKindOfClass:[TLMessageMedia$messageMediaDocumentMeta class]])
+                        {
+                            TLMessageMedia$messageMediaDocumentMeta *mediaDocument = (TLMessageMedia$messageMediaDocumentMeta *)next;
+
+                            if ([mediaDocument.document isKindOfClass:[TLDocument$document class]])
+                            {
+                                TLDocument$document *document = (TLDocument$document *)mediaDocument.document;
+
+                                TLInputMedia$inputMediaDocument *inputMedia = [[TLInputMedia$inputMediaDocument alloc] init];
+                                TLInputDocument$inputDocument *inputDocument = [[TLInputDocument$inputDocument alloc] init];
+                                inputDocument.n_id = document.n_id;
+                                inputDocument.access_hash = document.access_hash;
+                                inputMedia.n_id = inputDocument;
+                                inputMedia.caption = assetVideoMessage.caption;
+
+                                [assetVideoMessage.postingContext saveMessageMedia:inputMedia forPreparedMessage:assetVideoMessage];
+                                [self maybeCommitGroupedMediaPosting:assetVideoMessage.groupedId postingContext:assetVideoMessage.postingContext];
+                            }
+                        }
+                    } error:^(__unused id error) {
+                        [self _fail];
+                    } completed:^{
+                        
+                    }]];
+                }
             }
             else
                 [self _fail];
@@ -1845,7 +2088,12 @@
                 
                 if (assetVideoMessage.localThumbnailDataPath != nil && thumbnailFileInfo != nil)
                 {
-                    TLInputMediaUploadedThumbDocument *thumbUploadedDocument = [[TLInputMediaUploadedThumbDocument alloc] init];
+                    TLInputMediaUploadedDocument *thumbUploadedDocument = [[TLInputMediaUploadedDocument alloc] init];
+                    if (assetVideoMessage.messageLifetime > 0) {
+                        thumbUploadedDocument.flags |= (1 << 1);
+                        thumbUploadedDocument.ttl_seconds = assetVideoMessage.messageLifetime;
+                    }
+                    thumbUploadedDocument.flags |= (1 << 2);
                     thumbUploadedDocument.file = documentFileInfo[@"file"];
                     thumbUploadedDocument.attributes = [self attributesForNativeAttributes:assetVideoMessage.attributes];
                     thumbUploadedDocument.mime_type = mimeType;
@@ -1858,6 +2106,10 @@
                 else
                 {
                     TLInputMediaUploadedDocument *plainUploadedDocument = [[TLInputMediaUploadedDocument alloc] init];
+                    if (assetVideoMessage.messageLifetime > 0) {
+                        plainUploadedDocument.flags |= (1 << 1);
+                        plainUploadedDocument.ttl_seconds = assetVideoMessage.messageLifetime;
+                    }
                     plainUploadedDocument.file = documentFileInfo[@"file"];
                     plainUploadedDocument.attributes = [self attributesForNativeAttributes:assetVideoMessage.attributes];
                     plainUploadedDocument.mime_type = mimeType;
@@ -1867,7 +2119,12 @@
                     uploadedDocument = plainUploadedDocument;
                 }
                 
-                self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedDocument messageGuid:nil tmpId:assetVideoMessage.randomId replyMessageId:assetVideoMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                SSignal *readySignal = assetVideoMessage.postingContext ? [assetVideoMessage.postingContext readyToPostPreparedMessage:assetVideoMessage] : [SSignal complete];
+                [self.disposables add:[[readySignal deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] startWithNext:nil completed:^
+                {
+                    self.cancelToken = [TGTelegraphInstance doConversationSendMedia:_conversationId accessHash:_accessHash media:uploadedDocument messageGuid:nil tmpId:assetVideoMessage.randomId replyMessageId:assetVideoMessage.replyMessage.mid postAsChannel:_postAsChannel notifyMembers:_notifyMembers actor:self];
+                    [assetVideoMessage.postingContext notifyPostedMessage:assetVideoMessage];
+                }]];
             }
             else
                 [self _fail];
@@ -1885,7 +2142,8 @@
             
             if (thumbnailFileInfo != nil)
             {
-                TLInputMediaUploadedThumbDocument *thumbUploadedDocument = [[TLInputMediaUploadedThumbDocument alloc] init];
+                TLInputMediaUploadedDocument *thumbUploadedDocument = [[TLInputMediaUploadedDocument alloc] init];
+                thumbUploadedDocument.flags |= (1 << 2);
                 thumbUploadedDocument.file = documentFileInfo[@"file"];
                 thumbUploadedDocument.attributes = [self attributesForNativeAttributes:downloadDocumentMessage.attributes];
                 thumbUploadedDocument.mime_type = downloadDocumentMessage.mimeType.length == 0 ? @"application/octet-stream" : downloadDocumentMessage.mimeType;
@@ -1937,7 +2195,7 @@
                         break;
                     }
                 }
-                [attachments addObjectsFromArray:[TGMessage parseTelegraphMedia:sentMessage.media]];
+                [attachments addObjectsFromArray:[TGMessage parseTelegraphMedia:sentMessage.media mediaLifetime:nil]];
                 updatedMessage.mediaAttachments = attachments;
             }
         }
@@ -2017,11 +2275,55 @@
     {
         TLUpdates *updates = result;
         
+        NSMutableDictionary *randomIdToId = [[NSMutableDictionary alloc] init];
+        for (TLUpdate *update in updates.updatesList)
+        {
+            if ([update isKindOfClass:[TLUpdate$updateMessageID class]])
+            {
+                TLUpdate$updateMessageID *idUpdate = (TLUpdate$updateMessageID *)update;
+                randomIdToId[@(idUpdate.random_id)] = @(idUpdate.n_id);
+            }
+        }
+        
+        int32_t actualId = [randomIdToId[@(self.preparedMessage.randomId)] int32Value];
         TLMessage *updateMessage = updates.messages.firstObject;
+        bool grouped = false;
+        for (TLMessage *message in updates.messages)
+        {
+            if ([message isKindOfClass:[TLMessage$modernMessage class]])
+            {
+                if (((TLMessage$modernMessage *)message).n_id == actualId)
+                {
+                    grouped = ((TLMessage$modernMessage *)message).grouped_id != 0;
+                    updateMessage = message;
+                    break;
+                }
+            }
+        }
+        
         int32_t pts = 1;
-        for (id update in updates.updatesList) {
-            if ([update isKindOfClass:[TLUpdate$updateNewChannelMessage class]]) {
-                pts = ((TLUpdate$updateNewChannelMessage *)update).pts;
+        if (grouped && TGPeerIdIsChannel(self.peerId))
+        {
+            for (id update in updates.updatesList) {
+                if ([update isKindOfClass:[TLUpdate$updateNewChannelMessage class]]) {
+                    TLUpdate$updateNewChannelMessage *newChannelMessage = (TLUpdate$updateNewChannelMessage *)update;
+                    if ([newChannelMessage.message isKindOfClass:[TLMessage$modernMessage class]])
+                    {
+                        if (newChannelMessage.message.n_id == updateMessage.n_id)
+                        {
+                            pts = newChannelMessage.pts;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (id update in updates.updatesList) {
+                if ([update isKindOfClass:[TLUpdate$updateNewChannelMessage class]]) {
+                    pts = ((TLUpdate$updateNewChannelMessage *)update).pts;
+                }
             }
         }
         
@@ -2372,6 +2674,7 @@
                             NSString *updatedVideoPath = [videosDirectory stringByAppendingPathComponent:[[NSString alloc] initWithFormat:@"remote%llx.mov", videoAttachment.videoId]];
                             [[NSFileManager defaultManager] moveItemAtPath:[assetVideoMessage localVideoPath] toPath:updatedVideoPath error:nil];
                             [dataFilePaths removeObject:[assetVideoMessage localVideoPath]];
+                            [[NSFileManager defaultManager] createSymbolicLinkAtPath:[assetVideoMessage localVideoPath] withDestinationPath:updatedVideoPath error:nil];
                             
                             NSString *remoteUrl = [videoAttachment.videoInfo urlWithQuality:1 actualQuality:NULL actualSize:NULL];
                             if (remoteUrl != nil)
@@ -2415,6 +2718,13 @@
                                 [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
                             }
                         });
+                    }
+                    
+                    if (assetVideoMessage.roundMessage)
+                    {
+                        NSString *thumbnailUrl = [assetVideoMessage.imageInfo closestImageUrlWithSize:CGSizeZero resultingSize:NULL];
+                        if (thumbnailUrl != nil)
+                            [ActionStageInstance() dispatchResource:[[NSString alloc] initWithFormat:@"/as/media/imageThumbnailUpdated"] resource:thumbnailUrl];
                     }
                 }
                 else
@@ -2598,10 +2908,11 @@
             
             int32_t maxPts = 0;
             [updates maxPtsAndCount:&maxPts ptsCount:NULL];
-            message.pts = maxPts;
-            if (date != 0) {
+            if (!grouped)
+                message.pts = maxPts;
+            
+            if (date != 0)
                 message.date = date;
-            }
             
             TGDatabaseUpdateMessageWithMessage *messageUpdate = [[TGDatabaseUpdateMessageWithMessage alloc] initWithPeerId:_conversationId messageId:self.preparedMessage.mid message:message dispatchEdited:false];
             [TGDatabaseInstance() transactionUpdateMessages:@[messageUpdate] updateConversationDatas:nil];
@@ -2625,7 +2936,17 @@
                 
                 [ActionStageInstance() dispatchResource:[[NSString alloc] initWithFormat:@"/tg/conversation/(%lld)/messagesChanged", conversationId] resource:resource];
                 
-                [[TGTelegramNetworking instance] addUpdates:updates];
+                if (!grouped || message.pts == maxPts)
+                    [[TGTelegramNetworking instance] addUpdates:updates];
+                
+                if ([self.preparedMessage isKindOfClass:[TGPreparedMapMessage class]])
+                {
+                    TGPreparedMapMessage *mapMessage = (TGPreparedMapMessage *)self.preparedMessage;
+                    if (mapMessage.period > 0)
+                    {
+                        [TGTelegraphInstance.liveLocationManager startWithPeerId:message.cid messageId:message.mid period:mapMessage.period started:date];
+                    }
+                }
             };
             
             if (waitForFileQueue)

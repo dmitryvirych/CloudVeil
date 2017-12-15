@@ -1,26 +1,24 @@
 #import "TGGenericContextResultCell.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGBotContextExternalResult.h"
 #import "TGBotContextMediaResult.h"
 
-#import "TGImageUtils.h"
-#import "TGFont.h"
-#import "TGImageView.h"
+#import <LegacyComponents/TGImageView.h>
 
 #import "TGSharedMediaUtils.h"
 #import "TGSharedPhotoSignals.h"
 #import "TGSharedMediaSignals.h"
 
-#import "TGMessageImageViewOverlayView.h"
+#import <LegacyComponents/TGMessageImageViewOverlayView.h>
 
 #import "TGBotContextResultSendMessageGeo.h"
-
-#import "TGMessage.h"
 
 #import "TGDocumentMessageIconView.h"
 #import "TGMessageImageView.h"
 
-#import "TGLetteredAvatarView.h"
+#import <LegacyComponents/TGLetteredAvatarView.h>
 
 #import "TGBotContextResultSendMessageContact.h"
 
@@ -117,7 +115,7 @@
         [_iconView setOverlayType:TGMessageImageViewOverlayPlayMedia];
         
         _avatarView = [[TGLetteredAvatarView alloc] initWithFrame:CGRectMake(18.0, 9.0f, 44.0f, 44.0f)];
-        [_avatarView setSingleFontSize:15.0f doubleFontSize:15.0f useBoldFont:true];
+        [_avatarView setSingleFontSize:18.0f doubleFontSize:18.0f useBoldFont:true];
         [self addSubview:_avatarView];
         
         _overlayView = [[TGMessageImageViewOverlayView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 25.0f, 25.0f)];
@@ -211,7 +209,7 @@
         } else if ([result.sendMessage isKindOfClass:[TGBotContextResultSendMessageGeo class]]) {
             TGBotContextResultSendMessageGeo *concreteMessage = (TGBotContextResultSendMessageGeo *)result.sendMessage;
             CGSize mapImageSize = CGSizeMake(75.0f, 75.0f);
-            NSString *mapUri = [[NSString alloc] initWithFormat:@"map-thumbnail://?latitude=%f&longitude=%f&width=%d&height=%d&flat=1&cornerRadius=4", concreteMessage.location.latitude, concreteMessage.location.longitude, (int)mapImageSize.width, (int)mapImageSize.height];
+            NSString *mapUri = [[NSString alloc] initWithFormat:@"map-thumbnail://?latitude=%f&longitude=%f&width=%d&height=%d&flat=1&cornerRadius=4&offset=-10", concreteMessage.location.latitude, concreteMessage.location.longitude, (int)mapImageSize.width, (int)mapImageSize.height];
             imageUrl = mapUri;
         }
     } else if ([result isKindOfClass:[TGBotContextMediaResult class]]) {

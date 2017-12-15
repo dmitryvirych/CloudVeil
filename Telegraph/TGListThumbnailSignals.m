@@ -1,18 +1,17 @@
 #import "TGListThumbnailSignals.h"
 
-#import "TGImageUtils.h"
-#import "TGImageBlur.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/TGImageBlur.h>
 
 @implementation TGListThumbnailSignals
 
 + (UIImage *)listThumbnail:(CGSize)size image:(UIImage *)image blurImage:(bool)blurImage averageColor:(uint32_t *)averageColor pixelProcessingBlock:(void (^)(void *, int, int, int))pixelProcessingBlock
 {
     CGSize pixelSize = size;
-    if (TGIsRetina())
-    {
-        pixelSize.width *= 2.0f;
-        pixelSize.height *= 2.0f;
-    }
+    pixelSize.width *= TGScreenScaling();
+    pixelSize.height *= TGScreenScaling();
+    
     CGSize renderSize = TGScaleToFill(image.size, pixelSize);
     
     UIImage *resultImage = nil;

@@ -1,13 +1,8 @@
 #import "TGNotificationPreviewView.h"
+
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGNotificationView.h"
-
-#import "TGFont.h"
-#import "TGImageUtils.h"
-
-#import "TGMessage.h"
-#import "TGUser.h"
-#import "TGConversation.h"
-#import "TGPeerIdAdapter.h"
 
 const UIEdgeInsets TGNotificationPreviewContentInset = { 0, 62, 0, 10 };
 
@@ -37,7 +32,7 @@ const CGFloat TGNotificationTextHeaderMargin = 4.0f;
         
         if (isSecretMessage)
         {
-            _lockIcon = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"NotificationLockIcon"]];
+            _lockIcon = [[UIImageView alloc] initWithImage:TGImageNamed(@"NotificationLockIcon")];
             _lockIcon.frame = CGRectOffset(_lockIcon.frame, -13, 2.5f);
             [_titleLabel addSubview:_lockIcon];
         }
@@ -62,22 +57,28 @@ const CGFloat TGNotificationTextHeaderMargin = 4.0f;
         _textLabel.numberOfLines = 0;
         [self addSubview:_textLabel];
         
-        for (TGMediaAttachment *attachment in message.mediaAttachments)
+        if (!isSecretMessage)
         {
-            if (attachment.type == TGReplyMessageMediaAttachmentType && _replyHeader == nil)
+            for (TGMediaAttachment *attachment in message.mediaAttachments)
             {
-                _replyHeader = [[TGNotificationReplyHeaderView alloc] initWithAttachment:(TGReplyMessageMediaAttachment *)attachment peers:peers];
-                _replyHeader.alpha = 0.0f;
-                [self addSubview:_replyHeader];
-                
-                _headerHeight = TGNotificationReplyHeaderHeight + 4 + 4;
-            }
-            else if (attachment.type == TGForwardedMessageMediaAttachmentType)
-            {
-                _forwardHeader = [[TGNotificationForwardHeaderView alloc] initWithAttachment:(TGForwardedMessageMediaAttachment *)attachment peers:peers];
-                _forwardHeader.alpha = 0.0f;
-                [self addSubview:_forwardHeader];
-                _headerHeight = TGNotificationReplyHeaderHeight + 4 + 4;
+                if (attachment.type == TGReplyMessageMediaAttachmentType && _replyHeader == nil)
+                {
+                    _replyHeader = [[TGNotificationReplyHeaderView alloc] initWithAttachment:(TGReplyMessageMediaAttachment *)attachment peers:peers];
+                    _replyHeader.alpha = 0.0f;
+                    [self addSubview:_replyHeader];
+                    
+                    _headerHeight = TGNotificationReplyHeaderHeight + 4 + 4;
+                }
+                else if (attachment.type == TGForwardedMessageMediaAttachmentType)
+                {
+                    if (peers[@(((TGForwardedMessageMediaAttachment *)attachment).forwardPeerId)] != nil)
+                    {
+                        _forwardHeader = [[TGNotificationForwardHeaderView alloc] initWithAttachment:(TGForwardedMessageMediaAttachment *)attachment peers:peers];
+                        _forwardHeader.alpha = 0.0f;
+                        [self addSubview:_forwardHeader];
+                        _headerHeight = TGNotificationReplyHeaderHeight + 4 + 4;
+                    }
+                }
             }
         }
         

@@ -6,9 +6,9 @@
  * Copyright Peter Iakovlev, 2013.
  */
 
-#import "ASActor.h"
+#import <LegacyComponents/ASActor.h>
 
-#import "TGUser.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 #import "TL/TLMetaScheme.h"
 
@@ -24,6 +24,7 @@
 + (void)dispatchNewPhonebook;
 
 + (NSDictionary *)cachedPhonebook;
++ (NSDictionary *)cachedInvitees;
 + (NSDictionary *)synchronousContactList;
 + (void)clearCache;
 

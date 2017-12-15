@@ -1,8 +1,8 @@
 #import "TGModernFlatteningViewModel.h"
 
-#import "TGModernFlatteningView.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGImageUtils.h"
+#import "TGModernFlatteningView.h"
 
 CGFloat TGModernFlatteningViewModelTilingLimit = 512.0f;
 
@@ -69,6 +69,9 @@ CGFloat TGModernFlatteningViewModelTilingLimit = 512.0f;
 - (void)bindViewToContainer:(UIView *)container viewStorage:(TGModernViewStorage *)viewStorage
 {
     [super bindViewToContainer:container viewStorage:viewStorage];
+    
+    TGModernFlatteningView *view = (TGModernFlatteningView *)[self boundView];
+    view.specialUserInteraction = self.allowSpecialUserInteraction;
     
     _viewStorage = viewStorage;
     
@@ -188,7 +191,6 @@ CGFloat TGModernFlatteningViewModelTilingLimit = 512.0f;
         [UIView performWithoutAnimation:^
         {
             TGModernFlatteningView *view = (TGModernFlatteningView *)[self boundView];
-            
             CGSize tiledViewSize = CGSizeMake(view.frame.size.width, TGModernFlatteningViewModelTilingLimit);
             
             CGRect frame = self.frame;

@@ -1,6 +1,7 @@
 #import "TGCallButtonsView.h"
 
-#import "TGImageUtils.h"
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGCallSession.h"
 
 #import "TGCallButton.h"
@@ -173,6 +174,7 @@ const CGFloat TGCallButtonsSpacing = 28.0f;
             break;
             
         case TGCallStateBusy:
+        case TGCallStateNoAnswer:
             if (previousState == TGCallStateWaiting || previousState == TGCallStateWaitingReceived)
             {
                 _twoButtons = true;
@@ -212,7 +214,7 @@ const CGFloat TGCallButtonsSpacing = 28.0f;
         case TGCallStateRequesting:
         case TGCallStateWaiting:
         case TGCallStateWaitingReceived:
-            if (previousState == TGCallStateBusy)
+            if (previousState == TGCallStateBusy || previousState == TGCallStateNoAnswer)
             {
                 _twoButtons = false;
                 
@@ -271,7 +273,7 @@ const CGFloat TGCallButtonsSpacing = 28.0f;
     if (currentTitle.length > 0)
     {
         NSString *title = TGLocalized(@"Call.Accept");
-        if (state.state == TGCallStateBusy)
+        if (state.state == TGCallStateBusy || state.state == TGCallStateNoAnswer)
             title = TGLocalized(@"Call.CallAgain");
         
         if (![currentTitle isEqualToString:title])

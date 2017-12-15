@@ -5,8 +5,6 @@
 #import <CoreTelephony/CTCallCenter.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 
-#import "TGObserverProxy.h"
-
 # define AES_MAXNR 14
 # define AES_BLOCK_SIZE 16
 
@@ -181,6 +179,161 @@ void TGCallAesIgeDecryptInplace(uint8_t *inBytes, uint8_t *outBytes, size_t leng
     free(outData);
 }
 
+static void ctr128_inc(unsigned char *counter)
+{
+    uint32_t n = 16, c = 1;
+    
+    do {
+        --n;
+        c += counter[n];
+        counter[n] = (uint8_t)c;
+        c >>= 8;
+    } while (n);
+}
+
+static void ctr128_inc_aligned(unsigned char *counter)
+{
+    size_t *data, c, d, n;
+    const union {
+        long one;
+        char little;
+    } is_endian = {
+        1
+    };
+    
+    if (is_endian.little || ((size_t)counter % sizeof(size_t)) != 0) {
+        ctr128_inc(counter);
+        return;
+    }
+    
+    data = (size_t *)counter;
+    c = 1;
+    n = 16 / sizeof(size_t);
+    do {
+        --n;
+        d = data[n] += c;
+        /* did addition carry? */
+        c = ((d - c) ^ d) >> (sizeof(size_t) * 8 - 1);
+    } while (n);
+}
+
+@interface TGCallAesCtr : NSObject {
+    CCCryptorRef _cryptor;
+    
+    unsigned char _ivec[16];
+    unsigned int _num;
+    unsigned char _ecount[16];
+}
+
+@end
+
+@implementation TGCallAesCtr
+
+- (instancetype)initWithKey:(const void *)key keyLength:(int)keyLength iv:(const void *)iv ecount:(void *)ecount num:(uint32_t)num {
+    self = [super init];
+    if (self != nil) {
+        _num = num;
+        memcpy(_ecount, ecount, 16);
+        memcpy(_ivec, iv, 16);
+        
+        CCCryptorCreate(kCCEncrypt, kCCAlgorithmAES128, kCCOptionECBMode, key, keyLength, nil, &_cryptor);
+    }
+    return self;
+}
+
+- (void)dealloc {
+    if (_cryptor) {
+        CCCryptorRelease(_cryptor);
+    }
+}
+
+- (uint32_t)num {
+    return _num;
+}
+
+- (void *)ecount {
+    return _ecount;
+}
+
+- (void)getIv:(void *)iv {
+    memcpy(iv, _ivec, 16);
+}
+
+- (void)encryptIn:(const unsigned char *)in out:(unsigned char *)out len:(size_t)len {
+    unsigned int n;
+    size_t l = 0;
+    
+    assert(in && out);
+    assert(_num < 16);
+    
+    n = _num;
+    
+    if (16 % sizeof(size_t) == 0) { /* always true actually */
+        do {
+            while (n && len) {
+                *(out++) = *(in++) ^ _ecount[n];
+                --len;
+                n = (n + 1) % 16;
+            }
+            
+            while (len >= 16) {
+                size_t dataOutMoved;
+                CCCryptorUpdate(_cryptor, _ivec, 16, _ecount, 16, &dataOutMoved);
+                ctr128_inc_aligned(_ivec);
+                for (n = 0; n < 16; n += sizeof(size_t))
+                    *(size_t *)(out + n) =
+                    *(size_t *)(in + n) ^ *(size_t *)(_ecount + n);
+                len -= 16;
+                out += 16;
+                in += 16;
+                n = 0;
+            }
+            if (len) {
+                size_t dataOutMoved;
+                CCCryptorUpdate(_cryptor, _ivec, 16, _ecount, 16, &dataOutMoved);
+                ctr128_inc_aligned(_ivec);
+                while (len--) {
+                    out[n] = in[n] ^ _ecount[n];
+                    ++n;
+                }
+            }
+            _num = n;
+            return;
+        } while (0);
+    }
+    /* the rest would be commonly eliminated by x86* compiler */
+    
+    while (l < len) {
+        if (n == 0) {
+            size_t dataOutMoved;
+            CCCryptorUpdate(_cryptor, _ivec, 16, _ecount, 16, &dataOutMoved);
+            ctr128_inc(_ivec);
+        }
+        out[l] = in[l] ^ _ecount[n];
+        ++l;
+        n = (n + 1) % 16;
+    }
+    
+    _num = n;
+}
+
+@end
+
+
+void TGCallAesCtrEncrypt(uint8_t *inOut, size_t length, uint8_t *key, uint8_t *iv, uint8_t *ecount, uint32_t *num)
+{
+    uint8_t *outData = (uint8_t *)malloc(length);
+    TGCallAesCtr *aesCtr = [[TGCallAesCtr alloc] initWithKey:key keyLength:32 iv:iv ecount:ecount num:*num];
+    [aesCtr encryptIn:inOut out:outData len:length];
+    memcpy(inOut, outData, length);
+    free(outData);
+    
+    [aesCtr getIv:iv];
+    
+    memcpy(ecount, [aesCtr ecount], 16);
+    *num = [aesCtr num];
+}
+
 void TGCallSha1(uint8_t *msg, size_t length, uint8_t *output)
 {
     CC_SHA1(msg, (CC_LONG)length, output);
@@ -201,14 +354,6 @@ void TGCallLoggingFunction(const char *msg)
     TGLog(@"%s", msg);
 }
 
-@interface TGObserverBlockProxy : TGObserverProxy
-
-@property (nonatomic, copy) void (^block)(void);
-
-- (instancetype)initWithName:(NSString *)name block:(void (^)(void))block;
-
-@end
-
 @implementation TGCallUtils
 
 + (bool)isOnPhoneCall
@@ -220,114 +365,6 @@ void TGCallLoggingFunction(const char *msg)
             return true;
     }
     return false;
-}
-
-+ (SSignal *)networkTypeSignal
-{
-    SSignal *reachabilitySignal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber)
-    {
-        Reachability *reachability = [Reachability reachabilityForInternetConnection];
-        [reachability startNotifier];
-        
-        [subscriber putNext:@(reachability.currentReachabilityStatus)];
-        reachability.reachabilityChanged = ^(NetworkStatus status)
-        {
-            [subscriber putNext:@(status)];
-        };
-        
-        return [[SBlockDisposable alloc] initWithBlock:^
-        {
-            __strong Reachability *strongReachability = reachability;
-            [strongReachability stopNotifier];
-        }];
-    }];
-    
-    
-    SSignal *cellNetworkSignal = [[SSignal alloc] initWithGenerator:^id<SDisposable>(SSubscriber *subscriber)
-    {
-        CTTelephonyNetworkInfo *telephonyInfo = [CTTelephonyNetworkInfo new];
-        NSString *network = telephonyInfo.currentRadioAccessTechnology;
-        if (network == nil)
-            network = @"";
-        [subscriber putNext:network];
-
-        TGObserverBlockProxy *observer = [[TGObserverBlockProxy alloc] initWithName:CTRadioAccessTechnologyDidChangeNotification block:^
-        {
-            NSString *network = telephonyInfo.currentRadioAccessTechnology;
-            if (network == nil)
-                network = @"";
-            [subscriber putNext:network];
-        }];
-        
-        return [[SBlockDisposable alloc] initWithBlock:^
-        {
-            [telephonyInfo description];
-            [observer description];
-        }];
-    }];
-    
-    return [[SSignal combineSignals:@[reachabilitySignal, cellNetworkSignal]] map:^NSNumber *(NSArray *values)
-    {
-        NSInteger reachability = [values.firstObject integerValue];
-        NSString *networkType = values.lastObject;
-        
-        if (reachability == ReachableViaWWAN)
-        {
-            if ([networkType isEqualToString:CTRadioAccessTechnologyGPRS])
-            {
-                return @(TGCallNetworkTypeGPRS);
-            }
-            else if ([networkType isEqualToString:CTRadioAccessTechnologyEdge] || [networkType isEqualToString:CTRadioAccessTechnologyCDMA1x])
-            {
-                return @(TGCallNetworkTypeEdge);
-            }
-            else if ([networkType isEqualToString:CTRadioAccessTechnologyLTE])
-            {
-                return @(TGCallNetworkTypeLTE);
-            }
-            else if ([networkType isEqualToString:CTRadioAccessTechnologyWCDMA]
-                     || [networkType isEqualToString:CTRadioAccessTechnologyHSDPA]
-                     || [networkType isEqualToString:CTRadioAccessTechnologyHSUPA]
-                     || [networkType isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]
-                     || [networkType isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]
-                     || [networkType isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]
-                     || [networkType isEqualToString:CTRadioAccessTechnologyeHRPD])
-            {
-                return @(TGCallNetworkType3G);
-            }
-        }
-        else if (reachability == ReachableViaWiFi)
-        {
-            return @(TGCallNetworkTypeWiFi);
-        }
-        else if (reachability == NotReachable)
-        {
-            return @(TGCallNetworkTypeNone);
-        }
-        
-        return @(TGCallNetworkTypeUnknown);
-    }];
-}
-
-@end
-
-
-@implementation TGObserverBlockProxy
-
-- (instancetype)initWithName:(NSString *)name block:(void (^)(void))block
-{
-    self = [self initWithTarget:self targetSelector:@selector(handleNotification) name:name];
-    if (self != nil)
-    {
-        self.block = block;
-    }
-    return self;
-}
-
-- (void)handleNotification
-{
-    if (self.block != nil)
-        self.block();
 }
 
 @end

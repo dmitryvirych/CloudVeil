@@ -1,16 +1,14 @@
 #import "TGMessageModernConversationItem.h"
 
-#import "NSObject+TGLock.h"
+#import <LegacyComponents/LegacyComponents.h>
+#import "TGDatabase.h"
+#import "TGTelegramNetworking.h"
 
-#import "TGPeerIdAdapter.h"
-
-#import "TGUser.h"
-#import "TGMessage.h"
 #import "TGMessageViewModel.h"
 #import "TGPhotoMessageViewModel.h"
 #import "TGVideoMessageViewModel.h"
-#import "TGMapMessageViewModel.h"
-#import "TGVenueMessageViewModel.h"
+#import "TGLocationMessageViewModel.h"
+#import "TGLiveLocationMessageViewModel.h"
 #import "TGContactMessageViewModel.h"
 #import "TGDocumentMessageViewModel.h"
 #import "TGNotificationMessageViewModel.h"
@@ -19,6 +17,7 @@
 #import "TGStickerMessageViewModel.h"
 #import "TGMusicAudioMessageModel.h"
 #import "TGCallMessageViewModel.h"
+#import "TGRoundMessageViewModel.h"
 #import "TGHoleMessageViewModel.h"
 
 #import "TGPreparedLocalDocumentMessage.h"
@@ -28,13 +27,13 @@
 #import "TGModernCollectionCell.h"
 
 #import "TGInterfaceAssets.h"
-#import "TGImageUtils.h"
 
 #import <map>
 #import <CommonCrypto/CommonDigest.h>
 
-#import "TGConversation.h"
 #import "TGModernViewContext.h"
+
+#import "TGAnimationUtils.h"
 
 typedef enum {
     TGCachedMessageTypeUnknown = 0,
@@ -50,7 +49,7 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     return [[TGInterfaceAssets instance] userColor:uid];
 }
 
-@interface TGMessageModernConversationItem () <TGModernCollectionRelativeBoundsObserver>
+@interface TGMessageModernConversationItem () <TGModernCollectionRelativeBoundsObserver, TGModernCollectionPointInsideSolver>
 {
     TGMessageViewModel *_viewModel;
     TGModernViewContext *_context;
@@ -60,7 +59,9 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     
     TGUser *_syntheticAuthor;
     
-    CGSize _currentContainerSize;
+    TGMessageGroupedLayout *_groupedLayout;
+    
+    bool _isExpiredLiveLocation;
 }
 
 @end
@@ -74,6 +75,9 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     {
         _message = message;
         _context = context;
+        _byAdmin = [context isByAdmin:message];
+        
+        [self _updateLiveLocationExpiration];
         
         _mediaAvailabilityStatus = true;
     }
@@ -91,6 +95,9 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     copyItem->_collapseFlags = _collapseFlags;
     copyItem->_cachedMessageType = _cachedMessageType;
     copyItem->_mediaAvailabilityStatus = _mediaAvailabilityStatus;
+    
+    [copyItem _updateLiveLocationExpiration];
+    
     return copyItem;
 }
 
@@ -105,6 +112,9 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     copyItem->_collapseFlags = _collapseFlags;
     copyItem->_cachedMessageType = _cachedMessageType;
     copyItem->_mediaAvailabilityStatus = _mediaAvailabilityStatus;
+    
+    [copyItem _updateLiveLocationExpiration];
+    
     return copyItem;
 }
 
@@ -119,6 +129,12 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     
     if (cell != nil)
         cell->_needsRelativeBoundsUpdateNotifications = _viewModel.needsRelativeBoundsUpdates;
+    
+    cell.clipsToBounds = !(_positionFlags & TGMessageGroupPositionBottom && _positionFlags & TGMessageGroupPositionRight);
+    //if (!cell.clipsToBounds)
+    //    [cell.superview bringSubviewToFront:cell];
+    //else if (_positionFlags & TGMessageGroupPositionTop && _positionFlags & TGMessageGroupPositionLeft)
+    //    [cell.superview sendSubviewToBack:cell];
     
     [_viewModel bindViewToContainer:[cell contentViewForBinding] viewStorage:viewStorage];
 }
@@ -140,6 +156,12 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
         
         if (cell != nil)
             cell->_needsRelativeBoundsUpdateNotifications = _viewModel.needsRelativeBoundsUpdates;
+        
+        cell.clipsToBounds = !(_positionFlags & TGMessageGroupPositionBottom && _positionFlags & TGMessageGroupPositionRight);
+        //if (!cell.clipsToBounds)
+        //    [cell.superview bringSubviewToFront:cell];
+        //else if (_positionFlags & TGMessageGroupPositionTop && _positionFlags & TGMessageGroupPositionLeft)
+        //    [cell.superview sendSubviewToBack:cell];
     }
 }
 
@@ -181,9 +203,88 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     [_viewModel updateSearchText:animated];
 }
 
-- (void)updateMessage:(TGMessage *)message fromMessage:(TGMessage *)__unused fromMessage viewStorage:(TGModernViewStorage *)viewStorage sizeUpdated:(bool *)sizeUpdated
+- (void)updateMessage:(TGMessage *)message fromMessage:(TGMessage *)__unused fromMessage viewStorage:(TGModernViewStorage *)viewStorage sizeUpdated:(bool *)sizeUpdated containerSize:(CGSize)containerSize
 {
-    [_viewModel updateMessage:message viewStorage:viewStorage sizeUpdated:sizeUpdated];
+    TGModernCollectionCell *rebindCell = nil;
+    
+    if (message.mid != fromMessage.mid && _groupedLayout != nil)
+    {
+        TGMessageGroupedLayout *updatedLayout = [_groupedLayout groupedLayoutAfterMessageUpdate:message previousMessage:fromMessage];
+        [self updateGroupedLayout:updatedLayout];
+    }
+    
+    if (_viewModel != nil && !TGPeerIdIsSecretChat(_message.cid) && _message.messageLifetime > 0) {
+        bool replaceModel = false;
+        if ([_viewModel isKindOfClass:[TGImageMessageViewModel class]]) {
+            for (id media in _message.mediaAttachments) {
+                if ([media isKindOfClass:[TGImageMediaAttachment class]]) {
+                    TGImageMediaAttachment *imageMedia = media;
+                    if (imageMedia.imageId == 0 && imageMedia.localImageId == 0) {
+                        replaceModel = true;
+                        break;
+                    }
+                } else if ([media isKindOfClass:[TGVideoMediaAttachment class]]) {
+                    TGVideoMediaAttachment *videoMedia = media;
+                    if (videoMedia.videoId == 0 && videoMedia.localVideoId == 0) {
+                        replaceModel = true;
+                        break;
+                    }
+                } if ([media isKindOfClass:[TGDocumentMediaAttachment class]]) {
+                    TGDocumentMediaAttachment *documentMedia = media;
+                    if (documentMedia.documentId == 0 && documentMedia.localDocumentId == 0) {
+                        replaceModel = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (replaceModel) {
+            if ([self boundCell] != nil) {
+                if ([_viewModel isKindOfClass:[TGImageMessageViewModel class]]) {
+                    TGImageMessageViewModel *containerModel = _viewModel.submodels.firstObject;
+                    if (containerModel != nil && containerModel.boundView != nil) {
+                        UIView *copyView = [containerModel.boundView snapshotViewAfterScreenUpdates:false];
+                        if (copyView != nil) {
+                            copyView.frame = containerModel.boundView.frame;
+                            [containerModel.boundView.superview insertSubview:copyView aboveSubview:containerModel.boundView];
+                            
+                            [UIView animateWithDuration:0.2 animations:^{
+                                copyView.alpha = 0.0f;
+                                copyView.transform = CGAffineTransformMakeScale(0.1f, 0.1f);
+                            } completion:^(__unused BOOL finished) {
+                                [copyView removeFromSuperview];
+                            }];
+                        }
+                    }
+                }
+                rebindCell = [self boundCell];
+                [self unbindCell:viewStorage];
+            }
+            _viewModel = nil;
+        }
+    }
+    
+    if (_viewModel == nil) {
+        _viewModel = [self createMessageViewModel:_message containerSize:containerSize];
+        if (sizeUpdated) {
+            *sizeUpdated = true;
+        }
+        
+        if (rebindCell) {
+            [self bindCell:rebindCell viewStorage:viewStorage];
+            
+            if ([_viewModel isKindOfClass:[TGNotificationMessageViewModel class]]) {
+                for (TGModernViewModel *model in _viewModel.submodels) {
+                    if (model.boundView != nil) {
+                        [model.boundView.layer animateAlphaFrom:0.0f to:model.boundView.alpha duration:0.2 timingFunction:kCAMediaTimingFunctionEaseIn removeOnCompletion:true completion:nil];
+                    }
+                }
+            }
+        }
+    } else {
+        [_viewModel updateMessage:message viewStorage:viewStorage sizeUpdated:sizeUpdated];
+    }
 }
 
 - (void)updateMediaVisibility
@@ -191,9 +292,19 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     [_viewModel updateMediaVisibility];
 }
 
+- (void)updateMessageFocus
+{
+    [_viewModel updateMessageFocus];
+}
+
 - (void)updateMessageAttributes
 {
     [_viewModel updateMessageAttributes];
+}
+
+- (void)updateMessageVisibility
+{
+    [_viewModel updateMessageVisibility];
 }
 
 - (void)updateEditingState:(TGModernViewStorage *)viewStorage animationDelay:(NSTimeInterval)animationDelay
@@ -221,6 +332,11 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     return [_viewModel effectiveContentFrame];
 }
 
+- (CGRect)fullContentFrame
+{
+    return [_viewModel fullContentFrame];
+}
+
 - (UIView *)referenceViewForImageTransition
 {
     return [_viewModel referenceViewForImageTransition];
@@ -241,14 +357,60 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     [_viewModel restoreBoundModelViewFramesRecursively:dict];
 }
 
+- (void)setExplicitReplyPanOffset:(CGFloat)replyPanOffset ended:(bool)ended
+{
+    [_viewModel setExplicitReplyPanOffset:replyPanOffset ended:ended];
+}
+
+- (void)updateReplySwipeInteraction:(TGModernViewStorage *)viewStorage ended:(bool)ended
+{
+    [_viewModel updateReplySwipeInteraction:[[self boundCell] contentViewForBinding] viewStorage:viewStorage ended:ended];
+}
+
 - (TGModernViewModel *)viewModel
 {
     return _viewModel;
 }
 
-- (TGModernViewModel *)viewModelForContainerSize:(CGSize)containerSize
+- (TGModernViewModel *)viewModelForContainerSize:(CGSize)containerSize viewStorage:(TGModernViewStorage *)viewStorage
 {
     bool updateCell = false;
+    TGModernCollectionCell *rebindCell = nil;
+    
+    if (_viewModel != nil && !TGPeerIdIsSecretChat(_message.cid) && _message.messageLifetime > 0) {
+        bool replaceModel = false;
+        if ([_viewModel isKindOfClass:[TGImageMessageViewModel class]]) {
+            for (id media in _message.mediaAttachments) {
+                if ([media isKindOfClass:[TGImageMediaAttachment class]]) {
+                    TGImageMediaAttachment *imageMedia = media;
+                    if (imageMedia.imageId == 0 && imageMedia.localImageId == 0) {
+                        replaceModel = true;
+                        break;
+                    }
+                } else if ([media isKindOfClass:[TGVideoMediaAttachment class]]) {
+                    TGVideoMediaAttachment *videoMedia = media;
+                    if (videoMedia.videoId == 0 && videoMedia.localVideoId == 0) {
+                        replaceModel = true;
+                        break;
+                    }
+                } if ([media isKindOfClass:[TGDocumentMediaAttachment class]]) {
+                    TGDocumentMediaAttachment *documentMedia = media;
+                    if (documentMedia.documentId == 0 && documentMedia.localDocumentId == 0) {
+                        replaceModel = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (replaceModel) {
+            if ([self boundCell] != nil) {
+                rebindCell = [self boundCell];
+                [self unbindCell:viewStorage];
+            }
+            _viewModel = nil;
+        }
+    }
     
     if (_viewModel == nil)
     {
@@ -256,13 +418,18 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
         [_viewModel updateMediaAvailability:_mediaAvailabilityStatus viewStorage:nil delayDisplay:false];
         updateCell = true;
     }
-    else if (ABS(_viewModel.frame.size.width - containerSize.width) > FLT_EPSILON || _viewModel.collapseFlags != _collapseFlags || _layoutIsInvalid)
+    else if (ABS(_viewModel.frame.size.width - containerSize.width) > FLT_EPSILON || _viewModel.collapseFlags != _collapseFlags || _viewModel.positionFlags != _positionFlags || _layoutIsInvalid)
     {
         _layoutIsInvalid = false;
         
         _viewModel.collapseFlags = _collapseFlags;
+        _viewModel.positionFlags = _positionFlags;
         [_viewModel layoutForContainerSize:containerSize];
         updateCell = true;
+    }
+    
+    if (rebindCell) {
+        [self bindCell:rebindCell viewStorage:viewStorage];
     }
     
     if (updateCell)
@@ -274,21 +441,21 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     return _viewModel;
 }
 
-- (CGSize)sizeForContainerSize:(CGSize)containerSize
+- (CGSize)sizeForContainerSize:(CGSize)containerSize viewStorage:(TGModernViewStorage *)viewStorage
 {
-    return CGSizeMake(containerSize.width, [self viewModelForContainerSize:containerSize].frame.size.height);
+    return CGSizeMake(containerSize.width, [self viewModelForContainerSize:containerSize viewStorage:viewStorage].frame.size.height);
 }
 
-- (void)updateToItem:(TGMessageModernConversationItem *)updatedItem viewStorage:(TGModernViewStorage *)viewStorage sizeChanged:(bool *)sizeChanged delayAvailability:(bool)delayAvailability
+- (void)updateToItem:(TGMessageModernConversationItem *)updatedItem viewStorage:(TGModernViewStorage *)viewStorage sizeChanged:(bool *)sizeChanged delayAvailability:(bool)delayAvailability containerSize:(CGSize)containerSize force:(bool)force
 {
     if ([updatedItem isKindOfClass:[TGMessageModernConversationItem class]])
     {
-        if (_message != updatedItem->_message) // by reference
+        if (_message != updatedItem->_message || force) // by reference
         {
             TGMessage *previousMessage = _message;
             _message = updatedItem->_message;
             bool sizeUpdated = false;
-            [self updateMessage:_message fromMessage:previousMessage viewStorage:viewStorage sizeUpdated:&sizeUpdated];
+            [self updateMessage:_message fromMessage:previousMessage viewStorage:viewStorage sizeUpdated:&sizeUpdated containerSize:containerSize];
             if (sizeUpdated)
             {
                 if (sizeChanged)
@@ -320,9 +487,9 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     [_viewModel updateAnimationsEnabled];
 }
 
-- (void)stopInlineMedia
+- (void)stopInlineMedia:(int32_t)excludeMid
 {
-    [_viewModel stopInlineMedia];
+    [_viewModel stopInlineMedia:excludeMid];
 }
 
 - (void)resumeInlineMedia {
@@ -377,6 +544,39 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
         return conversation;
     }
     
+    if (_context.isSavedMessages)
+    {
+        TGForwardedMessageMediaAttachment *forwardAttachment = nil;
+        for (TGMediaAttachment *attachment in _message.mediaAttachments)
+        {
+            if (attachment.type == TGForwardedMessageMediaAttachmentType)
+            {
+                forwardAttachment = (TGForwardedMessageMediaAttachment *)attachment;
+                break;
+            }
+        }
+        
+        if (forwardAttachment.forwardSourcePeerId != _message.cid)
+        {
+            if (TGPeerIdIsUser(forwardAttachment.forwardPeerId))
+            {
+                for (TGUser *user in _additionalUsers)
+                {
+                    if (user.uid == forwardAttachment.forwardPeerId)
+                        return user;
+                }
+            }
+            else
+            {
+                for (TGConversation *conversation in _additionalConversations)
+                {
+                    if (conversation.conversationId == forwardAttachment.forwardPeerId)
+                        return conversation;
+                }
+            }
+        }
+    }
+    
     if (_author != nil) {
         return _author;
     } else {
@@ -395,17 +595,21 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
         [model setAuthorNameColor:UIColorRGB(0x3ca5ec)];
         if (_author != nil) {
             [model setAuthorSignature:[_author displayName]];
+        } else {
+            [model setAuthorSignature:_message.authorSignature];
         }
     } else if ([author isKindOfClass:[TGUser class]]) {
         TGUser *user = author;
         [model setAuthorAvatarUrl:user.photoUrlSmall];
         [model setAuthorNameColor:coloredNameForUid(user.uid, TGMessageModernConversationItemLocalUserId)];
+    } else if (_message.authorSignature != nil) {
+        [model setAuthorSignature:_message.authorSignature];
     }
 }
 
 - (TGMessageViewModel *)createMessageViewModel:(TGMessage *)message containerSize:(CGSize)containerSize
 {
-    bool useAuthor = [self currentAuthorPeer] != nil && !message.outgoing;
+    bool useAuthor = ([self currentAuthorPeer] != nil) && (!message.outgoing || _context.isSavedMessages);
     if (message.outgoing) {
         if ([[self currentAuthorPeer] isKindOfClass:[TGConversation class]]) {
             useAuthor = true;
@@ -477,6 +681,18 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
                     replyPeerId = message.cid;
                 }
                 
+                if (_context.isSavedMessages)
+                {
+                    for (TGMediaAttachment *attachment in replyAttachment.replyMessage.mediaAttachments)
+                    {
+                        if (attachment.type == TGForwardedMessageMediaAttachmentType)
+                        {
+                            replyPeerId = ((TGForwardedMessageMediaAttachment *)attachment).forwardPeerId;
+                            break;
+                        }
+                    }
+                }
+                
                 if (TGPeerIdIsChannel(replyPeerId)) {
                     for (TGConversation *conversation in _additionalConversations) {
                         if (conversation.conversationId == replyPeerId) {
@@ -492,7 +708,11 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
                         }
                     }
                 }
-                replyMessage = replyAttachment.replyMessage;
+                if (replyAttachment.replyMessage.actionInfo.actionType == TGMessageActionClearChat) {
+                    replyMessage = nil;
+                } else {
+                    replyMessage = replyAttachment.replyMessage;
+                }
                 if (replyMessage == nil) {
                     replyPeer = nil;
                 }
@@ -522,6 +742,11 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
             }
         }
         
+        TGWebPageMediaAttachment *webPage = nil;
+        if (webpageIndex != -1) {
+            webPage = message.mediaAttachments[webpageIndex];
+        }
+        
         index = -1;
         for (TGMediaAttachment *attachment in message.mediaAttachments)
         {
@@ -531,59 +756,113 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
             {
                 case TGImageMediaAttachmentType:
                 {
-                    TGPhotoMessageViewModel *model = [[TGPhotoMessageViewModel alloc] initWithMessage:message imageMedia:(TGImageMediaAttachment *)attachment authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context forwardPeer:forwardPeer forwardAuthor:forwardAuthor forwardMessageId:forwardMessageId replyHeader:replyMessage replyAuthor:replyPeer viaUser:viaUser];
-                    if (useAuthor) {
-                        [self _setupMessageAuthor:model];
-                    }
+                    if (((TGImageMediaAttachment *)attachment).imageId == 0 && ((TGImageMediaAttachment *)attachment).localImageId == 0 && message.messageLifetime > 0) {
+                        TGActionMediaAttachment *action = [[TGActionMediaAttachment alloc] init];
+                        action.actionType = TGMessageActionCustom;
+                        action.actionData = @{@"expiredMedia": attachment};
+                        TGNotificationMessageViewModel *model = [[TGNotificationMessageViewModel alloc] initWithMessage:_message actionMedia:action authorPeer:[self currentAuthorPeer] additionalUsers:_additionalUsers context:_context];
+                        model.collapseFlags = _collapseFlags;
+                        [model layoutForContainerSize:containerSize];
+                        return model;
+                    } else {
+                        TGPhotoMessageViewModel *model = [[TGPhotoMessageViewModel alloc] initWithMessage:message imageMedia:(TGImageMediaAttachment *)attachment authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context forwardPeer:forwardPeer forwardAuthor:forwardAuthor forwardMessageId:forwardMessageId replyHeader:replyMessage replyAuthor:replyPeer viaUser:viaUser webPage:webPage];
+                        if (useAuthor) {
+                            [self _setupMessageAuthor:model];
+                        }
+                        if (webpageIndex != -1) {
+                            TGWebPageMediaAttachment *webPage = message.mediaAttachments[webpageIndex];
+                            if (webPage.title.length != 0 || webPage.pageDescription.length != 0 || webPage.siteName.length != 0 || [webPage.photo.imageInfo imageUrlForLargestSize:NULL] != nil || [webPage.document.thumbnailInfo imageUrlForLargestSize:NULL] != nil || webPage.document != nil) {
+                                [model setWebPageFooter:webPage invoice:nil viewStorage:nil];
+                            }
+                        }
 
-                    model.collapseFlags = _collapseFlags;
-                    [model layoutForContainerSize:containerSize];
-                    return model;
+                        model.collapseFlags = _collapseFlags;
+                        model.groupedLayout = _groupedLayout;
+                        model.positionFlags = _positionFlags;
+                        [model layoutForContainerSize:containerSize];
+                        return model;
+                    }
                 }
                 case TGVideoMediaAttachmentType:
                 {
-                    TGVideoMessageViewModel *model = [[TGVideoMessageViewModel alloc] initWithMessage:message imageInfo:((TGVideoMediaAttachment *)attachment).thumbnailInfo video:(TGVideoMediaAttachment *)attachment authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context forwardPeer:forwardPeer forwardAuthor:forwardAuthor forwardMessageId:forwardMessageId replyHeader:replyMessage replyAuthor:replyPeer viaUser:viaUser];
-                    if (useAuthor) {
-                        [self _setupMessageAuthor:model];
+                    if (((TGVideoMediaAttachment *)attachment).videoId == 0 && ((TGVideoMediaAttachment *)attachment).localVideoId == 0 && message.messageLifetime > 0) {
+                        TGActionMediaAttachment *action = [[TGActionMediaAttachment alloc] init];
+                        action.actionType = TGMessageActionCustom;
+                        action.actionData = @{@"expiredMedia": attachment};
+                        TGNotificationMessageViewModel *model = [[TGNotificationMessageViewModel alloc] initWithMessage:_message actionMedia:action authorPeer:[self currentAuthorPeer] additionalUsers:_additionalUsers context:_context];
+                        model.collapseFlags = _collapseFlags;
+                        [model layoutForContainerSize:containerSize];
+                        return model;
+                    } else {
+                        if (!((TGVideoMediaAttachment *)attachment).roundMessage)
+                        {
+                            TGVideoMessageViewModel *model = [[TGVideoMessageViewModel alloc] initWithMessage:message imageInfo:((TGVideoMediaAttachment *)attachment).thumbnailInfo video:(TGVideoMediaAttachment *)attachment authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context forwardPeer:forwardPeer forwardAuthor:forwardAuthor forwardMessageId:forwardMessageId replyHeader:replyMessage replyAuthor:replyPeer viaUser:viaUser webPage:webPage];
+                            if (useAuthor) {
+                                [self _setupMessageAuthor:model];
+                            }
+                            if (webpageIndex != -1) {
+                                TGWebPageMediaAttachment *webPage = message.mediaAttachments[webpageIndex];
+                                if (webPage.title.length != 0 || webPage.pageDescription.length != 0 || webPage.siteName.length != 0 || [webPage.photo.imageInfo imageUrlForLargestSize:NULL] != nil || [webPage.document.thumbnailInfo imageUrlForLargestSize:NULL] != nil || webPage.document != nil) {
+                                    [model setWebPageFooter:webPage invoice:nil viewStorage:nil];
+                                }
+                            }
+                            model.collapseFlags = _collapseFlags;
+                            model.groupedLayout = _groupedLayout;
+                            model.positionFlags = _positionFlags;
+                            [model layoutForContainerSize:containerSize];
+                            return model;
+                        }
+                        else
+                        {
+                            TGRoundMessageViewModel *model = [[TGRoundMessageViewModel alloc] initWithMessage:_message video:(TGVideoMediaAttachment *)attachment authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context forwardPeer:forwardPeer forwardAuthor:forwardAuthor forwardMessageId:forwardMessageId replyHeader:replyMessage replyPeer:replyPeer];
+                            if (useAuthor) {
+                                [self _setupMessageAuthor:model];
+                            }
+                            model.collapseFlags = _collapseFlags;
+                            [model layoutForContainerSize:containerSize];
+                            return model;
+                        }
                     }
-                    model.collapseFlags = _collapseFlags;
-                    [model layoutForContainerSize:containerSize];
-                    return model;
                 }
                 case TGLocationMediaAttachmentType:
                 {
                     TGLocationMediaAttachment *locationAttachment = (TGLocationMediaAttachment *)attachment;
-                    TGMessageViewModel *model = nil;
-
-                    if (locationAttachment.venue)
+                    if (locationAttachment.period > 0)
                     {
-                        TGVenueMessageViewModel *venueModel = [[TGVenueMessageViewModel alloc] initWithLatitude:locationAttachment.latitude longitude:locationAttachment.longitude venue:locationAttachment.venue message:message authorPeer:useAuthor ? [self currentAuthorPeer] : nil viaUser:viaUser context:_context];
-                        if (useAuthor) {
-                            [self _setupMessageAuthor:venueModel];
+                        id authorPeer = [self currentAuthorPeer];
+                        if (authorPeer == nil)
+                        {
+                            if (TGPeerIdIsUser(message.fromUid))
+                                authorPeer = [TGDatabaseInstance() loadUser:(int32_t)message.fromUid];
+                            else
+                                authorPeer = [TGDatabaseInstance() loadConversationWithId:message.fromUid];
                         }
                         
-                        if (forwardPeer != nil) {
-                            [venueModel setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId];
+                        TGLiveLocationMessageViewModel *model = [[TGLiveLocationMessageViewModel alloc] initWithLatitude:locationAttachment.latitude longitude:locationAttachment.longitude period:locationAttachment.period message:message authorPeer:authorPeer useAuthor:useAuthor context:_context viaUser:viaUser];
+                        if (useAuthor) {
+                            [self _setupMessageAuthor:model];
                         }
                         
                         if (replyMessage != nil)
                         {
-                            [venueModel setReplyHeader:replyMessage peer:replyPeer];
+                            [model setReplyHeader:replyMessage peer:replyPeer];
                         }
                         
-                        model = venueModel;
+                        model.collapseFlags = _collapseFlags;
+                        [model layoutForContainerSize:containerSize];
+                        return model;
                     }
                     else
                     {
-                        TGMapMessageViewModel *mapModel = [[TGMapMessageViewModel alloc] initWithLatitude:locationAttachment.latitude longitude:locationAttachment.longitude message:message authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context forwardPeer:forwardPeer forwardAuthor:forwardAuthor forwardMessageId:forwardMessageId replyHeader:replyMessage replyAuthor:replyPeer viaUser:viaUser];
+                        TGLocationMessageViewModel *model = [[TGLocationMessageViewModel alloc] initWithLatitude:locationAttachment.latitude longitude:locationAttachment.longitude venue:locationAttachment.venue message:message authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context forwardPeer:forwardPeer forwardAuthor:forwardAuthor forwardMessageId:forwardMessageId replyHeader:replyMessage replyAuthor:replyPeer viaUser:viaUser];
                         if (useAuthor) {
-                            [self _setupMessageAuthor:mapModel];
+                            [self _setupMessageAuthor:model];
                         }
-                        model = mapModel;
+
+                        model.collapseFlags = _collapseFlags;
+                        [model layoutForContainerSize:containerSize];
+                        return model;
                     }
-                    model.collapseFlags = _collapseFlags;
-                    [model layoutForContainerSize:containerSize];
-                    return model;
                 }
                 case TGContactMediaAttachmentType:
                 {
@@ -612,142 +891,165 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
                 {
                     TGDocumentMediaAttachment *documentAttachment = (TGDocumentMediaAttachment *)attachment;
                     
-                    bool isAnimated = false;
-                    CGSize imageSize = CGSizeZero;
-                    bool isSticker = false;
-                    bool isAudio = false;
-                    bool isVoice = false;
-                    int32_t duration = 0;
-                    for (id attribute in documentAttachment.attributes)
-                    {
-                        if ([attribute isKindOfClass:[TGDocumentAttributeAnimated class]])
+                    if (documentAttachment.documentId == 0 && documentAttachment.localDocumentId == 0 && message.messageLifetime > 0) {
+                        TGActionMediaAttachment *action = [[TGActionMediaAttachment alloc] init];
+                        action.actionType = TGMessageActionCustom;
+                        action.actionData = @{@"expiredMedia": attachment};
+                        TGNotificationMessageViewModel *model = [[TGNotificationMessageViewModel alloc] initWithMessage:_message actionMedia:action authorPeer:[self currentAuthorPeer] additionalUsers:_additionalUsers context:_context];
+                        model.collapseFlags = _collapseFlags;
+                        [model layoutForContainerSize:containerSize];
+                        return model;
+                    } else {
+                        bool isAnimated = false;
+                        CGSize imageSize = CGSizeZero;
+                        bool isSticker = false;
+                        bool isAudio = false;
+                        bool isVoice = false;
+                        int32_t duration = 0;
+                        for (id attribute in documentAttachment.attributes)
                         {
-                            isAnimated = true;
-                        }
-                        else if ([attribute isKindOfClass:[TGDocumentAttributeImageSize class]])
-                        {
-                            imageSize = ((TGDocumentAttributeImageSize *)attribute).size;
-                        }
-                        else if ([attribute isKindOfClass:[TGDocumentAttributeVideo class]]) {
-                            imageSize = ((TGDocumentAttributeVideo *)attribute).size;
-                        }
-                        else if ([attribute isKindOfClass:[TGDocumentAttributeSticker class]])
-                        {
-                            isSticker = true;
-                        }
-                        else if ([attribute isKindOfClass:[TGDocumentAttributeAudio class]])
-                        {
-                            TGDocumentAttributeAudio *audio = attribute;
-                            if (audio.isVoice) {
-                                isVoice = true;
-                            } else {
-                                isAudio = true;
-                            }
-                            duration = audio.duration;
-                        }
-                    }
-                    
-                    if (isSticker)
-                    {
-                        if (imageSize.width <= FLT_EPSILON || imageSize.height <= FLT_EPSILON)
-                        {
-                            CGSize size = CGSizeZero;
-                            [documentAttachment.thumbnailInfo imageUrlForLargestSize:&size];
-                            if (size.width > FLT_EPSILON && size.height > FLT_EPSILON)
+                            if ([attribute isKindOfClass:[TGDocumentAttributeAnimated class]])
                             {
-                                imageSize = TGFillSize(TGFitSize(size, CGSizeMake(512.0f, 512.0f)), CGSizeMake(512.0f, 512.0f));
+                                isAnimated = true;
                             }
-                            else
-                                imageSize = CGSizeMake(512.0f, 512.0f);
+                            else if ([attribute isKindOfClass:[TGDocumentAttributeImageSize class]])
+                            {
+                                imageSize = ((TGDocumentAttributeImageSize *)attribute).size;
+                            }
+                            else if ([attribute isKindOfClass:[TGDocumentAttributeVideo class]]) {
+                                imageSize = ((TGDocumentAttributeVideo *)attribute).size;
+                            }
+                            else if ([attribute isKindOfClass:[TGDocumentAttributeSticker class]])
+                            {
+                                isSticker = true;
+                            }
+                            else if ([attribute isKindOfClass:[TGDocumentAttributeAudio class]])
+                            {
+                                TGDocumentAttributeAudio *audio = attribute;
+                                if (audio.isVoice) {
+                                    isVoice = true;
+                                } else {
+                                    isAudio = true;
+                                }
+                                duration = audio.duration;
+                            }
                         }
                         
-                        if (imageSize.width > FLT_EPSILON && imageSize.height > FLT_EPSILON)
+                        if (isSticker)
                         {
-                            TGStickerMessageViewModel *model = [[TGStickerMessageViewModel alloc] initWithMessage:_message document:documentAttachment size:imageSize authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context replyHeader:replyMessage replyPeer:replyPeer viaUser:viaUser];
+                            if (imageSize.width <= FLT_EPSILON || imageSize.height <= FLT_EPSILON)
+                            {
+                                CGSize size = CGSizeZero;
+                                [documentAttachment.thumbnailInfo imageUrlForLargestSize:&size];
+                                if (size.width > FLT_EPSILON && size.height > FLT_EPSILON)
+                                {
+                                    imageSize = TGFillSize(TGFitSize(size, CGSizeMake(512.0f, 512.0f)), CGSizeMake(512.0f, 512.0f));
+                                }
+                                else
+                                    imageSize = CGSizeMake(512.0f, 512.0f);
+                            }
+                            
+                            if (imageSize.width > FLT_EPSILON && imageSize.height > FLT_EPSILON)
+                            {
+                                TGStickerMessageViewModel *model = [[TGStickerMessageViewModel alloc] initWithMessage:_message document:documentAttachment size:imageSize authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context replyHeader:replyMessage replyPeer:replyPeer viaUser:viaUser];
+                                if (useAuthor) {
+                                    [self _setupMessageAuthor:model];
+                                }
+                                model.collapseFlags = _collapseFlags;
+                                [model layoutForContainerSize:containerSize];
+                                return model;
+                            }
+                        }
+                        
+                        if (TGPeerIdIsSecretChat(message.cid) && message.layer < 45) {
+                            if ([documentAttachment.mimeType isEqualToString:@"video/mp4"] && ((imageSize.width > FLT_EPSILON && imageSize.height > FLT_EPSILON) || (documentAttachment.thumbnailInfo != nil && ![documentAttachment.thumbnailInfo empty]))) {
+                                isAnimated = true;
+                            }
+                        }
+                        
+                        if ((isAnimated || [documentAttachment.mimeType isEqualToString:@"image/gif"]) && ((imageSize.width > FLT_EPSILON && imageSize.height > FLT_EPSILON) || (documentAttachment.thumbnailInfo != nil && ![documentAttachment.thumbnailInfo empty])))
+                        {
+                            TGAnimatedImageMessageViewModel *model = [[TGAnimatedImageMessageViewModel alloc] initWithMessage:_message imageInfo:documentAttachment.thumbnailInfo document:documentAttachment authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context forwardPeer:forwardPeer forwardAuthor:forwardAuthor forwardMessageId:forwardMessageId replyHeader:replyMessage replyAuthor:replyPeer viaUser:viaUser caption:documentAttachment.caption textCheckingResults:documentAttachment.textCheckingResults];
                             if (useAuthor) {
                                 [self _setupMessageAuthor:model];
+                            }
+                            
+                            model.collapseFlags = _collapseFlags;
+                            [model layoutForContainerSize:containerSize];
+                            return model;
+                        }
+                        
+                        if (isAudio)
+                        {
+                            TGMusicAudioMessageModel *model = [[TGMusicAudioMessageModel alloc] initWithMessage:_message authorPeer:useAuthor ? [self currentAuthorPeer] : nil viaUser:viaUser context:_context];
+                            if (useAuthor) {
+                                [self _setupMessageAuthor:model];
+                            }
+                            
+                            if (forwardPeer != nil && [forwardPeer isKindOfClass:[TGConversation class]]) {
+                                [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId forwardSignature:message.authorSignature];
+                            }
+                            
+                            if (replyMessage != nil)
+                            {
+                                [model setReplyHeader:replyMessage peer:replyPeer];
+                            }
+                            
+                            model.collapseFlags = _collapseFlags;
+                            [model layoutForContainerSize:containerSize];
+                            return model;
+                        }
+                        
+                        if (isVoice) {
+                            TGAudioMessageViewModel *model = [[TGAudioMessageViewModel alloc] initWithMessage:_message duration:duration size:documentAttachment.size fileType:@"" authorPeer:useAuthor ? [self currentAuthorPeer] : nil viaUser:viaUser context:_context];
+                            if (useAuthor) {
+                                [self _setupMessageAuthor:model];
+                            }
+                            if (forwardPeer != nil)
+                            {
+                                [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId forwardSignature:message.authorSignature];
+                            }
+                            if (replyMessage != nil)
+                            {
+                                [model setReplyHeader:replyMessage peer:replyPeer];
+                            }
+                            if (webpageIndex != -1) {
+                                TGWebPageMediaAttachment *webPage = message.mediaAttachments[webpageIndex];
+                                if (webPage.title.length != 0 || webPage.pageDescription.length != 0 || webPage.siteName.length != 0 || [webPage.photo.imageInfo imageUrlForLargestSize:NULL] != nil || [webPage.document.thumbnailInfo imageUrlForLargestSize:NULL] != nil || webPage.document != nil) {
+                                    [model setWebPageFooter:webPage invoice:nil viewStorage:nil];
+                                }
                             }
                             model.collapseFlags = _collapseFlags;
                             [model layoutForContainerSize:containerSize];
                             return model;
                         }
-                    }
-                    
-                    if (TGPeerIdIsSecretChat(message.cid) && message.layer < 45) {
-                        if ([documentAttachment.mimeType isEqualToString:@"video/mp4"] && ((imageSize.width > FLT_EPSILON && imageSize.height > FLT_EPSILON) || (documentAttachment.thumbnailInfo != nil && ![documentAttachment.thumbnailInfo empty]))) {
-                            isAnimated = true;
-                        }
-                    }
-                    
-                    if ((isAnimated || [documentAttachment.mimeType isEqualToString:@"image/gif"]) && ((imageSize.width > FLT_EPSILON && imageSize.height > FLT_EPSILON) || (documentAttachment.thumbnailInfo != nil && ![documentAttachment.thumbnailInfo empty])))
-                    {
-                        TGAnimatedImageMessageViewModel *model = [[TGAnimatedImageMessageViewModel alloc] initWithMessage:_message imageInfo:documentAttachment.thumbnailInfo document:documentAttachment authorPeer:useAuthor ? [self currentAuthorPeer] : nil context:_context forwardPeer:forwardPeer forwardAuthor:forwardAuthor forwardMessageId:forwardMessageId replyHeader:replyMessage replyAuthor:replyPeer viaUser:viaUser caption:documentAttachment.caption textCheckingResults:documentAttachment.textCheckingResults];
+                        
+                        TGDocumentMessageViewModel *model = [[TGDocumentMessageViewModel alloc] initWithMessage:_message document:(TGDocumentMediaAttachment *)attachment authorPeer:useAuthor ? [self currentAuthorPeer] : nil viaUser:viaUser context:_context];
                         if (useAuthor) {
                             [self _setupMessageAuthor:model];
                         }
                         
-                        model.collapseFlags = _collapseFlags;
-                        [model layoutForContainerSize:containerSize];
-                        return model;
-                    }
-                    
-                    if (isAudio)
-                    {
-                        TGMusicAudioMessageModel *model = [[TGMusicAudioMessageModel alloc] initWithMessage:_message authorPeer:useAuthor ? [self currentAuthorPeer] : nil viaUser:viaUser context:_context];
-                        if (useAuthor) {
-                            [self _setupMessageAuthor:model];
-                        }
-                        
-                        if (forwardPeer != nil && [forwardPeer isKindOfClass:[TGConversation class]]) {
-                            [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId];
-                        }
-                        
-                        if (replyMessage != nil)
-                        {
-                            [model setReplyHeader:replyMessage peer:replyPeer];
-                        }
-                        
-                        model.collapseFlags = _collapseFlags;
-                        [model layoutForContainerSize:containerSize];
-                        return model;
-                    }
-                    
-                    if (isVoice) {
-                        TGAudioMessageViewModel *model = [[TGAudioMessageViewModel alloc] initWithMessage:_message duration:duration size:documentAttachment.size fileType:@"" authorPeer:useAuthor ? [self currentAuthorPeer] : nil viaUser:viaUser context:_context];
-                        if (useAuthor) {
-                            [self _setupMessageAuthor:model];
-                        }
                         if (forwardPeer != nil)
                         {
-                            [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId];
+                            [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId forwardSignature:message.authorSignature];
                         }
+                        
                         if (replyMessage != nil)
                         {
                             [model setReplyHeader:replyMessage peer:replyPeer];
                         }
+                        
+                        if (webpageIndex != -1) {
+                            TGWebPageMediaAttachment *webPage = message.mediaAttachments[webpageIndex];
+                            if (webPage.title.length != 0 || webPage.pageDescription.length != 0 || webPage.siteName.length != 0 || [webPage.photo.imageInfo imageUrlForLargestSize:NULL] != nil || [webPage.document.thumbnailInfo imageUrlForLargestSize:NULL] != nil || webPage.document != nil) {
+                                [model setWebPageFooter:webPage invoice:nil viewStorage:nil];
+                            }
+                        }
+                        
                         model.collapseFlags = _collapseFlags;
                         [model layoutForContainerSize:containerSize];
                         return model;
                     }
-                    
-                    TGDocumentMessageViewModel *model = [[TGDocumentMessageViewModel alloc] initWithMessage:_message document:(TGDocumentMediaAttachment *)attachment authorPeer:useAuthor ? [self currentAuthorPeer] : nil viaUser:viaUser context:_context];
-                    if (useAuthor) {
-                        [self _setupMessageAuthor:model];
-                    }
-                    
-                    if (forwardPeer != nil)
-                    {
-                        [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId];
-                    }
-                    
-                    if (replyMessage != nil)
-                    {
-                        [model setReplyHeader:replyMessage peer:replyPeer];
-                    }
-                    
-                    model.collapseFlags = _collapseFlags;
-                    [model layoutForContainerSize:containerSize];
-                    return model;
                 }
                 case TGAudioMediaAttachmentType:
                 {
@@ -757,12 +1059,20 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
                     }
                     if (forwardPeer != nil)
                     {
-                        [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId];
+                        [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId forwardSignature:message.authorSignature];
                     }
                     if (replyMessage != nil)
                     {
                         [model setReplyHeader:replyMessage peer:replyPeer];
                     }
+                    
+                    if (webpageIndex != -1) {
+                        TGWebPageMediaAttachment *webPage = message.mediaAttachments[webpageIndex];
+                        if (webPage.title.length != 0 || webPage.pageDescription.length != 0 || webPage.siteName.length != 0 || [webPage.photo.imageInfo imageUrlForLargestSize:NULL] != nil || [webPage.document.thumbnailInfo imageUrlForLargestSize:NULL] != nil || webPage.document != nil) {
+                            [model setWebPageFooter:webPage invoice:nil viewStorage:nil];
+                        }
+                    }
+                    
                     model.collapseFlags = _collapseFlags;
                     [model layoutForContainerSize:containerSize];
                     return model;
@@ -819,7 +1129,7 @@ static UIColor *coloredNameForUid(int uid, __unused int currentUserId)
     
     if (forwardPeer != nil)
     {
-        [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId];
+        [model setForwardHeader:forwardPeer forwardAuthor:forwardAuthor messageId:forwardMessageId forwardSignature:message.forwardAuthorSignature];
     }
     if (replyMessage != nil)
     {
@@ -886,9 +1196,45 @@ static inline TGCachedMessageType getMessageType(TGMessageModernConversationItem
 
 - (bool)collapseWithItem:(TGMessageModernConversationItem *)item forContainerSize:(CGSize)__unused containerSize
 {
-    if (item->_message.outgoing == _message.outgoing)
+    bool itemOutgoing = item->_message.outgoing;
+    bool outgoing = _message.outgoing;
+    
+    int64_t itemFromUid = item->_message.fromUid;
+    int64_t fromUid = _message.fromUid;
+    if (_context.isSavedMessages)
     {
-        if (!item->_message.outgoing && [item currentAuthorPeer] != nil)
+        for (TGMediaAttachment *attachment in item->_message.mediaAttachments)
+        {
+            if (attachment.type == TGForwardedMessageMediaAttachmentType)
+            {
+                int64_t forwardPeerId = ((TGForwardedMessageMediaAttachment *)attachment).forwardPeerId;
+                if (((TGForwardedMessageMediaAttachment *)attachment).forwardSourcePeerId != item->_message.cid)
+                {
+                    itemOutgoing = false;
+                    itemFromUid = forwardPeerId;
+                }
+                break;
+            }
+        }
+        
+        for (TGMediaAttachment *attachment in _message.mediaAttachments)
+        {
+            if (attachment.type == TGForwardedMessageMediaAttachmentType)
+            {
+                int64_t forwardPeerId = ((TGForwardedMessageMediaAttachment *)attachment).forwardPeerId;
+                if (((TGForwardedMessageMediaAttachment *)attachment).forwardSourcePeerId != _message.cid)
+                {
+                    outgoing = false;
+                    fromUid = forwardPeerId;
+                }
+                break;
+            }
+        }
+    }
+    
+    if (itemOutgoing == outgoing)
+    {
+        if (!itemOutgoing && [item currentAuthorPeer] != nil)
             return false;
         
         TGCachedMessageType currentType = getMessageType(self);
@@ -896,13 +1242,48 @@ static inline TGCachedMessageType getMessageType(TGMessageModernConversationItem
         
         if ((currentType == TGCachedMessageTypeText || currentType == TGCachedMessageTypeImage) == (anotherType == TGCachedMessageTypeText || anotherType == TGCachedMessageTypeImage))
         {
-            if (!_message.outgoing && (_message.fromUid != item->_message.fromUid))
+            if (!outgoing && (fromUid != itemFromUid))
                 return false;
             return true;
         }
     }
     
     return false;
+}
+
+- (void)_updateLiveLocationExpiration
+{
+    if (_message.locationAttachment.period > 0)
+    {
+        int32_t currentTime = (int32_t)[[TGTelegramNetworking instance] globalTime];
+        if (_message.date + _message.locationAttachment.period <= currentTime)
+            _isExpiredLiveLocation = true;
+    }
+}
+
+- (bool)isExpiredLiveLocation
+{
+    return _isExpiredLiveLocation;
+}
+
+- (void)updateGroupedLayout:(TGMessageGroupedLayout *)groupedLayout
+{
+    _groupedLayout = groupedLayout;
+    _viewModel.groupedLayout = groupedLayout;
+    if (groupedLayout != nil)
+        _positionFlags = [groupedLayout positionForMessageId:_message.mid];
+    else
+        _positionFlags = TGMessageGroupPositionNone;
+    
+    _layoutIsInvalid = true;
+}
+
+- (bool (^)(CGPoint))pointInside
+{
+    if (_viewModel != nil)
+        return _viewModel.pointInside;
+    
+    return nil;
 }
 
 @end

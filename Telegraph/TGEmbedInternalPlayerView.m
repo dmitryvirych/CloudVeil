@@ -1,18 +1,19 @@
 #import "TGEmbedInternalPlayerView.h"
-#import "TGEmbedPlayerState.h"
+
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/TGEmbedPlayerState.h>
 
 #import <AVFoundation/AVFoundation.h>
-#import "ActionStage.h"
+#import <LegacyComponents/ActionStage.h>
 
-#import "TGObserverProxy.h"
-#import "TGTimerTarget.h"
+#import <LegacyComponents/TGObserverProxy.h>
+#import <LegacyComponents/TGTimerTarget.h>
 
-#import "TGMessage.h"
 #import "TGDownloadManager.h"
-#import "TGDocumentMediaAttachment.h"
 #import "TGPreparedLocalDocumentMessage.h"
 
-#import "TGModernGalleryVideoView.h"
+#import <LegacyComponents/TGModernGalleryVideoView.h>
 
 @interface TGEmbedInternalPlayerView () <ASWatcher>
 {
@@ -63,11 +64,6 @@
     [ActionStageInstance() removeWatcher:self];
     
     //[_currentAudioSession dispose];
-}
-
-- (bool)supportsPIP
-{
-    return false;
 }
 
 - (void)setupWithEmbedSize:(CGSize)embedSize

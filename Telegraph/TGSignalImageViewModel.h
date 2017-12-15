@@ -4,8 +4,14 @@
 
 @interface TGSignalImageViewModel : TGModernViewModel
 
+@property (nonatomic, assign) bool ignoresInvertColors;
+@property (nonatomic, assign) UIViewContentMode contentMode;
 @property (nonatomic) bool showProgress;
 @property (nonatomic) bool manualProgress;
+
+@property (nonatomic) UIEdgeInsets inlineVideoInsets;
+@property (nonatomic) CGSize inlineVideoSize;
+@property (nonatomic) CGFloat inlineVideoCornerRadius;
 
 @property (nonatomic) CGRect transitionContentRect;
 

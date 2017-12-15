@@ -8,11 +8,9 @@
 
 #import "TGModernConversationAudioPlayer.h"
 
-#import "TGTimerTarget.h"
+#import <LegacyComponents/TGTimerTarget.h>
 
 #import "TGModernConversationAudioPlayerContext.h"
-
-#import "TGAudioPlayer.h"
 
 @interface TGModernConversationAudioPlayer () <TGAudioPlayerDelegate>
 {
@@ -20,7 +18,6 @@
     bool _music;
     bool _controlAudioSession;
     
-    TGAudioPlayer *_audioPlayer;
     NSTimer *_timer;
     
     TGModernConversationAudioPlayerContext *_inlineMediaContext;

@@ -10,10 +10,12 @@
 
 @interface TGModernImageViewModel : TGModernViewModel
 
+@property (nonatomic, assign) bool ignoresInvertColors;
 @property (nonatomic, strong) UIImage *image;
 @property (nonatomic) CGBlendMode blendMode;
 
 @property (nonatomic) UIEdgeInsets extendedEdges;
+@property (nonatomic) bool accountForTransform;
 
 - (instancetype)initWithImage:(UIImage *)image;
 

@@ -1,26 +1,21 @@
 #import "TGStickerImageDataSource.h"
 
-#import "TGStringUtils.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 #import "TGWorkerPool.h"
 #import "TGWorkerTask.h"
 #import "TGMediaPreviewTask.h"
 
-#import "TGMemoryImageCache.h"
+#import <LegacyComponents/TGMemoryImageCache.h>
 
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
-#import "TGRemoteImageView.h"
+#import <LegacyComponents/TGRemoteImageView.h>
 
-#import "TGImageBlur.h"
-#import "UIImage+TG.h"
-#import "NSObject+TGLock.h"
+#import <LegacyComponents/TGImageBlur.h>
+#import <LegacyComponents/UIImage+TG.h>
 
 #import "TGMediaStoreContext.h"
 
 #import "UIImage+WebP.h"
-
-#import "TGDocumentMediaAttachment.h"
 
 #import "TGAppDelegate.h"
 
@@ -158,10 +153,12 @@ static ASQueue *taskManagementQueue()
                 
                 TGDocumentMediaAttachment *documentAttachment = [[TGDocumentMediaAttachment alloc] init];
                 documentAttachment.documentId = [args[@"documentId"] longLongValue];
+                documentAttachment.localDocumentId = [args[@"localDocumentId"] longLongValue];
                 documentAttachment.accessHash = [args[@"accessHash"] longLongValue];
                 documentAttachment.datacenterId = [args[@"datacenterId"] intValue];
                 documentAttachment.attributes = attributes;
                 documentAttachment.size = [args[@"size"] intValue];
+                documentAttachment.documentUri = args[@"documentUri"];
                 
                 [previewTask executeWithTargetFilePath:filePath document:documentAttachment progress:^(float value)
                 {

@@ -1,17 +1,8 @@
-/*
- * This is the source code of Telegram for iOS v. 1.1
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Peter Iakovlev, 2013.
- */
-
 #ifndef Telegraph_TGCommon_h
 #define Telegraph_TGCommon_h
 
-#import "ASCommon.h"
-
 #import <UIKit/UIKit.h>
+#import <inttypes.h>
 
 #define TGUseSocial true
 
@@ -26,7 +17,6 @@
 
 
 extern int TGLocalizedStaticVersion;
-#define TGLocalizedStatic(s) ({ static int _localizedStringVersion = 0; static NSString *_localizedString = nil; if (_localizedString == nil || _localizedStringVersion != TGLocalizedStaticVersion) { _localizedString = TGLocalized(s); _localizedStringVersion = TGLocalizedStaticVersion; } _localizedString; })
 
 #define TG_TIMESTAMP_DEFINE(s) CFAbsoluteTime tg_timestamp_##s = CFAbsoluteTimeGetCurrent(); int tg_timestamp_line_##s = __LINE__;
 #define TG_TIMESTAMP_MEASURE(s) { CFAbsoluteTime tg_timestamp_current_time = CFAbsoluteTimeGetCurrent(); TGLog(@"%s %d-%d: %f ms", #s, tg_timestamp_line_##s, __LINE__, (tg_timestamp_current_time - tg_timestamp_##s) * 1000.0); tg_timestamp_##s = tg_timestamp_current_time; tg_timestamp_line_##s = __LINE__; }
@@ -39,9 +29,17 @@ bool hasModernCpu();
 int deviceMemorySize();
     
 void TGSetLocalizationFromFile(NSString *filePath);
-bool TGIsCustomLocalizationActive();
-void TGResetLocalization();
 NSString *TGLocalized(NSString *s);
+    
+@class TGLocalization;
+
+TGLocalization *effectiveLocalization();
+NSString *currentLocalizationEnglishLanguageName();
+TGLocalization *nativeEnglishLocalization();
+TGLocalization *currentNativeLocalization();
+TGLocalization *currentCustomLocalization();
+void setCurrentNativeLocalization(TGLocalization *localization, bool switchIfCustom);
+void setCurrentCustomLocalization(TGLocalization *localization);
 
 bool TGObjectCompare(id obj1, id obj2);
 bool TGStringCompare(NSString *s1, NSString *s2);
@@ -71,6 +69,15 @@ inline void TGDispatchAfter(double delay, dispatch_queue_t queue, dispatch_block
 {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)((delay) * NSEC_PER_SEC)), queue, block);
 }
+    
+void TGLogSetEnabled(bool enabled);
+bool TGLogEnabled();
+void TGLog(NSString *format, ...);
+void TGLogv(NSString *format, va_list args);
+
+void TGLogSynchronize();
+NSArray *TGGetLogFilePaths(int count);
+NSArray *TGGetPackedLogs();
     
 #ifdef __cplusplus
 }
@@ -108,7 +115,6 @@ inline void TGDispatchAfter(double delay, dispatch_queue_t queue, dispatch_block
 #define CGEven(x) ((((int)x) & 1) ? (x + 1) : x)
 #define CGOdd(x) ((((int)x) & 1) ? x : (x + 1))
 
-#import "TGAppearance.h"
 #import "TGTColor.h"
 
 #endif

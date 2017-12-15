@@ -1,8 +1,13 @@
 #import "TGExternalGifSearchResult+TGMediaItem.h"
 
-#import "TGStringUtils.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 @implementation TGExternalGifSearchResult (TGMediaItem)
+
+- (bool)isVideo
+{
+    return false;
+}
 
 - (NSString *)uniqueIdentifier
 {

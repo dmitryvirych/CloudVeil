@@ -1,25 +1,21 @@
 #import "TGStickerMessageViewModel.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGMessageImageViewModel.h"
-
-#import "TGMessage.h"
-#import "TGUser.h"
-#import "TGConversation.h"
-
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
-#import "TGDateUtils.h"
 
 #import "TGModernConversationItem.h"
 
 #import "TGTelegraphConversationMessageAssetsSource.h"
-#import "TGDoubleTapGestureRecognizer.h"
+#import <LegacyComponents/TGDoubleTapGestureRecognizer.h>
 
 #import "TGModernViewContext.h"
 
 #import "TGMessageImageView.h"
 
 #import "TGModernImageViewModel.h"
+#import "TGModernButtonViewModel.h"
+#import "TGModernButtonView.h"
 
 #import "TGContentBubbleViewModel.h"
 
@@ -27,22 +23,18 @@
 #import "TGModernFlatteningViewModel.h"
 #import "TGModernImageViewModel.h"
 
-#import "TGViewController.h"
-
 #import "TGMessageReplyButtonsModel.h"
 
 #import "TGModernTextViewModel.h"
 
-#import "TGTextCheckingResult.h"
-
 @interface TGStickerMessageViewModel () <TGDoubleTapGestureRecognizerDelegate, UIGestureRecognizerDelegate>
 {
     bool _incoming;
-    bool _incomingAppearance;
     bool _read;
     TGMessageDeliveryState _deliveryState;
     bool _hasAvatar;
     CGSize _size;
+    bool _savedMessage;
     
     float _progress;
     bool _progressVisible;
@@ -63,6 +55,8 @@
     TGModernImageViewModel *_replyBackgroundModel;
     TGReplyHeaderModel *_replyHeaderModel;
     TGModernTextViewModel *_replyHeaderViaUserModel;
+    
+    TGModernButtonViewModel *_actionButtonModel;
     
     int32_t _replyMessageId;
     TGMessageViewCountContentProperty *_messageViews;
@@ -99,6 +93,11 @@
         _read = ![_context isMessageUnread:message];
         _deliveryState = message.deliveryState;
         _hasAvatar = authorPeer != nil && [authorPeer isKindOfClass:[TGUser class]];
+        if ([authorPeer isKindOfClass:[TGConversation class]]) {
+            if ([context isAdminLog] || context.isSavedMessages) {
+                _hasAvatar = true;
+            }
+        }
         _messageViews = message.viewCount;
         _message = message;
         
@@ -108,9 +107,22 @@
         
         _size = size;
         
-        _incomingAppearance = _incoming || [authorPeer isKindOfClass:[TGConversation class]];
+        TGForwardedMessageMediaAttachment *forwardAttachment = nil;
+        for (TGMediaAttachment *attachment in message.mediaAttachments)
+        {
+            if (attachment.type == TGForwardedMessageMediaAttachmentType)
+            {
+                forwardAttachment = (TGForwardedMessageMediaAttachment *)attachment;
+                break;
+            }
+        }
+        _savedMessage = forwardAttachment != nil && context.isSavedMessages && forwardAttachment.forwardSourcePeerId != message.cid;
+        bool hasForwardPostId = forwardAttachment.forwardPostId != 0 || forwardAttachment.forwardMid != 0;
+        
+        _incomingAppearance = _incoming || [authorPeer isKindOfClass:[TGConversation class]] || _savedMessage;
         
         _imageModel = [[TGMessageImageViewModel alloc] init];
+        [_imageModel setPresentation:_context.presentation];
         _imageModel.expectExtendedEdges = true;
         
         _imageModel.overlayBackgroundColorHint = UIColorRGBA(0x000000, 0.4f);
@@ -129,6 +141,9 @@
         [imageUri appendFormat:@"&size=%d", (int)_document.size];
         [imageUri appendFormat:@"&width=%d&height=%d", (int)displaySize.width, (int)displaySize.height];
         [imageUri appendFormat:@"&mime-type=%@", [TGStringUtils stringByEscapingForURL:_document.mimeType]];
+        if (_document.documentUri.length != 0) {
+            [imageUri appendFormat:@"&documentUri=%@", [TGStringUtils stringByEscapingForURL:_document.documentUri]];
+        }
         
         [_imageModel setUri:imageUri];
         
@@ -137,8 +152,8 @@
         [self addSubmodel:_imageModel];
         
         _imageModel.flexibleTimestamp = true;
-        [_imageModel setTimestampColor:[[TGTelegraphConversationMessageAssetsSource instance] systemMessageBackgroundColor]];
-        [_imageModel setTimestampString:[TGDateUtils stringForShortTime:(int)message.date] signatureString:nil displayCheckmarks:!_incoming && _deliveryState != TGMessageDeliveryStateFailed checkmarkValue:(_incoming ? 0 : ((_deliveryState == TGMessageDeliveryStateDelivered ? 1 : 0) + (_read ? 1 : 0))) displayViews:_messageViews != nil viewsValue:_messageViews.viewCount animated:false];
+        [_imageModel setTimestampColor:UIColorRGBA(0x000000, 0.3f)];
+        [_imageModel setTimestampString:[TGDateUtils stringForShortTime:(int)message.date] signatureString:nil displayCheckmarks:!_incoming && !(_incomingAppearance && _context.isSavedMessages) && _deliveryState != TGMessageDeliveryStateFailed checkmarkValue:(_incoming ? 0 : ((_deliveryState == TGMessageDeliveryStateDelivered ? 1 : 0) + (_read ? 1 : 0))) displayViews:_messageViews != nil viewsValue:_messageViews.viewCount animated:false];
         [_imageModel setDisplayTimestampProgress:_deliveryState == TGMessageDeliveryStatePending];
         [_imageModel setIsBroadcast:message.isBroadcast];
         
@@ -219,6 +234,14 @@
             _viaUser = viaUser;
         }
         
+        if (_incomingAppearance && _savedMessage && hasForwardPostId) {
+            _actionButtonModel = [[TGModernButtonViewModel alloc] init];
+            _actionButtonModel.image = [[TGTelegraphConversationMessageAssetsSource instance] systemGoToButton];
+            _actionButtonModel.modernHighlight = true;
+            _actionButtonModel.frame = CGRectMake(0.0f, 0.0f, 29.0f, 29.0f);
+            [self addSubmodel:_actionButtonModel];
+        }
+        
         TGBotReplyMarkup *replyMarkup = message.replyMarkup;
         if (replyMarkup != nil && replyMarkup.isInline) {
             _replyMarkup = replyMarkup;
@@ -266,7 +289,7 @@
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^
         {
-            image = [UIImage imageNamed:@"ModernMessageUnsentButton.png"];
+            image = TGImageNamed(@"ModernMessageUnsentButton.png");
         });
         
         _unsentButtonModel = [[TGModernImageViewModel alloc] initWithImage:image];
@@ -308,7 +331,7 @@
     bool previousRead = _read;
     _read = ![_context isMessageUnread:_message];
     if (previousRead != _read) {
-        [_imageModel setTimestampString:[TGDateUtils stringForShortTime:(int)_message.date] signatureString:_authorSignature displayCheckmarks:!_incoming && _deliveryState != TGMessageDeliveryStateFailed checkmarkValue:(_incoming ? 0 : ((_deliveryState == TGMessageDeliveryStateDelivered ? 1 : 0) + (_read ? 1 : 0))) displayViews:_messageViews != nil viewsValue:_messageViews.viewCount animated:true];
+        [_imageModel setTimestampString:[TGDateUtils stringForShortTime:(int)_message.date] signatureString:_authorSignature displayCheckmarks:!_incoming && !(_incomingAppearance && _context.isSavedMessages) && _deliveryState != TGMessageDeliveryStateFailed checkmarkValue:(_incoming ? 0 : ((_deliveryState == TGMessageDeliveryStateDelivered ? 1 : 0) + (_read ? 1 : 0))) displayViews:_messageViews != nil viewsValue:_messageViews.viewCount animated:true];
         [_imageModel setDisplayTimestampProgress:_deliveryState == TGMessageDeliveryStatePending];
     }
 }
@@ -328,7 +351,7 @@
         _deliveryState = message.deliveryState;
         _read = !messageUnread;
         
-        [_imageModel setTimestampString:[TGDateUtils stringForShortTime:(int)message.date] signatureString:_authorSignature displayCheckmarks:!_incoming && _deliveryState != TGMessageDeliveryStateFailed checkmarkValue:(_incoming ? 0 : ((_deliveryState == TGMessageDeliveryStateDelivered ? 1 : 0) + (_read ? 1 : 0))) displayViews:_messageViews != nil viewsValue:_messageViews.viewCount animated:true];
+        [_imageModel setTimestampString:[TGDateUtils stringForShortTime:(int)message.date] signatureString:_authorSignature displayCheckmarks:!_incoming && !(_incomingAppearance && _context.isSavedMessages) && _deliveryState != TGMessageDeliveryStateFailed checkmarkValue:(_incoming ? 0 : ((_deliveryState == TGMessageDeliveryStateDelivered ? 1 : 0) + (_read ? 1 : 0))) displayViews:_messageViews != nil viewsValue:_messageViews.viewCount animated:true];
         [_imageModel setDisplayTimestampProgress:_deliveryState == TGMessageDeliveryStatePending];
         
         if (_deliveryState == TGMessageDeliveryStateDelivered)
@@ -442,6 +465,9 @@
     [imageUri appendFormat:@"&size=%d", (int)_document.size];
     [imageUri appendFormat:@"&width=%d&height=%d", (int)displaySize.width, (int)displaySize.height];
     [imageUri appendFormat:@"&mime-type=%@", [TGStringUtils stringByEscapingForURL:_document.mimeType]];
+    if (_document.documentUri.length != 0) {
+        [imageUri appendFormat:@"&documentUri=%@", [TGStringUtils stringByEscapingForURL:_document.documentUri]];
+    }
     
     [_imageModel setUri:imageUri];
     
@@ -554,6 +580,10 @@
         [[_unsentButtonModel boundView] addGestureRecognizer:_unsentButtonTapRecognizer];
     }
     
+    if (_actionButtonModel != nil) {
+        [(TGModernButtonView *)_actionButtonModel.boundView addTarget:self action:@selector(actionPressed) forControlEvents:UIControlEventTouchUpInside];
+    }
+    
     UIView *backgroundView = [_imageModel boundView];
     [backgroundView addGestureRecognizer:_tapGestureRecognizer];
     [backgroundView addGestureRecognizer:_boundDoubleTapRecognizer];
@@ -587,9 +617,33 @@
         _unsentButtonTapRecognizer = nil;
     }
     
+    if (_actionButtonModel != nil)
+    {
+        [(TGModernButtonView *)_actionButtonModel.boundView removeTarget:self action:@selector(sharePressed) forControlEvents:UIControlEventTouchUpInside];
+    }
+    
     [super unbindView:viewStorage];
     
     [_callbackButtonInProgressDisposable setDisposable:nil];
+}
+
+- (void)actionPressed {
+    if (_savedMessage)
+    {
+        int64_t peerId = 0;
+        int32_t messageId = 0;
+        for (TGMediaAttachment *attachment in _message.mediaAttachments)
+        {
+            if (attachment.type == TGForwardedMessageMediaAttachmentType)
+            {
+                peerId = ((TGForwardedMessageMediaAttachment *)attachment).forwardSourcePeerId ? : ((TGForwardedMessageMediaAttachment *)attachment).forwardPeerId;
+                messageId = ((TGForwardedMessageMediaAttachment *)attachment).forwardMid ?: ((TGForwardedMessageMediaAttachment *)attachment).forwardPostId;
+                break;
+            }
+        }
+        
+        [_context.companionHandle requestAction:@"peerAvatarTapped" options:@{@"peerId": @(peerId), @"messageId": @(messageId)}];
+    }
 }
 
 - (void)unsentButtonTapGesture:(UITapGestureRecognizer *)recognizer
@@ -678,12 +732,12 @@
             {
                 UIImageView *temporaryView = _temporaryHighlightView;
                 [UIView animateWithDuration:0.4 animations:^
-                 {
-                     temporaryView.alpha = 0.0f;
-                 } completion:^(__unused BOOL finished)
-                 {
-                     [temporaryView removeFromSuperview];
-                 }];
+                {
+                    temporaryView.alpha = 0.0f;
+                } completion:^(__unused BOOL finished)
+                {
+                    [temporaryView removeFromSuperview];
+                }];
                 _temporaryHighlightView = nil;
             }
         }
@@ -715,6 +769,9 @@
     if (_incomingAppearance && _editing)
         imageFrame.origin.x += 42.0f;
     
+    if (!_editing && fabs(_replyPanOffset) > FLT_EPSILON)
+        imageFrame.origin.x += _replyPanOffset;
+    
     _imageModel.frame = imageFrame;
     
     if (_contentModel != nil)
@@ -725,7 +782,7 @@
         CGRect contentFrame = CGRectZero;
         if (_replyHeaderModel != nil) {
             [_replyHeaderModel layoutForContainerSize:CGSizeMake(availableWidth, 0.0f) updateContent:&updateContent];
-            contentFrame = CGRectMake(0.0f, 0.0f, _replyHeaderModel.frame.size.width + 14.0f, _replyHeaderModel.frame.size.height + 4.0f);
+            contentFrame = CGRectMake(0.0f, 0.0f, _replyHeaderModel.frame.size.width + 17.0f, _replyHeaderModel.frame.size.height + 5.0f);
             
             if (_replyHeaderViaUserModel != nil) {
                 if ([_replyHeaderViaUserModel layoutNeedsUpdatingForContainerSize:CGSizeMake(availableWidth, 0.0f)]) {
@@ -755,10 +812,10 @@
         else
             contentFrame.origin.x = 9.0f + (_editing ? 42.0f : 0.0f);
         
-        contentFrame.origin.y = CGRectGetMaxY(imageFrame) - contentFrame.size.height - 4.0f - 8.0f;
+        contentFrame.origin.y = 0.0f; //CGRectGetMaxY(imageFrame) - contentFrame.size.height - 4.0f - 8.0f;
         
         _contentModel.frame = contentFrame;
-        _replyHeaderModel.frame = CGRectMake(5.0f, _replyHeaderViaUserModel == nil ? 0.0f : (_replyHeaderViaUserModel.frame.size.height + 2.0), _replyHeaderModel.frame.size.width, _replyHeaderModel.frame.size.height);
+        _replyHeaderModel.frame = CGRectMake(7.0f, _replyHeaderViaUserModel == nil ? 0.0f : (_replyHeaderViaUserModel.frame.size.height + 2.0), _replyHeaderModel.frame.size.width, _replyHeaderModel.frame.size.height);
         _replyBackgroundModel.frame = CGRectMake(contentFrame.origin.x, contentFrame.origin.y + 3.0f, contentFrame.size.width - 2.0f, contentFrame.size.height - 5.0f);
         
         if ((_incomingAppearance && _replyBackgroundModel.frame.origin.x < CGRectGetMaxX(imageFrame)) || (!_incomingAppearance && CGRectGetMaxX(_replyBackgroundModel.frame) > imageFrame.origin.x))
@@ -784,6 +841,11 @@
         _unsentButtonModel.frame = CGRectMake(containerSize.width - _unsentButtonModel.frame.size.width - 9, _imageModel.frame.size.height + topSpacing + bottomSpacing - _unsentButtonModel.frame.size.height - ((_collapseFlags & TGModernConversationItemCollapseBottom) ? 5 : 6), _unsentButtonModel.frame.size.width, _unsentButtonModel.frame.size.height);
     }
     
+    if (_actionButtonModel != nil)
+    {
+        _actionButtonModel.frame = CGRectOffset(_actionButtonModel.bounds, CGRectGetMaxX(imageFrame) + 7.0f, CGRectGetMaxY(imageFrame) - 29.0f - 1.0f);
+    }
+    
     CGFloat replyButtonsHeight = 0.0f;
     if (_replyButtonsModel != nil) {
         CGRect backgroundFrame = _imageModel.frame;
@@ -800,6 +862,36 @@
     self.frame = frame;
     
     [super layoutForContainerSize:containerSize];
+}
+
+- (void)avatarTapGesture:(UITapGestureRecognizer *)recognizer
+{
+    if (recognizer.state == UIGestureRecognizerStateRecognized)
+    {
+        int64_t peerId = _message.fromUid;
+        bool peer = !TGPeerIdIsUser(peerId);
+        if (_context.isSavedMessages)
+        {
+            for (TGMediaAttachment *attachment in _message.mediaAttachments)
+            {
+                if (attachment.type == TGForwardedMessageMediaAttachmentType)
+                {
+                    peerId = ((TGForwardedMessageMediaAttachment *)attachment).forwardPeerId;
+                    peer = true;
+                    break;
+                }
+            }
+        }
+        
+        if (peer)
+        {
+            [_context.companionHandle requestAction:@"peerAvatarTapped" options:@{@"peerId": @(peerId), @"messageId": @(_mid), @"chat": @(_context.isSavedMessages)}];
+        }
+        else
+        {
+            [_context.companionHandle requestAction:@"userAvatarTapped" options:@{@"uid": @(peerId), @"mid": @(_mid)}];
+        }
+    }
 }
 
 @end

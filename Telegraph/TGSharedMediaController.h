@@ -1,4 +1,4 @@
-#import "TGViewController.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 typedef enum {
     TGSharedMediaControllerModeAll,
@@ -6,7 +6,8 @@ typedef enum {
     TGSharedMediaControllerModeVideo,
     TGSharedMediaControllerModeFile,
     TGSharedMediaControllerModeLink,
-    TGSharedMediaControllerModeAudio
+    TGSharedMediaControllerModeAudio,
+    TGSharedMediaControllerModeVoiceRound
 } TGSharedMediaControllerMode;
 
 @interface TGSharedMediaController : TGViewController

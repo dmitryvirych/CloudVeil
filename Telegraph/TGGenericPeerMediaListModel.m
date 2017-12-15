@@ -1,9 +1,11 @@
 #import "TGGenericPeerMediaListModel.h"
 
-#import "ActionStage.h"
-#import "SGraphObjectNode.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGStringUtils.h"
+#import "TGLegacyComponentsContext.h"
+
+#import <LegacyComponents/ActionStage.h>
+#import <LegacyComponents/SGraphObjectNode.h>
 
 #import "ATQueue.h"
 
@@ -12,7 +14,7 @@
 #import "TGGenericPeerMediaListImageItem.h"
 #import "TGGenericPeerMediaListVideoItem.h"
 
-#import "TGModernGalleryController.h"
+#import <LegacyComponents/TGModernGalleryController.h>
 #import "TGGenericPeerMediaGalleryModel.h"
 #import "TGGenericPeerGalleryItem.h"
 
@@ -105,6 +107,10 @@
     
     for (TGMessage *message in messages)
     {
+        if (message.messageLifetime > 0 && message.messageLifetime <= 60) {
+            continue;
+        }
+        
         if ([currentMessageIds containsObject:@(message.mid)])
             continue;
         
@@ -378,7 +384,7 @@
     {
         id<TGGenericPeerMediaListItem> concreteItem = (id<TGGenericPeerMediaListItem>)item;
         
-        TGModernGalleryController *modernGallery = [[TGModernGalleryController alloc] init];
+        TGModernGalleryController *modernGallery = [[TGModernGalleryController alloc] initWithContext:[TGLegacyComponentsContext shared]];
         modernGallery.model = [[TGGenericPeerMediaGalleryModel alloc] initWithPeerId:_peerId atMessageId:[concreteItem messageId] allowActions:_allowActions important:true];
         
         __weak TGGenericPeerMediaListModel *weakSelf = self;

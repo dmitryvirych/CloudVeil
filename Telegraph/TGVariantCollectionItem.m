@@ -51,9 +51,11 @@
     [((TGVariantCollectionItemView *)view) setTitle:_title];
     [((TGVariantCollectionItemView *)view) setVariant:_variant variantColor:_variantColor];
     [((TGVariantCollectionItemView *)view) setIcon:_icon];
+    [((TGVariantCollectionItemView *)view) setVariantIcon:_variantIcon];
     [((TGVariantCollectionItemView *)view) setEnabled:_enabled];
     [((TGVariantCollectionItemView *)view) setHideArrow:_hideArrow];
     [((TGVariantCollectionItemView *)view) setMinLeftPadding:_minLeftPadding];
+    [((TGVariantCollectionItemView *)view) setFlexibleLayout:_flexibleLayout];
 }
 
 - (void)itemSelected:(id)actionTarget
@@ -95,6 +97,14 @@
     
     if (self.view != nil)
         [(TGVariantCollectionItemView *)self.view setIcon:icon];
+}
+
+- (void)setVariantIcon:(UIImage *)variantIcon
+{
+    _variantIcon = variantIcon;
+    
+    if (self.view != nil)
+        [(TGVariantCollectionItemView *)self.view setVariantIcon:variantIcon];
 }
 
 - (void)setEnabled:(bool)enabled {

@@ -1,5 +1,4 @@
-#import "TGOverlayController.h"
-#import "TGOverlayControllerWindow.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 @class TGUser;
 @class TGCallSession;
@@ -25,5 +24,7 @@
 - (SSignal *)callDuration;
 
 + (void)requestMicrophoneAccess:(void (^)(bool granted))resultBlock;
+
++ (void)presentRatingAlertView:(int64_t)callId accessHash:(int64_t)accessHash presentTabAlert:(bool)presentTabAlert;
 
 @end

@@ -1,11 +1,9 @@
 #import "TGContactCell.h"
 
-#import "TGLabel.h"
-#import "TGRemoteImageView.h"
-#import "TGDateLabel.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGImageUtils.h"
-#import "TGFont.h"
+#import <LegacyComponents/TGRemoteImageView.h>
+#import "TGDateLabel.h"
 
 #import "TGInterfaceAssets.h"
 
@@ -13,24 +11,18 @@
 
 #import "TGContactCellContents.h"
 
-#import "TGLetteredAvatarView.h"
+#import <LegacyComponents/TGLetteredAvatarView.h>
 
 #import <QuartzCore/QuartzCore.h>
 
 static UIImage *contactCellCheckImage()
 {
-    static UIImage *image = nil;
-    if (image == nil)
-        image = [UIImage imageNamed:@"ModernContactSelectionEmpty.png"];
-    return image;
+    return TGImageNamed(@"ModernContactSelectionEmpty.png");
 }
 
 static UIImage *contactCellCheckedImage()
 {
-    static UIImage *image = nil;
-    if (image == nil)
-        image = [UIImage imageNamed:@"ModernContactSelectionChecked.png"];
-    return image;
+    return TGImageNamed(@"ModernContactSelectionChecked.png");
 }
 
 @interface TGContactCheckButton : UIButton
@@ -193,7 +185,7 @@ static UIImage *contactCellCheckedImage()
         }
         
         _avatarView = [[TGLetteredAvatarView alloc] initWithFrame:CGRectMake(5, 5, 40, 40)];
-        [_avatarView setSingleFontSize:17.0f doubleFontSize:17.0f useBoldFont:true];
+        [_avatarView setSingleFontSize:18.0f doubleFontSize:18.0f useBoldFont:false];
         _avatarView.fadeTransition = true;
         [self.contentView addSubview:_avatarView];
         
@@ -312,7 +304,7 @@ static UIImage *contactCellCheckedImage()
         _subtitleLabel.hidden = _subtitleText == nil || _subtitleText.length == 0;
     }
     
-    if (_hideAvatar)
+    if (false && _hideAvatar)
     {
         _avatarView.hidden = true;
     }
@@ -356,7 +348,7 @@ static UIImage *contactCellCheckedImage()
         }
         else
         {
-            [_avatarView loadUserPlaceholderWithSize:CGSizeMake(diameter, diameter) uid:(int32_t)_itemId firstName:_user.firstName lastName:_user.lastName placeholder:placeholder];
+            [_avatarView loadUserPlaceholderWithSize:CGSizeMake(diameter, diameter) uid:_hideAvatar ? 0 : (int32_t)_itemId firstName:_user.firstName lastName:_user.lastName placeholder:placeholder];
         }
     }
     
@@ -461,7 +453,7 @@ static UIImage *contactCellCheckedImage()
     [super layoutSubviews];
     
     CGFloat separatorHeight = TGScreenPixel;
-    CGFloat separatorInset = _selectionEnabled ? (_hideAvatar ? 49 : 98) : (TGIsPad() ? 74.0f : 65.0f);
+    CGFloat separatorInset = _selectionEnabled ? 98 : (TGIsPad() ? 74.0f : 65.0f);
     if (TGIsPad() && _selectionEnabled)
         separatorInset += 21.0f;
     _separatorLayer.frame = CGRectMake(separatorInset, self.frame.size.height - separatorHeight, self.frame.size.width - separatorInset, separatorHeight);
@@ -473,7 +465,7 @@ static UIImage *contactCellCheckedImage()
     
     CGSize viewSize = self.contentView.frame.size;
     
-    int leftPadding = _selectionEnabled ? (_hideAvatar ? -16 : (TGIsPad() ? 45.0f : 34.0f)) : 0;
+    int leftPadding = _selectionEnabled ? (TGIsPad() ? 45.0f : 34.0f) : 0;
     if (self.editing)
         leftPadding += 2;
     

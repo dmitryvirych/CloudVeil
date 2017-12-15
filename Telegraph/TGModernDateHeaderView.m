@@ -1,9 +1,8 @@
 #import "TGModernDateHeaderView.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGTelegraphConversationMessageAssetsSource.h"
-#import "TGDateUtils.h"
-#import "TGFont.h"
-#import "TGImageUtils.h"
 
 @interface TGModernDateHeaderView ()
 {
@@ -29,7 +28,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
     {
-        font = TGMediumSystemFontOfSize(13.0f);
+        font = TGBoldSystemFontOfSize(13.0f);
         color = CGColorRetain([UIColor whiteColor].CGColor);
     });
     

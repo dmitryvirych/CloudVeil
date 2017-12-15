@@ -22,6 +22,8 @@
 @class TLmessages_StickerSet;
 @class TLDraftMessage;
 @class TLMessageMedia;
+@class TLLangPackDifference;
+@class TLLangPackLanguage;
 
 @interface TLUpdate : NSObject <TLObject>
 
@@ -449,6 +451,47 @@
 
 @property (nonatomic) int32_t flags;
 @property (nonatomic, retain) NSArray *order;
+
+@end
+
+@interface TLUpdate$updateLangPackTooLong : TLUpdate
+
+
+@end
+
+@interface TLUpdate$updateLangPack : TLUpdate
+
+@property (nonatomic, retain) TLLangPackDifference *difference;
+
+@end
+
+@interface TLUpdate$updateLangPackLanguageSuggested : TLUpdate
+
+@property (nonatomic, retain) TLLangPackLanguage *language;
+
+@end
+
+@interface TLUpdate$updateFavedStickers : TLUpdate
+
+
+@end
+
+@interface TLUpdate$updateChannelReadMessagesContents : TLUpdate
+
+@property (nonatomic) int32_t channel_id;
+@property (nonatomic, retain) NSArray *messages;
+
+@end
+
+@interface TLUpdate$updateContactsReset : TLUpdate
+
+
+@end
+
+@interface TLUpdate$updateChannelAvailableMessages : TLUpdate
+
+@property (nonatomic) int32_t channel_id;
+@property (nonatomic) int32_t available_min_id;
 
 @end
 

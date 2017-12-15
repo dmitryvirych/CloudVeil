@@ -29,6 +29,7 @@ typedef enum {
     if (self != nil)
     {
         _progress = -1.0f;
+        _contentMode = UIViewContentModeScaleAspectFill;
     }
     return self;
 }
@@ -54,6 +55,13 @@ typedef enum {
     [self _updateViewStateIdentifier];
     
     [super bindViewToContainer:container viewStorage:viewStorage];
+    
+    if (iosMajorVersion() >= 11)
+        ((TGSignalImageView *)self.boundView).accessibilityIgnoresInvertColors = _ignoresInvertColors;
+    ((TGSignalImageView *)self.boundView).contentMode = _contentMode;
+    [((TGSignalImageView *)self.boundView) setInlineVideoInsets:_inlineVideoInsets];
+    [((TGSignalImageView *)self.boundView) setInlineVideoSize:_inlineVideoSize];
+    [((TGSignalImageView *)self.boundView) setInlineVideoCornerRadius:_inlineVideoCornerRadius];
     
     if (_manualProgress) {
         if ([[self boundView] isKindOfClass:[TGSignalImageViewWithProgress class]]) {
@@ -91,6 +99,19 @@ typedef enum {
         _progress = ((TGSignalImageViewWithProgress *)self.boundView).progress;
     
     [super unbindView:viewStorage];
+}
+
+- (void)setIgnoresInvertColors:(bool)ignoresInvertColors
+{
+    _ignoresInvertColors = ignoresInvertColors;
+    if (iosMajorVersion() >= 11)
+        ((TGSignalImageView *)self.boundView).accessibilityIgnoresInvertColors = _ignoresInvertColors;
+}
+
+- (void)setContentMode:(UIViewContentMode)contentMode
+{
+    _contentMode = contentMode;
+    ((TGSignalImageView *)self.boundView).contentMode = _contentMode;
 }
 
 - (void)setProgress:(float)progress animated:(bool)animated {
@@ -131,6 +152,19 @@ typedef enum {
 
 - (void)setVideoPathSignal:(SSignal *)videoPathSignal {
     [((TGSignalImageView *)self.boundView) setVideoPathSignal:videoPathSignal];
+}
+
+- (void)setInlineVideoInsets:(UIEdgeInsets)inlineVideoInsets {
+    if (!UIEdgeInsetsEqualToEdgeInsets(_inlineVideoInsets, inlineVideoInsets)) {
+        _inlineVideoInsets = inlineVideoInsets;
+        
+        [((TGSignalImageView *)self.boundView) setInlineVideoInsets:_inlineVideoInsets];
+    }
+}
+
+- (void)setInlineVideoCornerRadius:(CGFloat)inlineVideoCornerRadius {
+    _inlineVideoCornerRadius = inlineVideoCornerRadius;
+    [((TGSignalImageView *)self.boundView) setInlineVideoCornerRadius:_inlineVideoCornerRadius];
 }
 
 @end

@@ -1,12 +1,8 @@
 #import "TGNotificationReplyHeaderView.h"
 
-#import "TGFont.h"
-#import "TGImageView.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGReplyMessageMediaAttachment.h"
-#import "TGConversation.h"
-#import "TGMessage.h"
-#import "TGUser.h"
+#import <LegacyComponents/TGImageView.h>
 
 #import "TGReplyHeaderActionModel.h"
 
@@ -87,7 +83,9 @@ const CGFloat TGNotificationReplyHeaderHeight = 29.0f;
                 {
                     TGVideoMediaAttachment *videoAttachment = (TGVideoMediaAttachment *)subAttachment;
                     NSString *text = videoAttachment.caption;
-                    if (text.length == 0)
+                    if (videoAttachment.roundMessage)
+                        text = TGLocalized(@"Message.VideoMessage");
+                    else if (text.length == 0)
                         text = TGLocalized(@"Message.Video");
                     
                     messageText = text;

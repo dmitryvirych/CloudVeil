@@ -1,18 +1,17 @@
 #import "TGCallView.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGFont.h"
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
-#import "TGTimerTarget.h"
+#import <LegacyComponents/ActionStage.h>
 
-#import "TGDefaultPasscodeBackground.h"
-#import "TGImageBasedPasscodeBackground.h"
+#import <LegacyComponents/TGTimerTarget.h>
 
-#import "UIControl+HitTestEdgeInsets.h"
-#import "TGMenuView.h"
-#import "TGModernButton.h"
+#import <LegacyComponents/TGDefaultPasscodeBackground.h>
+#import <LegacyComponents/TGImageBasedPasscodeBackground.h>
+
+#import <LegacyComponents/UIControl+HitTestEdgeInsets.h>
+#import <LegacyComponents/TGMenuView.h>
+#import <LegacyComponents/TGModernButton.h>
 #import "TGCallInfoView.h"
 #import "TGCallAvatarView.h"
 #import "TGCallButtonsView.h"
@@ -20,10 +19,9 @@
 #import "TGCallIdenticonView.h"
 #import "TGCallEncryptionKeyView.h"
 
-#import "TGModernGalleryZoomableScrollViewSwipeGestureRecognizer.h"
+#import <LegacyComponents/TGModernGalleryZoomableScrollViewSwipeGestureRecognizer.h>
 
 #import "TGCallSession.h"
-#import "TGUser.h"
 
 const CGFloat TGCallSwipeMinimumVelocity = 600.0f;
 const CGFloat TGCallSwipeVelocityThreshold = 700.0f;
@@ -214,7 +212,7 @@ const CGFloat TGCallSwipeDistanceThreshold = 128.0f;
     {
         bool animated = state.state == TGCallStateAccepting && previousState == TGCallStateReady;
      
-        bool backHidden = (_currentState == TGCallStateHandshake || _currentState == TGCallStateReady || _currentState == TGCallStateBusy) || ((_currentState == TGCallStateEnded || _currentState == TGCallStateEnding || _currentState == TGCallStateBusy || _currentState == TGCallStateMissed) && duration < DBL_EPSILON && !state.outgoing);
+        bool backHidden = (_currentState == TGCallStateHandshake || _currentState == TGCallStateReady || _currentState == TGCallStateBusy || _currentState == TGCallStateNoAnswer) || ((_currentState == TGCallStateEnded || _currentState == TGCallStateEnding || _currentState == TGCallStateBusy || _currentState == TGCallStateMissed) && duration < DBL_EPSILON && !state.outgoing);
         [self setBackButtonHidden:backHidden];
         
         if ((_currentState == TGCallStateEnding || _currentState == TGCallStateEnded || _currentState == TGCallStateMissed) && _wrapperView.alpha > 1.0f - FLT_EPSILON)
@@ -460,7 +458,6 @@ const CGFloat TGCallSwipeDistanceThreshold = 128.0f;
     
     NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:baseText attributes:attrs];
     [attributedText setAttributes:subAttrs range:NSMakeRange([textFormat rangeOfString:@"%@"].location, name.length)];
-
     
     _tooltipTimer = [TGTimerTarget scheduledMainThreadTimerWithTarget:self action:@selector(tooltipTimerTick) interval:5.5 repeat:false];
     
@@ -477,7 +474,7 @@ const CGFloat TGCallSwipeDistanceThreshold = 128.0f;
     [_tooltipContainerView showMenuFromRect:frame animated:false];
     
     if (!manual)
-    [[NSUserDefaults standardUserDefaults] setObject:@(displayed + 1) forKey:@"TG_displayedCallEmojiTooltip_v0"];
+        [[NSUserDefaults standardUserDefaults] setObject:@(displayed + 1) forKey:@"TG_displayedCallEmojiTooltip_v0"];
 }
 
 - (void)tooltipTimerTick
@@ -544,7 +541,9 @@ const CGFloat TGCallSwipeDistanceThreshold = 128.0f;
             CGSize screenSize = TGScreenSize();
             int width = (int)screenSize.width;
             int height = (int)screenSize.height;
-            if (height == 736)
+            if (height == 812)
+                staticOffset = 125;
+            else if (height == 736)
                 staticOffset = 80; //plus
             else if (width == 320)
                 staticOffset = 60; // 4/5
@@ -581,7 +580,9 @@ const CGFloat TGCallSwipeDistanceThreshold = 128.0f;
         dispatch_once(&onceToken, ^
         {
             int height = (int)screenHeight;
-            if (height == 736)
+            if (height == 812)
+                staticOffset = 440;
+            else if (height == 736)
                 staticOffset = 410;
             else if (height == 480)
                 staticOffset = 270;
@@ -593,6 +594,13 @@ const CGFloat TGCallSwipeDistanceThreshold = 128.0f;
         offset = staticOffset;
     }
     return offset;
+}
+
+- (void)setSafeAreaInset:(UIEdgeInsets)safeAreaInset
+{
+    _safeAreaInset = safeAreaInset;
+    _keyView.safeAreaInset = safeAreaInset;
+    [self setNeedsLayout];
 }
 
 - (void)layoutSubviews
@@ -609,14 +617,16 @@ const CGFloat TGCallSwipeDistanceThreshold = 128.0f;
     if (!_panning)
     {
         [_backButton sizeToFit];
-        _backButton.frame = CGRectMake(27, 25, ceil(_backButton.frame.size.width), ceil(_backButton.frame.size.height));
+        
+        CGFloat topOffset = self.safeAreaInset.top > FLT_EPSILON ? self.safeAreaInset.top : 20.0f;
+        _backButton.frame = CGRectMake(27, topOffset + 5, ceil(_backButton.frame.size.width), ceil(_backButton.frame.size.height));
         _infoView.frame = CGRectMake(0, [TGCallView infoTopOffset], self.frame.size.width, TGCallInfoViewHeight);
         
         CGFloat buttonsTop = [TGCallView buttonsTopOffset:self.bounds];
         CGFloat buttonsWidth = [TGCallButton buttonSize].width * 3 + TGCallButtonsSpacing * 2;
         _buttonsView.frame = CGRectMake(floor((self.frame.size.width - buttonsWidth) / 2.0f), buttonsTop, buttonsWidth, 232);
         
-        _emojiLabel.frame = CGRectMake(self.frame.size.width - _emojiLabel.frame.size.width - 8.0f, 28.0f, _emojiLabel.frame.size.width, _emojiLabel.frame.size.height);
+        _emojiLabel.frame = CGRectMake(self.frame.size.width - _emojiLabel.frame.size.width - 8.0f, topOffset + 8.0f, _emojiLabel.frame.size.width, _emojiLabel.frame.size.height);
     }
 }
 

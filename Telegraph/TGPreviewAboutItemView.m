@@ -1,9 +1,6 @@
 #import "TGPreviewAboutItemView.h"
 
-#import "TGFont.h"
-
-#import "TGWebPageMediaAttachment.h"
-#import "TGLocationMediaAttachment.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 const CGFloat TGPreviewAboutItemViewMargin = 21.0f;
 
@@ -91,6 +88,13 @@ const CGFloat TGPreviewAboutItemViewMargin = 21.0f;
         
     }
     return self;
+}
+
+- (void)setSingleLine:(bool)singleLine
+{
+    _singleLine = singleLine;
+    _titleLabel.numberOfLines = 1;
+    _subtitleLabel.numberOfLines = 1;
 }
 
 - (void)setTitle:(NSString *)title subtitle:(NSString *)subtitle

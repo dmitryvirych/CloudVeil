@@ -1,28 +1,30 @@
 #import "TGRecentCallsController.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import <pthread.h>
 #import <time.h>
 
 #import "TGAppDelegate.h"
 #import "TGTelegraph.h"
 #import "TGInterfaceManager.h"
-
-#import "TGFont.h"
-#import "TGImageUtils.h"
+#import "TGTelegramNetworking.h"
 
 #import "TGMessageSearchSignals.h"
 
 #import "TGUserSignal.h"
 #import "TGCallDiscardReason.h"
 
-#import "TGModernBarButton.h"
-#import "TGListsTableView.h"
-#import "TGSearchBar.h"
-#import "TGSearchDisplayMixin.h"
+#import <LegacyComponents/TGModernBarButton.h>
+#import <LegacyComponents/TGListsTableView.h>
+#import <LegacyComponents/TGSearchBar.h>
+#import <LegacyComponents/TGSearchDisplayMixin.h>
 #import "TGCallCell.h"
 #import "TGSwitchCollectionItemView.h"
 
 #import "TGSelectContactController.h"
+
+#import "TGPresentation.h"
 
 @interface TGRecentCallsController () <UITableViewDelegate, UITableViewDataSource, TGSwitchCollectionItemViewDelegate, ASWatcher>
 {
@@ -44,6 +46,7 @@
     TGListsTableView *_tableView;
     UILabel *_placeholderLabel;
     
+    TGSwitchCollectionItemView *_settingsItemView;
     UILabel *_settingsCommentLabel;
     
     SQueue *_queue;
@@ -51,6 +54,8 @@
     SSignal *_currentLoadMoreSignal;
     
     NSInteger _lastMissedCount;
+    
+    id<SDisposable> _localizationUpdatedDisposable;
 }
 
 @property (nonatomic, strong) ASHandle *actionHandle;
@@ -94,9 +99,15 @@
         {
             _usersModel = [[NSDictionary alloc] init];
             _listModel = [[NSArray alloc] init];
-            
-            [self initialize];
         }
+        
+        __weak TGRecentCallsController *weakSelf = self;
+        _localizationUpdatedDisposable = [[TGAppDelegateInstance.localizationUpdated deliverOn:[SQueue mainQueue]] startWithNext:^(__unused id next) {
+            __strong TGRecentCallsController *strongSelf = weakSelf;
+            if (strongSelf != nil) {
+                [strongSelf updateLocalization];
+            }
+        }];
     }
     return self;
 }
@@ -106,20 +117,36 @@
     [_actionHandle reset];
 }
 
+- (void)setPresentation:(TGPresentation *)presentation
+{
+    _presentation = presentation;
+    
+    self.view.backgroundColor = _presentation.pallete.backgroundColor;
+    _tableView.separatorColor = _presentation.pallete.separatorColor;
+    _placeholderLabel.textColor = _presentation.pallete.collectionMenuCommentColor;
+    
+    for (UITableViewCell *cell in _tableView.visibleCells)
+    {
+        if ([cell isKindOfClass:[TGCallCell class]])
+            [(TGCallCell *)cell setPresentation:presentation];
+    }
+}
+
 - (void)loadView
 {
     [super loadView];
     
-    self.view.backgroundColor = [UIColor whiteColor];
+    self.view.backgroundColor = _presentation.pallete.backgroundColor;
     
     NSArray *items = @[TGLocalized(@"Calls.All"), TGLocalized(@"Calls.Missed")];
     _segmentedControl = [[UISegmentedControl alloc] initWithItems:items];
-    
-    [_segmentedControl setBackgroundImage:[UIImage imageNamed:@"ModernSegmentedControlBackground.png"] forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
-    [_segmentedControl setBackgroundImage:[UIImage imageNamed:@"ModernSegmentedControlSelected.png"] forState:UIControlStateSelected barMetrics:UIBarMetricsDefault];
-    [_segmentedControl setBackgroundImage:[UIImage imageNamed:@"ModernSegmentedControlSelected.png"] forState:UIControlStateSelected | UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
-    [_segmentedControl setBackgroundImage:[UIImage imageNamed:@"ModernSegmentedControlHighlighted.png"] forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
-    UIImage *dividerImage = [UIImage imageNamed:@"ModernSegmentedControlDivider.png"];
+    if (iosMajorVersion() >= 11)
+        _segmentedControl.translatesAutoresizingMaskIntoConstraints = false;
+    [_segmentedControl setBackgroundImage:TGImageNamed(@"ModernSegmentedControlBackground.png") forState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
+    [_segmentedControl setBackgroundImage:TGImageNamed(@"ModernSegmentedControlSelected.png") forState:UIControlStateSelected barMetrics:UIBarMetricsDefault];
+    [_segmentedControl setBackgroundImage:TGImageNamed(@"ModernSegmentedControlSelected.png") forState:UIControlStateSelected | UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+    [_segmentedControl setBackgroundImage:TGImageNamed(@"ModernSegmentedControlHighlighted.png") forState:UIControlStateHighlighted barMetrics:UIBarMetricsDefault];
+    UIImage *dividerImage = TGImageNamed(@"ModernSegmentedControlDivider.png");
     [_segmentedControl setDividerImage:dividerImage forLeftSegmentState:UIControlStateNormal rightSegmentState:UIControlStateNormal barMetrics:UIBarMetricsDefault];
     
     CGFloat width = 0.0f;
@@ -146,6 +173,8 @@
     
     CGRect tableFrame = self.view.bounds;
     _tableView = [[TGListsTableView alloc] initWithFrame:tableFrame style:UITableViewStylePlain];
+    if (iosMajorVersion() >= 11)
+        _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     _tableView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _tableView.delegate = self;
     _tableView.dataSource = self;
@@ -169,7 +198,7 @@
     
     if (iosMajorVersion() >= 7) {
         _tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
-        _tableView.separatorColor = TGSeparatorColor();
+        _tableView.separatorColor = _presentation.pallete.separatorColor;
         _tableView.separatorInset = UIEdgeInsetsMake(0.0f, 85.0f, 0.0f, 0.0f);
     }
     
@@ -180,7 +209,7 @@
     
     _placeholderLabel = [[UILabel alloc] init];
     _placeholderLabel.backgroundColor = [UIColor clearColor];
-    _placeholderLabel.textColor = UIColorRGB(0x999999);
+    _placeholderLabel.textColor = _presentation.pallete.collectionMenuCommentColor;
     _placeholderLabel.font = TGSystemFontOfSize(16.0f);
     _placeholderLabel.text = TGLocalized(@"Calls.NoCallsPlaceholder");
     _placeholderLabel.textAlignment = NSTextAlignmentCenter;
@@ -236,34 +265,36 @@
 {
     UIView *settingsView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, 0.0f, 123.0f)];
     settingsView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    settingsView.backgroundColor = UIColorRGB(0xefeff4);
+    settingsView.backgroundColor = _presentation.pallete.collectionMenuBackgroundColor;
     
     UIView *extensionView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, -1000.0f, 0.0f, 1000.0f)];
     extensionView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    extensionView.backgroundColor = UIColorRGB(0xefeff4);
+    extensionView.backgroundColor = _presentation.pallete.collectionMenuBackgroundColor;
     [settingsView addSubview:extensionView];
     
     UIView *stripeView = [[UIView alloc] initWithFrame:CGRectMake(0.0f, settingsView.frame.size.height - TGScreenPixel, 0.0f, TGScreenPixel)];
     stripeView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleTopMargin;
-    stripeView.backgroundColor = TGSeparatorColor();
+    stripeView.backgroundColor = _presentation.pallete.collectionMenuSeparatorColor;
     [settingsView addSubview:stripeView];
     
-    TGSwitchCollectionItemView *itemView = [[TGSwitchCollectionItemView alloc] initWithFrame:CGRectMake(0.0f, 32.0f, 0.0f, 44.0f)];
-    itemView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-    itemView.delegate = self;
-    [itemView setItemPosition:TGCollectionItemViewPositionFirstInBlock | TGCollectionItemViewPositionLastInBlock];
-    [itemView setTitle:TGLocalized(@"CallSettings.TabIcon")];
-    [itemView setIsOn:TGAppDelegateInstance.showCallsTab animated:false];
-    [settingsView addSubview:itemView];
+    _settingsItemView = [[TGSwitchCollectionItemView alloc] initWithFrame:CGRectMake(0.0f, 32.0f, 0.0f, 44.0f)];
+    [_settingsItemView setPresentation:TGPresentation.current];
+    _settingsItemView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+    _settingsItemView.delegate = self;
+    _settingsItemView.safeAreaInset = self.controllerSafeAreaInset;
+    [_settingsItemView setItemPosition:TGCollectionItemViewPositionFirstInBlock | TGCollectionItemViewPositionLastInBlock];
+    [_settingsItemView setTitle:TGLocalized(@"CallSettings.TabIcon")];
+    [_settingsItemView setIsOn:TGAppDelegateInstance.showCallsTab animated:false];
+    [settingsView addSubview:_settingsItemView];
     
     UILabel *commentLabel = [[UILabel alloc] init];
     commentLabel.backgroundColor = settingsView.backgroundColor;
     commentLabel.font = TGSystemFontOfSize(14.0f);
     commentLabel.text = TGLocalized(@"CallSettings.TabIconDescription");
-    commentLabel.textColor = UIColorRGB(0x6d6d72);
+    commentLabel.textColor = TGPresentation.current.pallete.collectionMenuCommentColor;
     commentLabel.numberOfLines = 0;
     [commentLabel sizeToFit];
-    commentLabel.frame = CGRectMake(15.0f, CGRectGetMaxY(itemView.frame) + 7.0f, commentLabel.frame.size.width, commentLabel.frame.size.height);
+    commentLabel.frame = CGRectMake(15.0f + self.controllerSafeAreaInset.left, CGRectGetMaxY(_settingsItemView.frame) + 7.0f, commentLabel.frame.size.width, commentLabel.frame.size.height);
     [settingsView addSubview:commentLabel];
     
     CGFloat height = ceil(commentLabel.frame.size.height) + 106;
@@ -281,6 +312,12 @@
     [TGAppDelegateInstance.rootController.mainTabsController setCallsHidden:!isOn animated:false];
 }
 
+- (void)controllerInsetUpdated:(UIEdgeInsets)previousInset
+{
+    _settingsItemView.safeAreaInset = self.controllerSafeAreaInset;
+    [super controllerInsetUpdated:previousInset];
+}
+
 - (void)updatePlaceholder
 {
     bool hidden = [self listModel].count > 0;
@@ -293,6 +330,25 @@
     }
 }
 
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    
+    UINavigationBar *navigationBar = self.navigationController.navigationBar;
+    CGRect frame = _segmentedControl.frame;
+    if (navigationBar.frame.size.height >= 44)
+    {
+        frame.size.height = 29.0f;
+        frame.origin.y = (navigationBar.frame.size.height - 29.0f) / 2.0f;
+    }
+    else
+    {
+        frame.origin.y = 4.0f;
+        frame.size.height = navigationBar.frame.size.height - frame.origin.y * 2;
+    }
+    _segmentedControl.frame = frame;
+}
+
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
@@ -300,12 +356,13 @@
     CGSize boundsSize = CGSizeMake(self.view.bounds.size.width - 20.0f, CGFLOAT_MAX);
     
     CGSize textSize = [_placeholderLabel sizeThatFits:boundsSize];
-    _placeholderLabel.frame = CGRectMake(CGFloor((self.view.bounds.size.width - textSize.width) / 2.0f), CGFloor((self.view.bounds.size.height - textSize.height) / 2.0f), textSize.width, textSize.height);
+    _placeholderLabel.frame = CGRectMake(CGFloor((self.view.bounds.size.width - textSize.width) / 2.0f), _tableView.contentInset.top + CGFloor((self.view.bounds.size.height - _tableView.contentInset.top - textSize.height) / 2.0f), textSize.width, textSize.height);
     
     if (_settingsCommentLabel != nil)
     {
-        CGSize size = [_settingsCommentLabel sizeThatFits:CGSizeMake(self.view.bounds.size.width - _settingsCommentLabel.frame.origin.x * 2, 100.0f)];
-        _settingsCommentLabel.frame = CGRectMake(_settingsCommentLabel.frame.origin.x, _settingsCommentLabel.frame.origin.y, size.width, size.height);
+        UIEdgeInsets safeAreaInset = [self calculatedSafeAreaInset];
+        CGSize size = [_settingsCommentLabel sizeThatFits:CGSizeMake(self.view.bounds.size.width - 15.0f * 2 - safeAreaInset.left - safeAreaInset.right, 100.0f)];
+        _settingsCommentLabel.frame = CGRectMake(15.0f + safeAreaInset.left, _settingsCommentLabel.frame.origin.y, size.width, size.height);
         
         CGFloat height = ceil(size.height) + 106;
         CGRect frame = CGRectMake(_tableView.tableHeaderView.frame.origin.x, _tableView.tableHeaderView.frame.origin.y, _tableView.tableHeaderView.frame.size.width, MAX(123.0f, height));
@@ -351,9 +408,18 @@
     else if (_editingMode)
         return [self actionBarButtonItem];
     
-    TGModernBarButton *newCallButton = [[TGModernBarButton alloc] initWithImage:TGTintedImage([UIImage imageNamed:@"TabIconCalls"], TGAccentColor())];
-    newCallButton.portraitAdjustment = CGPointMake(2, -4);
-    newCallButton.landscapeAdjustment = CGPointMake(2, -4);
+    TGModernBarButton *newCallButton = [[TGModernBarButton alloc] initWithImage:TGPresentation.current.images.callsNewIcon];
+    CGPoint portraitOffset = CGPointZero;
+    CGPoint landscapeOffset = CGPointZero;
+    if (iosMajorVersion() >= 11)
+    {
+        portraitOffset.x = 2.0f;
+        portraitOffset.y = 5.0f;
+        landscapeOffset.x = 5.0f;
+        landscapeOffset.y = 5.0f;
+    }
+    newCallButton.portraitAdjustment = CGPointMake(2 + portraitOffset.x, -4 + portraitOffset.y);
+    newCallButton.landscapeAdjustment = CGPointMake(2 + landscapeOffset.x, -4 + landscapeOffset.y);
     [newCallButton addTarget:self action:@selector(newCallButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     return [[UIBarButtonItem alloc] initWithCustomView:newCallButton];
 }
@@ -464,6 +530,7 @@
         };
     }
     
+    cell.presentation = _presentation;
     [cell setupWithCallGroup:callGroup];
     
     return cell;
@@ -497,7 +564,7 @@
 
 - (void)scrollToTopRequested
 {
-    [_tableView setContentOffset:CGPointMake(0, -_tableView.contentInset.top) animated:true];
+    [_tableView scrollToTop];
 }
 
 - (void)scrollViewDidScroll:(UIScrollView *)__unused scrollView
@@ -1008,20 +1075,27 @@
     __weak TGRecentCallsController *weakSelf = self;
     __block bool gotItems = false;
     
+    SSignal *signal = [[TGDatabaseInstance() modify:^id{ return nil; }] mapToSignal:^SSignal *(__unused id value) {
+        [TGTelegramNetworking instance];
+        
+        return [[[SSignal single:nil] deliverOn:[SQueue wrapConcurrentNativeQueue:[ActionStageInstance() globalStageDispatchQueue]]] mapToSignal:^SSignal *(__unused id value)
+        {
+            return [self searchSignalWithQuery:nil maxMessageId:0 count:32];
+        }];
+    }];
+    
     _disposable = [[SMetaDisposable alloc] init];
-    [_disposable setDisposable:[[[[[self searchSignalWithQuery:nil maxMessageId:0 count:32] mapToSignal:^SSignal *(id messages) {
+    [_disposable setDisposable:[[[signal mapToSignal:^SSignal *(id messages) {
         return [TGRecentCallsController _mapMessages:messages];
-    }] timeout:5.0 onQueue:_queue orSignal:[SSignal single:@false]] deliverOn:_queue] startWithNext:^(id next) {
+    }] deliverOn:_queue] startWithNext:^(id next) {
+        __strong TGRecentCallsController *strongSelf = weakSelf;
+        if (strongSelf == nil)
+            return;
+        
         if ([next isKindOfClass:[NSNumber class]])
-        {
-            __strong TGRecentCallsController *strongSelf = weakSelf;
-            if (strongSelf != nil)
-                strongSelf->_loading = false;
-        }
+            strongSelf->_loading = false;
         else
-        {
-            gotItems = [self _processDictionary:next append:false];
-        }
+            gotItems = [strongSelf _processDictionary:next append:false];
     } error:^(__unused id error) {
         __strong TGRecentCallsController *strongSelf = weakSelf;
         if (strongSelf != nil)
@@ -1174,7 +1248,11 @@
 
 - (SSignal *)searchSignalWithQuery:(NSString *)query maxMessageId:(int32_t)maxMessageId count:(int32_t)count
 {
-    return [TGMessageSearchSignals searchPeer:0 accessHash:0 query:query filter:TGMessageSearchFilterPhoneCalls maxMessageId:maxMessageId limit:count];
+    if (TGTelegraphInstance.clientUserId != 0) {
+        return [TGMessageSearchSignals searchPeer:0 accessHash:0 query:query filter:TGMessageSearchFilterPhoneCalls maxMessageId:maxMessageId limit:count];
+    } else {
+        return [SSignal never];
+    }
 }
 
 - (void)updateMissedCallsCount
@@ -1233,6 +1311,22 @@
     {
         [[TGInterfaceManager instance] maybeDisplayCallsTabAlert];
     }
+}
+
+- (void)updateLocalization {
+    NSArray *items = @[TGLocalized(@"Calls.All"), TGLocalized(@"Calls.Missed")];
+    for (NSUInteger i = 0; i < items.count; i++) {
+        [_segmentedControl setTitle:items[i] forSegmentAtIndex:i];
+    }
+    
+    _placeholderLabel.text = TGLocalized(@"Calls.NoCallsPlaceholder");
+    [self updatePlaceholder];
+    
+    [self.view layoutSubviews];
+    
+    [self updateBarButtonItemsAnimated:false];
+    
+    [_tableView reloadData];
 }
 
 @end

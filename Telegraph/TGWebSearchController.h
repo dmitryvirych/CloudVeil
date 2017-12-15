@@ -1,4 +1,5 @@
-#import "TGViewController.h"
+#import <LegacyComponents/TGViewController.h>
+#import <LegacyComponents/LegacyComponentsContext.h>
 
 @class TGImageInfo;
 @class TGSuggestionContext;
@@ -15,7 +16,9 @@
 @property (nonatomic, assign) bool captionsEnabled;
 @property (nonatomic, strong) TGSuggestionContext *suggestionContext;
 
-- (instancetype)initForAvatarSelection:(bool)avatarSelection embedded:(bool)embedded;
+@property (nonatomic, strong) NSString *recipientName;
+
+- (instancetype)initWithContext:(id<LegacyComponentsContext>)context forAvatarSelection:(bool)avatarSelection embedded:(bool)embedded allowGrouping:(bool)allowGrouping;
 
 - (NSArray *)selectedItemSignals:(id (^)(id, NSString *))imageDescriptionGenerator;
 

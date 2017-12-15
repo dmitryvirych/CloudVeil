@@ -28,6 +28,8 @@
 @property (nonatomic) int32_t edit_time_limit;
 @property (nonatomic) int32_t rating_e_decay;
 @property (nonatomic) int32_t stickers_recent_limit;
+@property (nonatomic) int32_t stickers_faved_limit;
+@property (nonatomic) int32_t channels_read_media_period;
 @property (nonatomic) int32_t tmp_sessions;
 @property (nonatomic) int32_t pinned_dialogs_count_max;
 @property (nonatomic) int32_t call_receive_timeout_ms;
@@ -35,6 +37,8 @@
 @property (nonatomic) int32_t call_connect_timeout_ms;
 @property (nonatomic) int32_t call_packet_timeout_ms;
 @property (nonatomic, retain) NSString *me_url_prefix;
+@property (nonatomic, retain) NSString *suggested_lang_code;
+@property (nonatomic) int32_t lang_pack_version;
 @property (nonatomic, retain) NSArray *disabled_features;
 
 @end

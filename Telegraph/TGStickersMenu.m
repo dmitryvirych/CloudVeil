@@ -1,20 +1,25 @@
 #import "TGStickersMenu.h"
+
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGMaskStickersSignals.h"
 #import "TGStickersSignals.h"
 
-#import "TGStringUtils.h"
-
-#import "TGViewController.h"
-#import "TGMenuSheetController.h"
+#import <LegacyComponents/TGMenuSheetController.h>
 #import "TGStickersCollectionItemView.h"
 
 #import "TGSendMessageSignals.h"
 
 #import "TGShareMenu.h"
 
-#import "TGProgressWindow.h"
+#import <LegacyComponents/TGProgressWindow.h>
 
 #import "TGArchivedStickerPacksAlert.h"
+
+#import <LegacyComponents/ActionStage.h>
+#import "TGTelegraph.h"
+
+#import "TGLegacyComponentsContext.h"
 
 const int64_t TGStickersBultinPackIdentifier = 1842540969984001;
 
@@ -61,19 +66,21 @@ const int64_t TGStickersBultinPackIdentifier = 1842540969984001;
     if (existingController != nil) {
         controller = existingController;
     } else {
-        controller = [[TGMenuSheetController alloc] init];
-        controller.dismissesByOutsideTap = true;
-        controller.hasSwipeGesture = true;
-        controller.narrowInLandscape = true;
+        controller = [[TGMenuSheetController alloc] initWithContext:[TGLegacyComponentsContext shared] dark:false];
         controller.sourceRect = sourceRect;
         controller.permittedArrowDirections = centered ? 0 : (UIPopoverArrowDirectionLeft | UIPopoverArrowDirectionRight);
     }
+    controller.dismissesByOutsideTap = true;
+    controller.hasSwipeGesture = true;
+    controller.narrowInLandscape = true;
+    controller.requiuresDimView = true;
     controller.packIsArchived = stickerPackArchived;
     controller.packIsMask = stickerPackIsMask;
     __weak TGMenuSheetController *weakController = controller;
     
     NSMutableArray *itemViews = [[NSMutableArray alloc] init];
     TGStickersCollectionItemView *collectionItem = [[TGStickersCollectionItemView alloc] init];
+    collectionItem.hasShare = showShareAction;
     if (sendSticker != nil)
     {
         collectionItem.sendSticker = ^(TGDocumentMediaAttachment *sticker)
@@ -81,12 +88,23 @@ const int64_t TGStickersBultinPackIdentifier = 1842540969984001;
             sendSticker(sticker);
             
             __strong TGMenuSheetController *strongController = weakController;
-            if (strongController == nil)
-                return;
-            
-            [strongController dismissAnimated:true manual:true];
+            if (strongController != nil)
+                [strongController dismissAnimated:true manual:true];
         };
     }
+    collectionItem.openLink = ^(NSString *link) {
+        __strong TGMenuSheetController *strongController = weakController;
+        if (strongController == nil)
+            return;
+        
+        [strongController dismissAnimated:true manual:true];
+        
+        if ([link hasPrefix:@"mention://"])
+        {
+            NSString *domain = [link substringFromIndex:@"mention://".length];
+            [ActionStageInstance() requestActor:[[NSString alloc] initWithFormat:@"/resolveDomain/(%@,profile)", domain] options:@{@"domain": domain, @"profile": @true, @"keepStack": @true} flags:0 watcher:TGTelegraphInstance];
+        }
+    };
     [itemViews addObject:collectionItem];
 
     TGMenuSheetButtonItemView *modifyItem = [[TGMenuSheetButtonItemView alloc] initWithTitle:nil type:TGMenuSheetButtonTypeDefault action:nil];
@@ -156,7 +174,7 @@ const int64_t TGStickersBultinPackIdentifier = 1842540969984001;
     }
     else
     {
-        combinedSignal = [SSignal combineSignals:@[ [TGStickersSignals stickerPackInfo:packReference], [[TGStickersSignals stickerPacks] take:1], [[TGMaskStickersSignals stickerPacks] take:1] ]];
+        combinedSignal = [SSignal combineSignals:@[ [TGStickersSignals cachedStickerPack:packReference], [[TGStickersSignals stickerPacks] take:1], [[TGMaskStickersSignals stickerPacks] take:1] ]];
         combinedSignal = [combinedSignal map:^NSDictionary *(NSArray *values)
         {
             TGStickerPack *stickerPack = values[0];
@@ -185,6 +203,10 @@ const int64_t TGStickersBultinPackIdentifier = 1842540969984001;
         }];
     }
     
+    __weak TGStickersCollectionItemView *weakCollectionItem = collectionItem;
+    __weak TGMenuSheetButtonItemView *weakModifyItem = modifyItem;
+    __weak TGMenuSheetButtonItemView *weakShareItem = shareItem;
+    
     SMetaDisposable *stickerPackDisposable = [[SMetaDisposable alloc] init];
     [controller.disposables add:stickerPackDisposable];
     [stickerPackDisposable setDisposable:[[combinedSignal deliverOn:[SQueue mainQueue]] startWithNext:^(NSDictionary *next)
@@ -198,14 +220,24 @@ const int64_t TGStickersBultinPackIdentifier = 1842540969984001;
         bool animated = [next[@"animated"] boolValue];
         bool isMask = [next[@"isMask"] boolValue];
         
-        [collectionItem setStickerPack:stickerPack animated:animated];
-        modifyItem.action = [TGStickersMenu modifyButtonActionForItemView:modifyItem packReference:packReference stickerPack:stickerPack controller:strongController firstInstallation:!installed isBuiltin:isBuiltinStickerPack installed:installed isMask:isMask];
-        [TGStickersMenu updateModifyButtonItemView:modifyItem installed:installed stickerPack:stickerPack isBuiltin:isBuiltinStickerPack];
-        
-        shareItem.action = [TGStickersMenu shareButtonActionForController:strongController stickerPack:stickerPack];
+        if (existingController != nil)
+        {
+            TGDispatchAfter(0.01, dispatch_get_main_queue(), ^
+            {
+                [weakCollectionItem setStickerPack:stickerPack animated:animated];
+            });
+        }
+        else
+        {
+            [weakCollectionItem setStickerPack:stickerPack animated:animated];
+        }
+        weakModifyItem.action = [TGStickersMenu modifyButtonActionForItemView:weakModifyItem packReference:packReference stickerPack:stickerPack controller:strongController firstInstallation:!installed isBuiltin:isBuiltinStickerPack installed:installed isMask:isMask];
+        [TGStickersMenu updateModifyButtonItemView:weakModifyItem installed:installed stickerPack:stickerPack isBuiltin:isBuiltinStickerPack];
+
+        weakShareItem.action = [TGStickersMenu shareButtonActionForController:strongController stickerPack:stickerPack];
     } error:^(__unused id error)
     {
-        [collectionItem setFailed];
+        [weakCollectionItem setFailed];
     } completed:nil]];
     
     return controller;
@@ -290,21 +322,18 @@ const int64_t TGStickersBultinPackIdentifier = 1842540969984001;
             }
             else
             {
-                TGProgressWindow *progressWindow = nil;
                 if (firstInstallation) {
-                    progressWindow = [[TGProgressWindow alloc] init];
+                    [[[TGProgressWindow alloc] init] dismissWithSuccess];
                 }
                 
                 SSignal *installStickerPackAndGetArchivedSignal = packIsMask ? [TGMaskStickersSignals installStickerPackAndGetArchived:packReference hintUnarchive:packIsArchived] : [TGStickersSignals installStickerPackAndGetArchived:packReference hintUnarchive:packIsArchived];
                     
                 [[installStickerPackAndGetArchivedSignal deliverOn:[SQueue mainQueue]] startWithNext:^(NSArray *archivedPacks)
                 {
-                    [progressWindow dismissWithSuccess];
-                    
                     if (archivedPacks.count != 0) {
                         __strong TGViewController *strongParentController = (TGViewController *)weakParentController;
                         if ([strongParentController isKindOfClass:[TGViewController class]]) {
-                            TGArchivedStickerPacksAlert *previewWindow = [[TGArchivedStickerPacksAlert alloc] initWithParentController:strongParentController stickerPacks:archivedPacks];
+                            TGArchivedStickerPacksAlert *previewWindow = [[TGArchivedStickerPacksAlert alloc] initWithManager:[[TGLegacyComponentsContext shared] makeOverlayWindowManager] parentController:strongParentController stickerPacks:archivedPacks];
                             __weak TGArchivedStickerPacksAlert *weakPreviewWindow = previewWindow;
                             previewWindow.view.dismiss = ^
                             {
@@ -318,7 +347,7 @@ const int64_t TGStickersBultinPackIdentifier = 1842540969984001;
                 }];
                 
                 if (firstInstallation)
-                    [controller dismissAnimated:true];
+                    [strongController dismissAnimated:true];
                 else
                     [TGStickersMenu updateModifyButtonItemView:strongItemView installed:true stickerPack:stickerPack isBuiltin:isBuiltin];
             }
@@ -358,7 +387,7 @@ const int64_t TGStickersBultinPackIdentifier = 1842540969984001;
     {
         if (installed)
         {
-            NSString *title = TGLocalized(@"StickerPack.Remove");
+            NSString *title = TGLocalized(@"Common.Delete");
             if (stickerPack != nil && count > 0)
             {
                 title = [NSString stringWithFormat:TGLocalized([TGStringUtils integerValueFormat:stickerPack.isMask ? @"StickerPack.RemoveMaskCount_" : @"StickerPack.RemoveStickerCount_" value:count]), [NSString stringWithFormat:@"%d", (int)stickerPack.documents.count]];

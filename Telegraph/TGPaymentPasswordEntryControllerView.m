@@ -1,13 +1,12 @@
 #import "TGPaymentPasswordEntryControllerView.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGAnimationUtils.h"
 
 #import "TGCommentCollectionItem.h"
 
-#import "TGFont.h"
-#import "TGImageUtils.h"
-
-#import "TGModernButton.h"
+#import <LegacyComponents/TGModernButton.h>
 
 @interface TGPaymentPasswordEntryControllerView () <UITextFieldDelegate> {
     UIView *_dimmingView;
@@ -99,7 +98,7 @@
         _textLabel.lineBreakMode = NSLineBreakByWordWrapping;
         [_backgroundView addSubview:_textLabel];
         
-        _attributedText = [TGCommentCollectionItem attributedStringFromText:[NSString stringWithFormat:TGLocalized(@"Checkout.PasswordEntry.Text"), [NSString stringWithFormat:@"**%@**", cardTitle]] allowFormatting:true paragraphSpacing:1.0f alignment:NSTextAlignmentCenter fontSize:13.0f];
+        _attributedText = [TGCommentCollectionItem attributedStringFromText:[NSString stringWithFormat:TGLocalized(@"Checkout.PasswordEntry.Text"), [NSString stringWithFormat:@"**%@**", cardTitle]] allowFormatting:true paragraphSpacing:1.0f alignment:NSTextAlignmentCenter fontSize:13.0f clearFormatting:false];
         _textLabel.attributedText = _attributedText;
         
         _textFieldBackground = [[UIImageView alloc] initWithImage:textFieldBackgroundImage];
