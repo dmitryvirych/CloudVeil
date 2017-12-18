@@ -1,21 +1,14 @@
-/*
- * This is the source code of CloudVeil for iOS v. 1.1
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Peter Iakovlev, 2013.
- */
-
 #import "TGAudioRecorder.h"
-#import "ASQueue.h"
+#import <LegacyComponents/ASQueue.h>
 #import "TGTimer.h"
+
+#import <LegacyComponents/LegacyComponents.h>
 
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
 
 #import "TGAppDelegate.h"
 
-#import "TGAccessChecker.h"
 #import "TGAlertView.h"
 
 #define TGUseModernAudio true
@@ -82,7 +75,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
     {
-        queue = [[ASQueue alloc] initWithName:"org.CloudVeil.audioRecorderQueue"];
+        queue = [[ASQueue alloc] initWithName:"org.telegram.audioRecorderQueue"];
     });
     return queue;
 }
@@ -196,7 +189,7 @@ static void playSoundCompleted(__unused SystemSoundID ssID, __unused void *clien
             }
             else
             {
-                [TGAccessChecker checkMicrophoneAuthorizationStatusForIntent:TGMicrophoneAccessIntentVoice alertDismissCompletion:nil];
+                [[[LegacyComponentsGlobals provider] accessChecker] checkMicrophoneAuthorizationStatusForIntent:TGMicrophoneAccessIntentVoice alertDismissCompletion:nil];
             }
         };
         

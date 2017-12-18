@@ -1,19 +1,8 @@
 #import "TGLoginCodeController.h"
 
-#import "TGToolbarButton.h"
+#import <LegacyComponents/LegacyComponents.h>
 
-#import "TGImageUtils.h"
-#import "TGPhoneUtils.h"
-
-#import "TGHacks.h"
-#import "TGFont.h"
-
-#import "TGProgressWindow.h"
-
-#import "TGStringUtils.h"
-
-#import "TGImageUtils.h"
-#import "TGFont.h"
+#import <LegacyComponents/TGProgressWindow.h>
 
 #import "TGLoginProfileController.h"
 
@@ -22,19 +11,15 @@
 #import "TGSignInRequestBuilder.h"
 #import "TGSendCodeRequestBuilder.h"
 
-#import "SGraphObjectNode.h"
+#import <LegacyComponents/SGraphObjectNode.h>
 
 #import "TGDatabase.h"
 
-#import "TGLoginInactiveUserController.h"
+#import <LegacyComponents/TGTextField.h>
 
-#import "TGActivityIndicatorView.h"
+#import <LegacyComponents/TGTimerTarget.h>
 
-#import "TGTextField.h"
-
-#import "TGTimerTarget.h"
-
-#import "TGModernButton.h"
+#import <LegacyComponents/TGModernButton.h>
 
 #import "TGAlertView.h"
 
@@ -86,14 +71,14 @@
 
 @property (nonatomic, strong) TGProgressWindow *progressWindow;
 
-@property (nonatomic) bool messageSentToCloudVeil;
+@property (nonatomic) bool messageSentToTelegram;
 @property (nonatomic) bool messageSentViaPhone;
 
 @end
 
 @implementation TGLoginCodeController
 
-- (id)initWithShowKeyboard:(bool)__unused showKeyboard phoneNumber:(NSString *)phoneNumber phoneCodeHash:(NSString *)phoneCodeHash phoneTimeout:(NSTimeInterval)phoneTimeout messageSentToCloudVeil:(bool)messageSentToCloudVeil messageSentViaPhone:(bool)messageSentViaPhone
+- (id)initWithShowKeyboard:(bool)__unused showKeyboard phoneNumber:(NSString *)phoneNumber phoneCodeHash:(NSString *)phoneCodeHash phoneTimeout:(NSTimeInterval)phoneTimeout messageSentToTelegram:(bool)messageSentToTelegram messageSentViaPhone:(bool)messageSentViaPhone
 {
     self = [super initWithNibName:nil bundle:nil];
     if (self)
@@ -105,7 +90,7 @@
         _phoneNumber = phoneNumber;
         _phoneCodeHash = phoneCodeHash;
         _phoneTimeout = phoneTimeout;
-        _messageSentToCloudVeil = messageSentToCloudVeil;
+        _messageSentToTelegram = messageSentToTelegram;
         _messageSentViaPhone = messageSentViaPhone;
         
 #ifdef DEBUG
@@ -212,7 +197,7 @@
     _noticeLabel.textAlignment = NSTextAlignmentCenter;
     _noticeLabel.contentMode = UIViewContentModeCenter;
     _noticeLabel.numberOfLines = 0;
-    [self makeLabelWithFormattedText:_noticeLabel text:_messageSentToCloudVeil ? TGLocalized(@"Login.CodeSentInternal") : (_messageSentViaPhone ? TGLocalized(@"Login.CodeSentCall") : TGLocalized(@"Login.CodeSentSms"))];
+    [self makeLabelWithFormattedText:_noticeLabel text:_messageSentToTelegram ? TGLocalized(@"Login.CodeSentInternal") : (_messageSentViaPhone ? TGLocalized(@"Login.CodeSentCall") : TGLocalized(@"Login.CodeSentSms"))];
    
     _noticeLabel.backgroundColor = [UIColor clearColor];
     [self.view addSubview:_noticeLabel];
@@ -270,7 +255,7 @@
     _callSentLabel.backgroundColor = [UIColor clearColor];
     _callSentLabel.alpha = 0.0f;
     
-    _timeoutLabel.hidden = _messageSentToCloudVeil || _phoneTimeout >= (3600.0 - DBL_EPSILON);
+    _timeoutLabel.hidden = _messageSentToTelegram || _phoneTimeout >= (3600.0 - DBL_EPSILON);
     
     NSString *codeTextFormat = (_messageSentViaPhone ? TGLocalized(@"Login.SmsRequestState3") : TGLocalized(@"Login.CallRequestState3"));
     NSRange linkRange = NSMakeRange(NSNotFound, 0);
@@ -318,7 +303,7 @@
     _didNotReceiveCodeButton.titleLabel.font = TGSystemFontOfSize(16.0f);
     [self.view addSubview:_didNotReceiveCodeButton];
     [_didNotReceiveCodeButton addTarget:self action:@selector(didNotReceiveCodeButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-    _didNotReceiveCodeButton.hidden = !_messageSentToCloudVeil;
+    _didNotReceiveCodeButton.hidden = !_messageSentToTelegram;
     
     CGFloat labelAnchor = 0.0f;
     
@@ -326,8 +311,8 @@
     _requestingCallLabel.frame = CGRectMake((int)((screenSize.width - _requestingCallLabel.frame.size.width) / 2), labelAnchor, _requestingCallLabel.frame.size.width, _requestingCallLabel.frame.size.height);
     _callSentLabel.frame = CGRectMake((int)((screenSize.width - _callSentLabel.frame.size.width) / 2), labelAnchor, _callSentLabel.frame.size.width, _callSentLabel.frame.size.height);
     
-    if (_messageSentToCloudVeil) {
-        _otherDeviceView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"LoginCodeOtherDevice.png"]];
+    if (_messageSentToTelegram) {
+        _otherDeviceView = [[UIImageView alloc] initWithImage:TGImageNamed(@"LoginCodeOtherDevice.png")];
         [self.view addSubview:_otherDeviceView];
     }
     
@@ -398,7 +383,7 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
-    if (_countdownTimer == nil && !_alreadyCountedDown && !_messageSentToCloudVeil)
+    if (_countdownTimer == nil && !_alreadyCountedDown && !_messageSentToTelegram)
     {
         _countdownStart = CFAbsoluteTimeGetCurrent();
         _countdownTimer = [TGTimerTarget scheduledMainThreadTimerWithTarget:self action:@selector(updateCountdown) interval:1.0 repeat:false];
@@ -776,38 +761,18 @@
         {
             self.inProgress = false;
             
-            if ([((SGraphObjectNode *)resource).object boolValue])
-                [TGAppDelegateInstance presentMainController];
-            else
-            {
-                if (![[self.navigationController.viewControllers lastObject] isKindOfClass:[TGLoginInactiveUserController class]])
-                {
-                    TGLoginInactiveUserController *inactiveUserController = [[TGLoginInactiveUserController alloc] init];
-                    [self pushControllerRemovingSelf:inactiveUserController];
-                }
-            }
+            [TGAppDelegateInstance presentMainController];
         });
     }
     else if ([path isEqualToString:@"/tg/contactListSynchronizationState"])
     {
         if (![((SGraphObjectNode *)resource).object boolValue])
         {
-            bool activated = [TGDatabaseInstance() haveRemoteContactUids];
-            
             dispatch_async(dispatch_get_main_queue(), ^
             {
                 self.inProgress = false;
                 
-                if (activated)
-                    [TGAppDelegateInstance presentMainController];
-                else
-                {
-                    if (![[self.navigationController.viewControllers lastObject] isKindOfClass:[TGLoginInactiveUserController class]])
-                    {
-                        TGLoginInactiveUserController *inactiveUserController = [[TGLoginInactiveUserController alloc] init];
-                        [self pushControllerRemovingSelf:inactiveUserController];
-                    }
-                }
+                [TGAppDelegateInstance presentMainController];
             });
         }
     }
@@ -863,7 +828,7 @@
                 if (resultCode == TGSignInResultNotRegistered)
                 {
                     int stateDate = [[TGAppDelegateInstance loadLoginState][@"date"] intValue];
-                    [TGAppDelegateInstance saveLoginStateWithDate:stateDate phoneNumber:_phoneNumber phoneCode:_phoneCode phoneCodeHash:_phoneCodeHash codeSentToCloudVeil:false codeSentViaPhone:false firstName:nil lastName:nil photo:nil resetAccountState:nil];
+                    [TGAppDelegateInstance saveLoginStateWithDate:stateDate phoneNumber:_phoneNumber phoneCode:_phoneCode phoneCodeHash:_phoneCodeHash codeSentToTelegram:false codeSentViaPhone:false firstName:nil lastName:nil photo:nil resetAccountState:nil];
                     
                     errorText = nil;
                     [self pushControllerRemovingSelf:[[TGLoginProfileController alloc] initWithShowKeyboard:_codeField.isFirstResponder phoneNumber:_phoneNumber phoneCodeHash:_phoneCodeHash phoneCode:_phoneCode]];
@@ -896,16 +861,16 @@
         {
             [self setInProgress:false];
             
-            if (_messageSentToCloudVeil)
+            if (_messageSentToTelegram)
             {
                 if (resultCode == ASStatusSuccess)
                 {
                     int stateDate = [[TGAppDelegateInstance loadLoginState][@"date"] intValue];
-                    [TGAppDelegateInstance saveLoginStateWithDate:stateDate phoneNumber:_phoneNumber phoneCode:nil phoneCodeHash:_phoneCodeHash codeSentToCloudVeil:false codeSentViaPhone:false firstName:nil lastName:nil photo:nil resetAccountState:nil];
+                    [TGAppDelegateInstance saveLoginStateWithDate:stateDate phoneNumber:_phoneNumber phoneCode:nil phoneCodeHash:_phoneCodeHash codeSentToTelegram:false codeSentViaPhone:false firstName:nil lastName:nil photo:nil resetAccountState:nil];
                     
                     bool messageSentViaPhone = [(((SGraphObjectNode *)result).object)[@"messageSentViaPhone"] intValue];
                     
-                    TGLoginCodeController *controller = [[TGLoginCodeController alloc] initWithShowKeyboard:(_codeField.isFirstResponder) phoneNumber:_phoneNumber phoneCodeHash:_phoneCodeHash phoneTimeout:_phoneTimeout messageSentToCloudVeil:false messageSentViaPhone:messageSentViaPhone];
+                    TGLoginCodeController *controller = [[TGLoginCodeController alloc] initWithShowKeyboard:(_codeField.isFirstResponder) phoneNumber:_phoneNumber phoneCodeHash:_phoneCodeHash phoneTimeout:_phoneTimeout messageSentToTelegram:false messageSentViaPhone:messageSentViaPhone];
                     
                     NSMutableArray *viewControllers = [[NSMutableArray alloc] initWithArray:self.navigationController.viewControllers];
                     [viewControllers removeLastObject];
@@ -924,6 +889,8 @@
                         errorText = TGLocalized(@"Login.NetworkError");
                     else if (resultCode == TGSendCodeErrorPhoneFlood)
                         errorText = TGLocalized(@"Login.PhoneFloodError");
+                    else if (resultCode == TGSendCodeErrorPhoneBanned)
+                        errorText = TGLocalized(@"Login.PhoneBannedError");
                     
                     TGAlertView *alertView = [[TGAlertView alloc] initWithTitle:nil message:errorText delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil];
                     [alertView show];
@@ -955,6 +922,8 @@
                         errorText = TGLocalized(@"Login.NetworkError");
                     else if (resultCode == TGSendCodeErrorPhoneFlood)
                         errorText = TGLocalized(@"Login.PhoneFloodError");
+                    else if (resultCode == TGSendCodeErrorPhoneBanned)
+                        errorText = TGLocalized(@"Login.PhoneBannedError");
                     
                     TGAlertView *alertView = [[TGAlertView alloc] initWithTitle:nil message:errorText delegate:nil cancelButtonTitle:TGLocalized(@"Common.OK") otherButtonTitles:nil];
                     [alertView show];

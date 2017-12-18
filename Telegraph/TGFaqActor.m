@@ -1,6 +1,6 @@
 #import "TGFaqActor.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/ActionStage.h>
 #import "TGTelegraph.h"
 
 @interface TGFaqActor () <TGRawHttpActor>
@@ -21,7 +21,7 @@
 
 - (void)execute:(NSDictionary *)__unused options
 {
-    self.cancelToken = [TGTelegraphInstance doRequestRawHttp:@"https://CloudVeil.org/faq" maxRetryCount:0 acceptCodes:@[@200] actor:self];
+    self.cancelToken = [TGTelegraphInstance doRequestRawHttp:@"https://telegram.org/faq" maxRetryCount:0 acceptCodes:@[@200] actor:self];
 }
 
 - (NSArray *)textWithLocationsInsideTags:(NSString *)text tag:(NSString *)tag

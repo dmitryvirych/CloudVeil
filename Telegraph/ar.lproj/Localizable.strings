@@ -301,13 +301,13 @@
 "Contacts.contact" = "جهة اتصال";
 "Contacts.contacts" = "جهة اتصال";
 "Contacts.contactsvar" = "جهة اتصال";
-"Contacts.InvitationText" = "مرحبا! هيا نستخدم تيليجرام http://CloudVeil.org/dl";
+"Contacts.InvitationText" = "مرحبا! هيا نستخدم تيليجرام http://telegram.org/dl";
 "Contacts.FailedToSendInvitesMessage" = "حدث خطأ.";
 "Contacts.AccessDeniedError" = "تيليجرام لا يستطيع الدخول لجهات الاتصال الخاصة بك";
 "Contacts.AccessDeniedHelpLandscape" = "الرجاء الذهاب إلى إعدادات الـ %@ — الخصوصية — جهات الاتصال.\nثم قم بتفعيل تيليجرام.";
 "Contacts.AccessDeniedHelpPortrait" = "الرجاء الذهاب إلى إعدادات الـ %@ — الخصوصية — جهات الاتصال. ثم قم بتفعيل تيليجرام.";
 "Contacts.AccessDeniedHelpON" = "مفعل";
-"Contacts.InviteToCloudVeil" = "قم بدعوة صديق لتيليجرام";
+"Contacts.InviteToTelegram" = "قم بدعوة صديق لتيليجرام";
 "Contacts.InviteFriends" = "قم بدعوة صديق";
 "Contacts.SelectAll" = "اختر الكل";
 
@@ -351,7 +351,7 @@
 "Conversation.DeleteChat" = "حذف هذه الدردشة";
 "Conversation.ClearAllConfirmation" = "مسح الدردشة";
 "Conversation.SearchImages" = "ابحث عن صور";
-"Conversation.UnsupportedMedia" = "نسخة تيليجرام الموجودة لديك لا تدعم هذه الرسالة. الرجاء التحديث لأحدث نسخة لاستعراضها:\nhttp://CloudVeil.org/update";
+"Conversation.UnsupportedMedia" = "نسخة تيليجرام الموجودة لديك لا تدعم هذه الرسالة. الرجاء التحديث لأحدث نسخة لاستعراضها:\nhttp://telegram.org/update";
 "Conversation.EncryptionWaiting" = "في انتظار %@ ليصبح متصل...";
 "Conversation.EncryptionProcessing" = "جاري مبادلة مفاتيح التشفير...";
 "Conversation.SupportPlaceholder" = "هل لديك سؤال عن تيليجرام؟";
@@ -560,7 +560,7 @@
 
 // Encryption Key
 "EncryptionKey.Title" = "مفتاح التشفير";
-"EncryptionKey.Description" = "هذه الصورة والنص تم اشتقاقهم من مفتاح التشفير لهذه المحادثة السرية مع %1$@.\n\nإذا كانت مطابقة لما يظهر على جهاز %2$@ ، التشفير من البداية للنهاية مضمون.\n\nللإستزادة، إطلع على CloudVeil.org ";
+"EncryptionKey.Description" = "هذه الصورة والنص تم اشتقاقهم من مفتاح التشفير لهذه المحادثة السرية مع %1$@.\n\nإذا كانت مطابقة لما يظهر على جهاز %2$@ ، التشفير من البداية للنهاية مضمون.\n\nللإستزادة، إطلع على telegram.org ";
 
 // Conversation media
 "ConversationMedia.Title" = "الوسائط";
@@ -575,7 +575,7 @@
 "Preview.LoadingImages" = "جاري تحميل الصور كاملة...";
 "Preview.DeletePhoto" = "حذف الصورة";
 "Preview.DeleteVideo" = "حذف المقطع المرئي";
-"Preview.ForwardViaCloudVeil" = "تحويل من خلال تيليجرام";
+"Preview.ForwardViaTelegram" = "تحويل من خلال تيليجرام";
 "Preview.SaveToCameraRoll" = "حفظ في ألبوم الصور";
 
 // Map
@@ -586,7 +586,7 @@
 "Map.Satellite" = "قمر صناعي";
 "Map.Hybrid" = "مهجن";
 "Map.AccessDeniedError" = "لجعل هذه الخاصية تعمل, الرجاء الذهاب لـ إعدادات الآيفون — الخصوصية— خدمات المواقع ثم قم بتفعيل تيليجرام.";
-"Map.ForwardViaCloudVeil" = "تحويل من خلال تيليجرام";
+"Map.ForwardViaTelegram" = "تحويل من خلال تيليجرام";
 "Map.GetDirections" = "تعليمات الإتجاه إلى الموقع";
 "Map.OpenInGoogleMaps" = "فتح في خرائط جوجل";
 
@@ -612,7 +612,7 @@
 "Settings.ChatBackground" = "خلفية الدردشة";
 "Settings.Support" = "اسأل سؤالًا";
 "Settings.FAQ" = "الأسئلة الشائعة عن تيليجرام";
-"Settings.FAQ_URL" = "https://CloudVeil.org/faq/ar";
+"Settings.FAQ_URL" = "https://telegram.org/faq/ar";
 "Settings.FAQ_Intro" = "نرجو الأخذ بالعلم أن الدعم الفني في تيليجرام يقوم به مجموعة من المتطوعين. نحاول الرد في أسرع وقت، لكن هذا قد يستغرق الكثير من الوقت.\n\nيرجى الإطلاع على لأسئلة الشائعة عن تيليجرام:  يوجد بها حلول للمشاكل وإجابات لمعظم الأسئلة.";
 "Settings.FAQ_Button" = "الأسئلة الشائعة";
 "Settings.SaveIncomingPhotos" = "احفظ الصور الواردة";
@@ -2471,7 +2471,7 @@
 "Conversation.HoldForAudio" = "اضغط باستمرار لتسجيل صوتي. اضغط مرة واحدة للتحويل للفيديو.";
 "Conversation.HoldForVideo" = "اضغط باستمرار لتسجيل فيديو. اضغط مرة واحدة للتحويل للصوتي.";
 
-"UserInfo.CloudVeilCall" = "مكالمة تيليجرام";
+"UserInfo.TelegramCall" = "مكالمة تيليجرام";
 "UserInfo.PhoneCall" = "مكالمة هاتفية";
 
 "SharedMedia.CategoryMedia" = "الوسائط";

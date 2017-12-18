@@ -1,12 +1,11 @@
 #import "TGOpenInLocationItems.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import <CoreLocation/CoreLocation.h>
 #import <MapKit/MapKit.h>
 
 #import "TGApplication.h"
-#import "TGStringUtils.h"
-
-#import "TGLocationMediaAttachment.h"
 
 NSString *const TGOpenInLocationDirectionsKey = @"directions";
 
@@ -184,11 +183,11 @@ NSString *const TGOpenInLocationDirectionsKey = @"directions";
     NSURL *openInURL = nil;
     if (directions)
     {
-        openInURL = [NSURL URLWithString:[[NSString alloc] initWithFormat:@"comgooglemaps-x-callback://?daddr=%@&directionsmode=driving&x-success=CloudVeil://?resume=true&&x-source=CloudVeil", coordinatePair]];
+        openInURL = [NSURL URLWithString:[[NSString alloc] initWithFormat:@"comgooglemaps-x-callback://?daddr=%@&directionsmode=driving&x-success=telegram://?resume=true&&x-source=Telegram", coordinatePair]];
     }
     else
     {
-        openInURL = [NSURL URLWithString:[[NSString alloc] initWithFormat:@"comgooglemaps-x-callback://?center=%@&q=%@&x-success=CloudVeil://?resume=true&&x-source=CloudVeil", coordinatePair, coordinatePair]];
+        openInURL = [NSURL URLWithString:[[NSString alloc] initWithFormat:@"comgooglemaps-x-callback://?center=%@&q=%@&x-success=telegram://?resume=true&&x-source=Telegram", coordinatePair, coordinatePair]];
     }
     
     [TGOpenInLocationItem openURL:openInURL];

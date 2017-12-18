@@ -1,5 +1,7 @@
 #import "TGPaymentWebController.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import <WebKit/WebKit.h>
 
 #import "TGAlertView.h"
@@ -79,11 +81,11 @@
         WKWebViewConfiguration *configuration = [[WKWebViewConfiguration alloc] init];
         
         WKUserContentController *userController = [[WKUserContentController alloc] init];
-        NSString *js = @"var CloudVeilWebviewProxyProto = function() {}; \
-        CloudVeilWebviewProxyProto.prototype.postEvent = function(eventName, eventData) { \
+        NSString *js = @"var TelegramWebviewProxyProto = function() {}; \
+        TelegramWebviewProxyProto.prototype.postEvent = function(eventName, eventData) { \
         window.webkit.messageHandlers.performAction.postMessage({'eventName': eventName, 'eventData': eventData}); \
         };\
-        var CloudVeilWebviewProxy = new CloudVeilWebviewProxyProto();";
+        var TelegramWebviewProxy = new TelegramWebviewProxyProto();";
         
         WKUserScript *userScript = [[WKUserScript alloc] initWithSource:js injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:false];
         [userController addUserScript:userScript];
@@ -119,17 +121,17 @@
          if (strongSelf != nil) {
          TGLog(@"legacy event received: %@", event);
          }
-         }] forKey:@"CloudVeilEventProxy"];
+         }] forKey:@"TelegramEventProxy"];
          }*/
         _webView = webView;
         if ([[_url.absoluteString lowercaseString] hasPrefix:@"http://"] || [[_url.absoluteString lowercaseString] hasPrefix:@"https://"]) {
             [webView loadRequest:[NSURLRequest requestWithURL:_url]];
             
-            NSString *js = @"var CloudVeilWebviewProxyProto = function() {}; \
-            CloudVeilWebviewProxyProto.prototype.postEvent = function(eventName, eventData) { \
-            window.CloudVeilEventProxy.postMessage({'eventName': eventName, 'eventData': eventData}); \
+            NSString *js = @"var TelegramWebviewProxyProto = function() {}; \
+            TelegramWebviewProxyProto.prototype.postEvent = function(eventName, eventData) { \
+            window.TelegramEventProxy.postMessage({'eventName': eventName, 'eventData': eventData}); \
             };\
-            var CloudVeilWebviewProxy = new CloudVeilWebviewProxyProto();";
+            var TelegramWebviewProxy = new TelegramWebviewProxyProto();";
             [webView stringByEvaluatingJavaScriptFromString:js];
         }
     }
@@ -184,7 +186,7 @@
 
 - (void)webView:(WKWebView *)__unused webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
     NSString *host = navigationAction.request.URL.host;
-    if ([host isEqualToString:@"t.me"] || [host isEqualToString:@"CloudVeil.me"]) {
+    if ([host isEqualToString:@"t.me"] || [host isEqualToString:@"telegram.me"]) {
         decisionHandler(WKNavigationActionPolicyCancel);
         if (_completedConfirmation) {
             _completedConfirmation();

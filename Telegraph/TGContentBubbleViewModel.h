@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -33,6 +33,7 @@ extern bool debugShowMessageIds;
     TGModernTextViewModel *_authorNameModel;
     TGModernTextViewModel *_viaUserModel;
     TGModernTextViewModel *_authorSignatureModel;
+    TGModernTextViewModel *_adminModel;
     NSString *_authorSignature;
     TGUser *_viaUser;
     TGModernTextViewModel *_forwardedHeaderModel;
@@ -49,13 +50,18 @@ extern bool debugShowMessageIds;
     TGModernImageViewModel *_unsentButtonModel;
     
     bool _incoming;
-    bool _incomingAppearance;
     int _deliveryState;
     bool _read;
     int32_t _date;
+    bool _byAdmin;
+    bool _savedMessage;
     
     bool _hasAvatar;
     bool _inhibitChecks;
+    bool _ignoreEditing;
+    bool _ignoreViews;
+    bool _inhibitShare;
+    bool _inhibitContentAnimation;
     
     int64_t _forwardedPeerId;
     int64_t _forwardedMessageId;

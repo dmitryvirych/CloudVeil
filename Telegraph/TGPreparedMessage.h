@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -7,6 +7,7 @@
  */
 
 #import <Foundation/Foundation.h>
+#import "TGMediaPostingContext.h"
 
 @class TGMessage;
 @class TGBotContextResultAttachment;
@@ -18,6 +19,7 @@
 @property (nonatomic) int32_t mid;
 @property (nonatomic) int32_t date;
 @property (nonatomic) bool isBroadcast;
+@property (nonatomic) int64_t groupedId;
 
 @property (nonatomic) int32_t replacingMid;
 
@@ -26,6 +28,8 @@
 @property (nonatomic, strong) TGMessage *replyMessage;
 @property (nonatomic, strong) TGBotContextResultAttachment *botContextResult;
 @property (nonatomic, strong) TGReplyMarkupAttachment *replyMarkup;
+
+@property (nonatomic, strong) TGMediaPostingContext *postingContext;
 
 @property (nonatomic, copy) void (^executeOnAdd)();
 

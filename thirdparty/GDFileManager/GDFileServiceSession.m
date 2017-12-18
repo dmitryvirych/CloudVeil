@@ -63,7 +63,7 @@
     static NSCache *canonicalURLCache;
     dispatch_once(&onceToken, ^{
         canonicalURLCache = [NSCache new];
-        canonicalURLCache.name = @"org.CloudVeil.CanonicalURLCache";
+        canonicalURLCache.name = @"org.telegram.CanonicalURLCache";
     });
     NSURL *canonicalURL = [canonicalURLCache objectForKey:url];
     if (!canonicalURL) {

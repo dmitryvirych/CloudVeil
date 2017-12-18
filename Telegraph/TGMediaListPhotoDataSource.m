@@ -1,19 +1,19 @@
 #import "TGMediaListPhotoDataSource.h"
 
-#import "ASQueue.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/ASQueue.h>
 
 #import "TGWorkerPool.h"
 #import "TGWorkerTask.h"
 #import "TGMediaPreviewTask.h"
 
-#import "TGMemoryImageCache.h"
+#import <LegacyComponents/TGMemoryImageCache.h>
 
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
-#import "TGRemoteImageView.h"
+#import <LegacyComponents/TGRemoteImageView.h>
 
-#import "TGImageBlur.h"
-#import "UIImage+TG.h"
+#import <LegacyComponents/TGImageBlur.h>
+#import <LegacyComponents/UIImage+TG.h>
 
 #import "TGMediaStoreContext.h"
 
@@ -37,7 +37,7 @@ static ASQueue *taskManagementQueue()
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
     {
-        queue = [[ASQueue alloc] initWithName:"org.CloudVeil.mediaListPhotoThumbnailTaskManagementQueue"];
+        queue = [[ASQueue alloc] initWithName:"org.telegram.mediaListPhotoThumbnailTaskManagementQueue"];
     });
     
     return queue;

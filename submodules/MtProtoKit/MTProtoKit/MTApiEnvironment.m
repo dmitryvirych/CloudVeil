@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -33,6 +33,9 @@
 #define IPHONE_6SPlus_NAMESTRING             @"iPhone 6S Plus"
 #define IPHONE_7_NAMESTRING             @"iPhone 7"
 #define IPHONE_7Plus_NAMESTRING             @"iPhone 7 Plus"
+#define IPHONE_8_NAMESTRING             @"iPhone 8"
+#define IPHONE_8Plus_NAMESTRING             @"iPhone 8 Plus"
+#define IPHONE_X_NAMESTRING             @"iPhone X"
 #define IPHONE_SE_NAMESTRING             @"iPhone SE"
 #define IPHONE_UNKNOWN_NAMESTRING       @"Unknown iPhone"
 
@@ -85,6 +88,9 @@ typedef enum {
     UIDevice6SPlusiPhone,
     UIDevice7iPhone,
     UIDevice7PlusiPhone,
+    UIDevice8iPhone,
+    UIDevice8PlusiPhone,
+    UIDeviceXiPhone,
     UIDeviceSEPhone,
     
     UIDevice1GiPod,
@@ -165,7 +171,7 @@ typedef enum {
 {
     self = [super init];
     if (self != nil)
-    {        
+    {
         _deviceModel = [self platformString];
 #if TARGET_OS_IPHONE
         _systemVersion = [[UIDevice currentDevice] systemVersion];
@@ -202,13 +208,13 @@ typedef enum {
     
     [self _updateApiInitializationHash];
 }
-    
+
 - (void)setLangPack:(NSString *)langPack {
     _langPack = langPack;
     
     [self _updateApiInitializationHash];
 }
-    
+
 - (void)setLangPackCode:(NSString *)langPackCode {
     _langPackCode = langPackCode;
     
@@ -232,6 +238,9 @@ typedef enum {
         case UIDevice6SPlusiPhone: return IPHONE_6SPlus_NAMESTRING;
         case UIDevice7iPhone: return IPHONE_7_NAMESTRING;
         case UIDevice7PlusiPhone: return IPHONE_7Plus_NAMESTRING;
+        case UIDevice8iPhone: return IPHONE_8_NAMESTRING;
+        case UIDevice8PlusiPhone: return IPHONE_8Plus_NAMESTRING;
+        case UIDeviceXiPhone: return IPHONE_X_NAMESTRING;
         case UIDeviceSEPhone: return IPHONE_SE_NAMESTRING;
         case UIDeviceUnknowniPhone: return IPHONE_UNKNOWN_NAMESTRING;
             
@@ -263,7 +272,7 @@ typedef enum {
             
         case UIDeviceIFPGA: return IFPGA_NAMESTRING;
             
-        case UIDeviceOSX: return @"OSX";
+        case UIDeviceOSX: return @"macOS";
             
         default: return IOS_FAMILY_UNKNOWN_DEVICE;
     }
@@ -294,6 +303,14 @@ typedef enum {
     if ([platform isEqualToString:@"iPhone9,3"])    return UIDevice7iPhone;
     if ([platform isEqualToString:@"iPhone9,2"])    return UIDevice7PlusiPhone;
     if ([platform isEqualToString:@"iPhone9,4"])    return UIDevice7PlusiPhone;
+    
+    if ([platform isEqualToString:@"iPhone10,1"])    return UIDevice8iPhone;
+    if ([platform isEqualToString:@"iPhone10,4"])    return UIDevice8iPhone;
+    if ([platform isEqualToString:@"iPhone10,2"])    return UIDevice8PlusiPhone;
+    if ([platform isEqualToString:@"iPhone10,5"])    return UIDevice8PlusiPhone;
+    if ([platform isEqualToString:@"iPhone10,3"])    return UIDeviceXiPhone;
+    if ([platform isEqualToString:@"iPhone10,6"])    return UIDeviceXiPhone;
+    
     if ([platform isEqualToString:@"iPhone8,4"])    return UIDeviceSEPhone;
     
     // iPod
@@ -373,6 +390,27 @@ typedef enum {
     return result;
 }
 
+- (instancetype)copyWithZone:(NSZone *)__unused zone {
+    MTApiEnvironment *result = [[MTApiEnvironment alloc] init];
+    
+    result.apiId = self.apiId;
+    result.appVersion = self.appVersion;
+    result.layer = self.layer;
+    
+    result.langPack = self.langPack;
+    
+    result->_langPackCode = self.langPackCode;
+    result->_socksProxySettings = self.socksProxySettings;
+    
+    result.disableUpdates = self.disableUpdates;
+    result.tcpPayloadPrefix = self.tcpPayloadPrefix;
+    result.datacenterAddressOverrides = self.datacenterAddressOverrides;
+    
+    [result _updateApiInitializationHash];
+    
+    return result;
+}
+
 - (MTApiEnvironment *)withUpdatedSocksProxySettings:(MTSocksProxySettings *)socksProxySettings {
     MTApiEnvironment *result = [[MTApiEnvironment alloc] init];
     
@@ -395,3 +433,4 @@ typedef enum {
 }
 
 @end
+

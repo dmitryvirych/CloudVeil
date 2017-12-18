@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -19,6 +19,7 @@ typedef enum {
 } TGModernConversationTitleViewActivity;
 
 @class TGModernConversationTitleView;
+@class TGPresentation;
 
 @protocol TGModernConversationTitleViewDelegate <NSObject>
 
@@ -37,6 +38,7 @@ typedef enum {
 @property (nonatomic) bool statusHasAccentColor;
 @property (nonatomic) TGModernConversationControllerTitleToggle toggleMode;
 @property (nonatomic, strong) NSString *typingStatus;
+@property (nonatomic, strong) TGPresentation *presentation;
 
 - (void)setBackButtonTitle:(NSString *)backButtonTitle;
 - (void)setOrientation:(UIInterfaceOrientation)orientation;
@@ -54,6 +56,6 @@ typedef enum {
 - (void)suspendAnimations;
 - (void)resumeAnimations;
 
-- (void)setShowStatus:(bool)showStatus;
+- (void)setShowStatus:(bool)showStatus showArrow:(bool)showArrow;
 
 @end

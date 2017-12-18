@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -83,15 +83,6 @@
     
     if (authKey == nil || authKey.length == 0 || messageKey == nil || messageKey.length == 0)
         return nil;
-    
-    /*
-     sha256_a = SHA256 (msg_key + substr (auth_key, x, 36));
-     
-     sha256_b = SHA256 (substr (auth_key, 40+x, 36) + msg_key);
-     
-     aes_key = substr (sha256_a, 0, 8) + substr (sha256_b, 8, 16) + substr (sha256_a, 24, 8);
-     aes_iv = substr (sha256_b, 0, 8) + substr (sha256_a, 8, 16) + substr (sha256_b, 24, 8);
-     */
     
     int xValue = toClient ? 8 : 0;
     

@@ -1,23 +1,24 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
  * Copyright Peter Iakovlev, 2013.
  */
 
-#import "ASActor.h"
+#import <LegacyComponents/ASActor.h>
 
 #import "TLauth_SentCode.h"
 
-#import "ASWatcher.h"
+#import <LegacyComponents/ASWatcher.h>
 
 typedef enum {
     TGSendCodeErrorUnknown = -1,
     TGSendCodeErrorInvalidPhone = -2,
     TGSendCodeErrorFloodWait = -3,
     TGSendCodeErrorNetwork = -4,
-    TGSendCodeErrorPhoneFlood = -5
+    TGSendCodeErrorPhoneFlood = -5,
+    TGSendCodeErrorPhoneBanned = -6
 } TGSendCodeError;
 
 @interface TGSendCodeRequestBuilder : ASActor <ASWatcher>

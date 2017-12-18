@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -309,7 +309,7 @@
         currentData = buffer.data;
     }
     
-    if (_apiEnvironment != nil && _apiEnvironment.disableUpdates)
+    if ((_apiEnvironment != nil && _apiEnvironment.disableUpdates) || _forceBackgroundRequests)
     {
         MTBuffer *buffer = [[MTBuffer alloc] init];
         
@@ -568,7 +568,7 @@
                             NSMutableDictionary *authKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:authInfo.authKeyAttributes];
                             authKeyAttributes[@"apiInitializationHash"] = _apiEnvironment.apiInitializationHash;
                             
-                            authInfo = [[MTDatacenterAuthInfo alloc] initWithAuthKey:authInfo.authKey authKeyId:authInfo.authKeyId saltSet:authInfo.saltSet authKeyAttributes:authKeyAttributes];
+                            authInfo = [[MTDatacenterAuthInfo alloc] initWithAuthKey:authInfo.authKey authKeyId:authInfo.authKeyId saltSet:authInfo.saltSet authKeyAttributes:authKeyAttributes tempAuthKey:authInfo.tempAuthKey];
                             [_context updateAuthInfoForDatacenterWithId:mtProto.datacenterId authInfo:authInfo];
                         }
                     }
@@ -656,7 +656,7 @@
                                 NSMutableDictionary *authKeyAttributes = [[NSMutableDictionary alloc] initWithDictionary:authInfo.authKeyAttributes];
                                 [authKeyAttributes removeObjectForKey:@"apiInitializationHash"];
                                 
-                                authInfo = [[MTDatacenterAuthInfo alloc] initWithAuthKey:authInfo.authKey authKeyId:authInfo.authKeyId saltSet:authInfo.saltSet authKeyAttributes:authKeyAttributes];
+                                authInfo = [[MTDatacenterAuthInfo alloc] initWithAuthKey:authInfo.authKey authKeyId:authInfo.authKeyId saltSet:authInfo.saltSet authKeyAttributes:authKeyAttributes tempAuthKey:authInfo.tempAuthKey];
                                 [_context updateAuthInfoForDatacenterWithId:mtProto.datacenterId authInfo:authInfo];
                             }];
                         }

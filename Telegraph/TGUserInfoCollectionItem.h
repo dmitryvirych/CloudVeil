@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -8,8 +8,9 @@
 
 #import "TGCollectionItem.h"
 
-#import "TGUser.h"
-#import "ASWatcher.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/ASWatcher.h>
 
 @interface TGUserInfoCollectionItem : TGCollectionItem <ASWatcher>
 
@@ -19,6 +20,7 @@
 @property (nonatomic) bool automaticallyManageUserPresence;
 @property (nonatomic) bool useRealName;
 @property (nonatomic) bool disableAvatar;
+@property (nonatomic) bool disableAvatarPlaceholder;
 @property (nonatomic) bool showCall;
 @property (nonatomic) CGFloat additinalHeight;
 @property (nonatomic) CGSize avatarOffset;
@@ -38,6 +40,7 @@
 
 - (void)updateTimestamp;
 
+- (void)setAvatarHidden:(bool)hidden animated:(bool)animated;
 - (id)visibleAvatarView;
 - (id)avatarView;
 - (void)makeNameFieldFirstResponder;

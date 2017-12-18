@@ -1,6 +1,7 @@
 #import "PhotoResources.h"
 
-#import "TGMessage.h"
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TelegramMediaResources.h"
 #import "MediaBox.h"
 
@@ -11,8 +12,7 @@
 #import "DrawingContext.h"
 #import "TransformImageView.h"
 
-#import "TGImageUtils.h"
-#import "TGImageBlur.h"
+#import <LegacyComponents/TGImageBlur.h>
 
 #import <ImageIO/ImageIO.h>
 #import <AVFoundation/AVFoundation.h>
@@ -295,7 +295,7 @@ SSignal *imageMediaTransform(MediaBox *mediaBox, TGImageMediaAttachment *image, 
                     CGContextSetBlendMode(context, kCGBlendModeCopy);
                     CGContextDrawImage(context, CGRectMake(0.0f, 0.0f, thumbnailImage.size.width, thumbnailImage.size.height), thumbnailImage.CGImage);
                 }];
-                CloudVeilFastBlur((int32_t)blurContextSize.width, (int32_t)blurContextSize.height, (int32_t)blurContext.bytesPerRow, blurContext.bytes);
+                telegramFastBlur((int32_t)blurContextSize.width, (int32_t)blurContextSize.height, (int32_t)blurContext.bytesPerRow, blurContext.bytes);
                 blurredThumbnailImage = [blurContext generateImage];
             }
             
@@ -375,7 +375,7 @@ SSignal *videoMediaTransform(MediaBox *mediaBox, TGVideoMediaAttachment *video) 
                     CGContextSetBlendMode(context, kCGBlendModeCopy);
                     CGContextDrawImage(context, CGRectMake(0.0f, 0.0f, thumbnailImage.size.width, thumbnailImage.size.height), thumbnailImage.CGImage);
                 }];
-                CloudVeilFastBlur((int32_t)blurContextSize.width, (int32_t)blurContextSize.height, (int32_t)blurContext.bytesPerRow, blurContext.bytes);
+                telegramFastBlur((int32_t)blurContextSize.width, (int32_t)blurContextSize.height, (int32_t)blurContext.bytesPerRow, blurContext.bytes);
                 blurredThumbnailImage = [blurContext generateImage];
             }
             

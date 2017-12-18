@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>CloudVeil Messenger</string>
+	<string>${PRODUCT_NAME}</string>
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
@@ -31,19 +31,51 @@
 		<string>Icon.png</string>
 	</array>
 	<key>CFBundleIcons</key>
-	<dict/>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>Icon-Small</string>
+				<string>Icon-40</string>
+				<string>Icon-60@2x.png</string>
+				<string>Icon-60@3x.png</string>
+				<string>Icon@2x.png</string>
+				<string>Icon.png</string>
+				<string>Icon-167.png</string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<true/>
+		</dict>
+	</dict>
 	<key>CFBundleIcons~ipad</key>
-	<dict/>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>Icon-72</string>
+				<string>Icon-76</string>
+				<string>Icon-Small</string>
+				<string>Icon-40</string>
+				<string>Icon-60@2x.png</string>
+				<string>Icon@2x.png</string>
+				<string>Icon.png</string>
+			</array>
+			<key>UIPrerenderedIcon</key>
+			<true/>
+		</dict>
+	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>CloudVeil Messenger</string>
+	<string>${PRODUCT_NAME}</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>4.2</string>
+	<string>4.6</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -55,7 +87,7 @@
 			<string>org.telegram.TelegramHD</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>CloudVeil</string>
+				<string>telegram</string>
 			</array>
 		</dict>
 		<dict>
@@ -80,7 +112,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>64345</string>
+	<string>67581</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>ITSAppUsesNonExemptEncryption </key>
@@ -125,15 +157,21 @@
 	<key>NSCameraUsageDescription</key>
 	<string>We need this so that you can take and share photos and videos.</string>
 	<key>NSContactsUsageDescription</key>
-	<string>CloudVeilMessenger will continuously upload your contacts to its heavily encrypted cloud servers to let you connect with your friends across all your devices.</string>
+	<string>Telegram will continuously upload your contacts to its heavily encrypted cloud servers to let you connect with your friends across all your devices.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>You can use Face ID to unlock the app.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>When you choose to share your Live Location with friends in a chat, Telegram needs background access to your location to keep them updated for the duration of the live sharing.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>When you send your location to your friends, CloudVeilMessenger needs access to show them a map. You also need this to send locations from an Apple Watch.</string>
+	<string>When you choose to share your Live Location with friends in a chat, Telegram needs background access to your location to keep them updated for the duration of the live sharing. You also need this to send locations from an Apple Watch.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>When you send your location to your friends, CloudVeilMessenger needs access to show them a map.</string>
+	<string>When you send your location to your friends, Telegram needs access to show them a map.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>We need this so that you can record and share voice messages and videos with sound.</string>
 	<key>NSMotionUsageDescription</key>
-	<string>When you send your location to your friends, CloudVeilMessenger needs access to show them a map.</string>
+	<string>When you send your location to your friends, Telegram needs access to show them a map.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need this so that you can save photos and videos to your photo library.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need this so that you can share photos and videos from your photo library.</string>
 	<key>NSSiriUsageDescription</key>
@@ -151,11 +189,35 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
+		<string>location</string>
 		<string>remote-notification</string>
 		<string>voip</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<false/>
+	<key>UILaunchImages~ipad</key>
+	<array>
+		<dict>
+			<key>UILaunchImageMinimumOSVersion</key>
+			<string>7.0</string>
+			<key>UILaunchImageName</key>
+			<string>iPad-Portrait</string>
+			<key>UILaunchImageOrientation</key>
+			<string>Portrait</string>
+			<key>UILaunchImageSize</key>
+			<string>{768, 1024}</string>
+		</dict>
+		<dict>
+			<key>UILaunchImageMinimumOSVersion</key>
+			<string>7.0</string>
+			<key>UILaunchImageName</key>
+			<string>iPad-Landscape</string>
+			<key>UILaunchImageOrientation</key>
+			<string>Landscape</string>
+			<key>UILaunchImageSize</key>
+			<string>{768, 1024}</string>
+		</dict>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIPrerenderedIcon</key>
@@ -169,7 +231,7 @@
 	<key>UIRequiresPersistentWiFi</key>
 	<true/>
 	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleLightContent</string>
+	<string>UIStatusBarStyleBlackTranslucent</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

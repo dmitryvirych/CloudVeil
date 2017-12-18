@@ -18,12 +18,6 @@
         _reversed = reversed;
         _scrollInsets = UIEdgeInsetsMake(0, 0, 0, 0);
     }
-    
-    if (@available(iOS 11.0, *))
-    {
-        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-    }
-    
     return self;
 }
 

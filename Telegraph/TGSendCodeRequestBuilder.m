@@ -4,8 +4,8 @@
 
 #import "TGSchema.h"
 
-#import "ActionStage.h"
-#import "SGraphObjectNode.h"
+#import <LegacyComponents/ActionStage.h>
+#import <LegacyComponents/SGraphObjectNode.h>
 
 #import "TGTelegramNetworking.h"
 
@@ -107,7 +107,7 @@
         [dict setObject:sendCode.phone_code_hash forKey:@"phoneCodeHash"];
         [dict setObject:[NSNumber numberWithBool:sendCode.phone_registered] forKey:@"phoneRegistered"];
         dict[@"callTimeout"] = @(sendCode.timeout);
-        dict[@"messageSentToCloudVeil"] = @true;
+        dict[@"messageSentToTelegram"] = @true;
     } else {
         [dict setObject:sendCode.phone_code_hash forKey:@"phoneCodeHash"];
         [dict setObject:[NSNumber numberWithBool:sendCode.phone_registered] forKey:@"phoneRegistered"];
@@ -166,7 +166,7 @@
             [dict setObject:sendCode.phone_code_hash forKey:@"phoneCodeHash"];
             [dict setObject:[NSNumber numberWithBool:sendCode.phone_registered] forKey:@"phoneRegistered"];
             dict[@"callTimeout"] = @(sendCode.timeout);
-            dict[@"messageSentToCloudVeil"] = @true;
+            dict[@"messageSentToTelegram"] = @true;
         } else {
             [dict setObject:sendCode.phone_code_hash forKey:@"phoneCodeHash"];
             [dict setObject:[NSNumber numberWithBool:sendCode.phone_registered] forKey:@"phoneRegistered"];

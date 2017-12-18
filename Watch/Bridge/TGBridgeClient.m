@@ -18,7 +18,7 @@
 
 #import <libkern/OSAtomic.h>
 
-NSString *const TGBridgeContextDomain = @"com.CloudVeil.BridgeContext";
+NSString *const TGBridgeContextDomain = @"com.telegram.BridgeContext";
 
 const NSTimeInterval TGBridgeClientTimerInterval = 4.0;
 const NSTimeInterval TGBridgeClientWakeInterval = 2.0;

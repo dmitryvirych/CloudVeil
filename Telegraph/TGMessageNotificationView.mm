@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -8,18 +8,13 @@
 
 #import "TGMessageNotificationView.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGInterfaceAssets.h"
-
-#import "TGPeerIdAdapter.h"
-
-#import "TGImageUtils.h"
-#import "TGStringUtils.h"
 
 #import "TGNotificationWindow.h"
 
-#import "TGLetteredAvatarView.h"
-
-#import "TGFont.h"
+#import <LegacyComponents/TGLetteredAvatarView.h>
 
 #import "TGNotificationMessageLabel.h"
 
@@ -246,7 +241,10 @@
             }
             else if (attachment.type == TGLocationMediaAttachmentType)
             {
-                messageText = TGLocalized(@"Message.Location");
+                if (((TGLocationMediaAttachment *)attachment).period > 0)
+                    messageText = TGLocalized(@"Message.LiveLocation");
+                else
+                    messageText = TGLocalized(@"Message.Location");
                 attachmentFound = true;
                 break;
             }

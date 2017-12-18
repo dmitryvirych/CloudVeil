@@ -44,7 +44,7 @@
 @implementation MTBackupAddressSignals
 
 + (MTSignal *)fetchBackupIpsGoogle:(bool)isTesting {
-    NSDictionary *headers = @{@"Host": @"dns-CloudVeil.appspot.com"};
+    NSDictionary *headers = @{@"Host": @"dns-telegram.appspot.com"};
     
     return [[MTHttpRequestOperation dataForHttpUrl:[NSURL URLWithString:isTesting ? @"https://google.com/test/" : @"https://google.com/"] headers:headers] mapToSignal:^MTSignal *(NSData *data) {
         NSString *text = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -109,7 +109,7 @@
     
     return [[[MTSignal mergeSignals:signals] take:1] mapToSignal:^MTSignal *(MTBackupDatacenterData *data) {
         if (data != nil && data.addressList.count != 0) {
-            MTApiEnvironment *apiEnvironment = [[MTApiEnvironment alloc] init];
+            MTApiEnvironment *apiEnvironment = [currentContext.apiEnvironment copy];
             
             NSMutableDictionary *datacenterAddressOverrides = [[NSMutableDictionary alloc] init];
             
@@ -120,6 +120,8 @@
             apiEnvironment.apiId = currentContext.apiEnvironment.apiId;
             apiEnvironment.layer = currentContext.apiEnvironment.layer;
             apiEnvironment = [apiEnvironment withUpdatedLangPackCode:currentContext.apiEnvironment.langPackCode];
+            apiEnvironment.disableUpdates = true;
+            apiEnvironment.langPack = currentContext.apiEnvironment.langPack;
             
             MTContext *context = [[MTContext alloc] initWithSerialization:currentContext.serialization apiEnvironment:apiEnvironment];
             

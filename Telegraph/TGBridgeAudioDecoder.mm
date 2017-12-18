@@ -169,7 +169,7 @@ static inline bool _checkResultLite(OSStatus result, const char *operation, cons
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
     {
-        queue = [[ATQueue alloc] initWithName:@"org.CloudVeil.opusAudioDecoderQueue"];
+        queue = [[ATQueue alloc] initWithName:@"org.telegram.opusAudioDecoderQueue"];
     });
     
     return queue;

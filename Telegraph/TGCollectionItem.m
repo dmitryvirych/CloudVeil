@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -62,10 +62,18 @@
     return CGSizeMake(containerSize.width, 0);
 }
 
+- (CGSize)itemSizeForContainerSize:(CGSize)containerSize safeAreaInset:(UIEdgeInsets)__unused safeAreaInset
+{
+    return [self itemSizeForContainerSize:containerSize];
+}
+
 - (void)bindView:(TGCollectionItemView *)view
 {
     _view = view;
     _view.boundItem = self;
+    _view.presentation = _presentation;
+    
+    [_view setIgnoreSeparatorInset:_ignoreSeparatorInset];
 }
 
 - (void)unbindView
@@ -77,6 +85,18 @@
 - (TGCollectionItemView *)boundView
 {
     return _view;
+}
+
+- (void)setPresentation:(TGPresentation *)presentation
+{
+    _presentation = presentation;
+    [_view setPresentation:presentation];
+}
+
+- (void)setIgnoreSeparatorInset:(bool)ignoreSeparatorInset
+{
+    _ignoreSeparatorInset = ignoreSeparatorInset;
+    [_view setIgnoreSeparatorInset:ignoreSeparatorInset];
 }
 
 - (void)itemSelected:(id)__unused actionTarget

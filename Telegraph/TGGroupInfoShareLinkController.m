@@ -1,5 +1,7 @@
 #import "TGGroupInfoShareLinkController.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGGroupManagementSignals.h"
 
 #import "TGHeaderCollectionItem.h"
@@ -8,9 +10,7 @@
 #import "TGButtonCollectionItem.h"
 
 #import "TGAlertView.h"
-#import "TGProgressWindow.h"
-
-#import "TGPeerIdAdapter.h"
+#import <LegacyComponents/TGProgressWindow.h>
 
 #import "TGChannelManagementSignals.h"
 
@@ -34,7 +34,7 @@
 @implementation TGGroupInfoShareLinkController
 
 static NSString *updatedLink(NSString *link) {
-    return [link stringByReplacingOccurrencesOfString:@"https://CloudVeil.me/" withString:@"https://t.me/"];
+    return [link stringByReplacingOccurrencesOfString:@"https://telegram.me/" withString:@"https://t.me/"];
 }
 
 - (instancetype)initWithPeerId:(int64_t)peerId accessHash:(int64_t)accessHash currentLink:(NSString *)currentLink

@@ -1,15 +1,9 @@
-//
-//  RMIntroViewController.m
-//  IntroOpenGL
-//
-//  Created by Ilya Rimchikov on 19/01/14.
-//
-//
-
 #import "RMGeometry.h"
 
+#import <LegacyComponents/LegacyComponents.h>
+
 #import "TGLoginPhoneController.h"
-#import "TGModernButton.h"
+#import <LegacyComponents/TGModernButton.h>
 
 #import "RMIntroViewController.h"
 #import "RMIntroPageView.h"
@@ -22,11 +16,9 @@
 
 #import "TGTelegramNetworking.h"
 
-#import "TGFont.h"
-
 #import "TGLocalizationSignals.h"
 #import "TGAnimationUtils.h"
-#import "TGProgressWindow.h"
+#import <LegacyComponents/TGProgressWindow.h>
 
 #import "TGDatabase.h"
 
@@ -321,7 +313,7 @@
         [_startButton setBackgroundImage:startButtonHighlightedImage forState:UIControlStateHighlighted];
         [_startButton setContentEdgeInsets:UIEdgeInsetsMake(0.0f, 20.0f, 0.0f, 20.0f)];
     }
-    _startArrow = [[UIImageView alloc]initWithImage:[UIImage imageNamed:isIpad ? @"start_arrow_ipad.png" : @"start_arrow.png"]];
+    _startArrow = [[UIImageView alloc]initWithImage:TGImageNamed(isIpad ? @"start_arrow_ipad.png" : @"start_arrow.png")];
     _startButton.titleLabel.clipsToBounds = false;
     _startArrow.frame = CGRectChangedOrigin(_startArrow.frame, CGPointMake([_startButton.titleLabel.text sizeWithFont:_startButton.titleLabel.font].width + (isIpad ? 7 : 6), isIpad ? 6.5f : 4.5f));
     //[_startButton.titleLabel addSubview:_startArrow];
@@ -502,7 +494,7 @@
     {
         _displayedStillLogo = true;
         
-        _stillLogoView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"CloudVeil_logo_still.png"]];
+        _stillLogoView = [[UIImageView alloc] initWithImage:TGImageNamed(@"telegram_logo_still.png")];
         _stillLogoView.contentMode = UIViewContentModeCenter;
         _stillLogoView.bounds = CGRectMake(0, 0, 200, 200);
         
@@ -604,7 +596,7 @@
     [EAGLContext setCurrentContext:_glkView.context];
     
     
-    set_CloudVeil_textures(setup_texture(@"CloudVeil_sphere.png"), setup_texture(@"CloudVeil_plane.png"));
+    set_telegram_textures(setup_texture(@"telegram_sphere.png"), setup_texture(@"telegram_plane.png"));
     
     set_ic_textures(setup_texture(@"ic_bubble_dot.png"), setup_texture(@"ic_bubble.png"), setup_texture(@"ic_cam_lens.png"), setup_texture(@"ic_cam.png"), setup_texture(@"ic_pencil.png"), setup_texture(@"ic_pin.png"), setup_texture(@"ic_smile_eye.png"), setup_texture(@"ic_smile.png"), setup_texture(@"ic_videocam.png"));
     

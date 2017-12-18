@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -18,6 +18,7 @@ typedef enum {
 } TGCollectionItemViewPosition;
 
 @class TGCollectionItem;
+@class TGPresentation;
 
 @interface TGCollectionItemView : UICollectionViewCell
 {
@@ -27,10 +28,15 @@ typedef enum {
     int _itemPosition;
 }
 
+
+@property (nonatomic) bool ignoreSeparatorInset;
+
+@property (nonatomic) UIEdgeInsets safeAreaInset;
 @property (nonatomic) CGFloat separatorInset;
 @property (nonatomic) UIEdgeInsets selectionInsets;
 
 @property (nonatomic, strong) TGCollectionItem *boundItem;
+@property (nonatomic, strong) TGPresentation *presentation;
 
 - (void)setItemPosition:(int)itemPosition;
 - (void)setItemPosition:(int)itemPosition animated:(bool)animated;

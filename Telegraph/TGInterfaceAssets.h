@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -29,7 +29,6 @@
 - (int)userColorIndex:(int)uid;
 - (int)groupColorIndex:(int64_t)groupId;
 
-- (UIImage *)avatarPlaceholder:(int)uid;
 - (UIImage *)avatarMask;
 - (UIImage *)avatarMaskUnread;
 - (UIImage *)avatarMaskHighlighted;
@@ -42,7 +41,6 @@
 + (UIImage *)settingsProfileAvatarOverlay;
 - (UIImage *)dialogListAuthorAvatarStroke;
 + (UIImage *)profileAvatarOverlay;
-+ (UIImage *)profileAvatarPlaceholder:(int)uid;
 + (UIImage *)profileAvatarPlaceholderGeneric;
 + (UIImage *)profileAvatarPlaceholderEmpty;
 + (UIImage *)profileGroupAvatarPlaceholder;
@@ -55,7 +53,6 @@
 + (UIImage *)conversationTitleAvatarOverlayLandscape;
 + (UIImage *)memberListAvatarOverlay;
 
-+ (UIImage *)conversationAvatarPlaceholder:(int)uid;
 + (UIImage *)conversationGenericAvatarPlaceholder:(bool)useMonochrome;
 + (UIImage *)conversationAvatarOverlay;
 
@@ -81,7 +78,6 @@
 + (UIImage *)notificationBackground;
 + (UIImage *)notificationBackgroundHighlighted;
 + (UIImage *)notificationAvatarOverlay;
-+ (UIImage *)notificationAvatarPlaceholder:(int)uid;
 + (UIImage *)notificationAvatarPlaceholderGeneric;
 + (UIImage *)locationNotificationIcon;
 

@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -8,7 +8,7 @@
 
 #import "TGActor.h"
 
-#import "ASWatcher.h"
+#import <LegacyComponents/ASWatcher.h>
 #import "TGTelegramNetworking.h"
 
 #import <SSignalKit/SSignalKit.h>
@@ -37,7 +37,9 @@
 - (bool)_encryptUploads;
 - (void)_commitSend;
 - (void)_fail;
+- (void)_fail:(bool)manual;
 - (void)_success:(id)result;
+
 
 - (void)updatePreDownloadsProgress:(float)preDownloadsProgress;
 - (void)acquireMediaUploadActivityHolderForPreparedMessage:(TGPreparedMessage *)preparedMessage;
@@ -46,6 +48,7 @@
 - (void)uploadsStarted;
 - (void)uploadProgressChanged;
 - (void)uploadsCompleted:(NSDictionary *)filePathToUploadedFile;
+- (void)setUploadProgress:(float)uploadProgress;
 
 - (int64_t)peerId;
 

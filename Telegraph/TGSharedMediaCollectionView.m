@@ -14,6 +14,10 @@
 
 @implementation TGSharedMediaCollectionView
 
+- (bool)disableGalleryTransitionOffsetFix {
+    return true;
+}
+
 - (instancetype)initWithFrame:(CGRect)frame collectionViewLayout:(UICollectionViewLayout *)layout
 {
     self = [super initWithFrame:frame collectionViewLayout:layout];
@@ -22,12 +26,6 @@
         _sectionHeaderViewQueue = [[NSMutableArray alloc] init];
         _visibleSectionHeaderViews = [[NSMutableArray alloc] init];
     }
-    
-    if (@available(iOS 11.0, *))
-    {
-        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-    }
-    
     return self;
 }
 

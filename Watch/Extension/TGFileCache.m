@@ -1,7 +1,7 @@
 #import "TGFileCache.h"
 #import "TGStringUtils.h"
 
-NSString *const TGFileCacheDomain = @"com.CloudVeil.FileCache";
+NSString *const TGFileCacheDomain = @"com.telegram.FileCache";
 
 @interface TGFileCache ()
 {

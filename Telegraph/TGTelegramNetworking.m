@@ -1,12 +1,6 @@
-/*
- * This is the source code of CloudVeil for iOS v. 1.1
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Peter Iakovlev, 2013.
- */
-
 #import "TGTelegramNetworking.h"
+
+#import <LegacyComponents/LegacyComponents.h>
 
 #import "TGAppDelegate.h"
 
@@ -14,11 +8,10 @@
 #import "TGSession.h"
 #endif
 
-#import "ActionStage.h"
-#import "SGraphObjectNode.h"
+#import <LegacyComponents/ActionStage.h>
+#import <LegacyComponents/SGraphObjectNode.h>
 
 #import "TGTelegraph.h"
-#import "TGPeerIdAdapter.h"
 
 #import <MTProtoKit/MTProtoKit.h>
 #import <MTProtoKit/MTLogging.h>
@@ -46,7 +39,6 @@
 #import "TGTLSerialization.h"
 #import "TGKeychainImport.h"
 
-#import "TGNavigationBar.h"
 #import "TGLoginPasswordController.h"
 
 #import "TLUpdates+TG.h"
@@ -54,14 +46,11 @@
 #import "TLRPCmessages_sendMessage_manual.h"
 #import "TLRPCmessages_sendMedia_manual.h"
 #import "TLRPCmessages_sendInlineBotResult.h"
-
-#import "TGStringUtils.h"
+#import "TLRPCmessages_forwardMessages.h"
 
 #import "TLRPCauth_sendCode.h"
 
 #import "../../config.h"
-
-#import "TGLocalization.h"
 
 #import "TGAccountSignals.h"
 
@@ -133,20 +122,31 @@ static void TGTelegramLoggingFunction(NSString *format, va_list args)
     TGLogv(format, args);
 }
 
+static NSData *initialSocksProxyData = nil;
+
++ (void)preload {
+    initialSocksProxyData = [TGDatabaseInstance() customProperty:@"socksProxyData"];
+}
+
+static TGTelegramNetworking *singleton = nil;
 + (TGTelegramNetworking *)instance
 {
-    static TGTelegramNetworking *singleton = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
     {
         MTLogSetLoggingFunction(&TGTelegramLoggingFunction);
         
-        singleton = [[TGTelegramNetworking alloc] init];
+        singleton = [[TGTelegramNetworking alloc] initWithSocksProxyData:initialSocksProxyData];
     });
     return singleton;
 }
 
-- (instancetype)init
++ (TGTelegramNetworking *)maybeInstance
+{
+    return singleton;
+}
+
+- (instancetype)initWithSocksProxyData:(NSData *)socksProxyData
 {
     self = [super init];
     if (self != nil)
@@ -156,11 +156,11 @@ static void TGTelegramLoggingFunction(NSString *format, va_list args)
         
         _currentWakeUpCompletions = [[NSMutableArray alloc] init];
         
-        _settingsKeychain = [MTFileBasedKeychain keychainWithName:@"CloudVeil-Settings" documentsPath:[TGAppDelegate documentsPath]];
+        _settingsKeychain = [MTFileBasedKeychain keychainWithName:@"Telegram-Settings" documentsPath:[TGAppDelegate documentsPath]];
         NSString *environmentId = [_settingsKeychain objectForKey:@"environmentId" group:@"environment"];
         _isTestingEnvironment = environmentId != nil && [environmentId isEqualToString:@"testing"];
         
-        NSString *keychainName = _isTestingEnvironment ? @"CloudVeil-Testing" : @"CloudVeil";
+        NSString *keychainName = _isTestingEnvironment ? @"Telegram-Testing" : @"Telegram";
         _keychain = [MTFileBasedKeychain keychainWithName:keychainName documentsPath:[TGAppDelegate documentsPath]];
         
         _cdnDatas = [[NSMutableDictionary alloc] init];
@@ -206,7 +206,6 @@ static void TGTelegramLoggingFunction(NSString *format, va_list args)
         apiEnvironment = [apiEnvironment withUpdatedLangPackCode:currentNativeLocalization().code];
         TGLog(@"starting with langpack %@", currentNativeLocalization().code);
         
-        NSData *socksProxyData = [TGDatabaseInstance() customProperty:@"socksProxyData"];
         if (socksProxyData != nil) {
             NSDictionary *socksProxyDict = [NSKeyedUnarchiver unarchiveObjectWithData:socksProxyData];
             if (socksProxyDict[@"ip"] != nil && socksProxyDict[@"port"] != nil && ![socksProxyDict[@"inactive"] boolValue]) {
@@ -309,7 +308,7 @@ static void TGTelegramLoggingFunction(NSString *format, va_list args)
         
         [ActionStageInstance() requestActor:@"/tg/datacenterWatchdog" options:nil flags:0 watcher:self];
         
-        [[TGInterfaceManager instance] resetStartupTime:[self globalTime]];
+        [TGDatabaseInstance() resetStartupTime:[self globalTime]];
     }
     return self;
 }
@@ -373,7 +372,7 @@ static void TGTelegramLoggingFunction(NSString *format, va_list args)
         MTDatacenterAuthInfo *authInfo = [_context authInfoForDatacenterWithId:_mtProto.datacenterId];
         if (authInfo != nil)
         {
-            MTDatacenterAuthInfo *sharedAuthInfo = [[MTDatacenterAuthInfo alloc] initWithAuthKey:authInfo.authKey authKeyId:authInfo.authKeyId saltSet:@[] authKeyAttributes:@{}];
+            MTDatacenterAuthInfo *sharedAuthInfo = [[MTDatacenterAuthInfo alloc] initWithAuthKey:authInfo.authKey authKeyId:authInfo.authKeyId saltSet:@[] authKeyAttributes:@{} tempAuthKey:nil];
             NSString *versionString = [[NSString alloc] initWithFormat:@"%@ (%@)", [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"], [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]];
             NSData *data = [NSKeyedArchiver archivedDataWithRootObject:@{@"datacenterId":@(_mtProto.datacenterId), @"authInfo": sharedAuthInfo, @"version": versionString, @"clientUserId": @(TGTelegraphInstance.clientUserId) }];
             
@@ -431,11 +430,8 @@ static void TGTelegramLoggingFunction(NSString *format, va_list args)
                 dict[@"data"] = data;
             
             NSData *storedData = [NSKeyedArchiver archivedDataWithRootObject:dict];
-            if ([self sharedAuthInfoPath] != nil) {
-            
-                NSURL *sharedURL = [self sharedAuthInfoPath];
-                [storedData writeToURL:sharedURL atomically: true];
-            }
+            if ([self sharedAuthInfoPath] != nil)
+                [storedData writeToURL:[self sharedAuthInfoPath] atomically:true];
         }
     }];
 }

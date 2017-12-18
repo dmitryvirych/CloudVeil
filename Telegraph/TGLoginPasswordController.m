@@ -1,10 +1,12 @@
 #import "TGLoginPasswordController.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/LegacyComponents.h>
+
+#import <LegacyComponents/ActionStage.h>
 
 #import "TGLoginPasswordView.h"
 
-#import "TGProgressWindow.h"
+#import <LegacyComponents/TGProgressWindow.h>
 
 #import "TGAppDelegate.h"
 #import "TGTelegraph.h"
@@ -19,8 +21,6 @@
 
 #import "TGLoginCodeController.h"
 #import "TGLoginProfileController.h"
-
-#import "TGPhoneUtils.h"
 
 #import "TGPasswordRecoveryController.h"
 
@@ -206,7 +206,7 @@
             }
         } error:^(id error)
         {
-            NSString *errorText = TGLocalized(@"TwoStepAuth.GenericError");
+            NSString *errorText = TGLocalized(@"Login.UnknownError");
             if ([error hasPrefix:@"FLOOD_WAIT"])
                 errorText = TGLocalized(@"TwoStepAuth.FloodError");
             [[[TGAlertView alloc] initWithTitle:nil message:errorText cancelButtonTitle:TGLocalized(@"Common.OK") okButtonTitle:nil completionBlock:nil] show];
@@ -244,7 +244,7 @@
                             int32_t waitSeconds = [[errorType substringFromIndex:@"2FA_CONFIRM_WAIT_".length] intValue];
                             int stateDate = [[TGAppDelegateInstance loadLoginState][@"date"] intValue];
                             NSTimeInterval protectedUntilDate = CFAbsoluteTimeGetCurrent() + waitSeconds;
-                            [TGAppDelegateInstance saveLoginStateWithDate:stateDate phoneNumber:_phoneNumber phoneCode:_phoneCode phoneCodeHash:_phoneCodeHash codeSentToCloudVeil:false codeSentViaPhone:false firstName:nil lastName:nil photo:nil resetAccountState:[[TGResetAccountState alloc] initWithPhoneNumber:_phoneNumber protectedUntilDate:protectedUntilDate]];
+                            [TGAppDelegateInstance saveLoginStateWithDate:stateDate phoneNumber:_phoneNumber phoneCode:_phoneCode phoneCodeHash:_phoneCodeHash codeSentToTelegram:false codeSentViaPhone:false firstName:nil lastName:nil photo:nil resetAccountState:[[TGResetAccountState alloc] initWithPhoneNumber:_phoneNumber protectedUntilDate:protectedUntilDate]];
                             [strongSelf.navigationController pushViewController:[[TGLoginResetAccountProtectedController alloc] initWithPhoneNumber:_phoneNumber protectedUntilDate:protectedUntilDate] animated:true];
                         } else if ([errorType isEqualToString:@"2FA_RECENT_CONFIRM"]) {
                             [[[TGAlertView alloc] initWithTitle:nil message:TGLocalized(@"Login.ResetAccountProtected.LimitExceeded") cancelButtonTitle:TGLocalized(@"Common.OK") okButtonTitle:nil completionBlock:nil] show];

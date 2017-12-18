@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -315,7 +315,7 @@ static const NSTimeInterval MTTcpTransportSleepWatchdogTimeout = 60.0;
         if (transportContext.connectionWatchdogTimer == nil)
         {
             __weak MTTcpTransport *weakSelf = self;
-            transportContext.connectionWatchdogTimer = [[MTTimer alloc] initWithTimeout:10.0 repeat:false completion:^
+            transportContext.connectionWatchdogTimer = [[MTTimer alloc] initWithTimeout:20.0 repeat:false completion:^
             {
                 __strong MTTcpTransport *strongSelf = weakSelf;
                 [strongSelf connectionWatchdogTimeout];

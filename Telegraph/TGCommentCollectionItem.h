@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -23,6 +23,7 @@
 - (instancetype)initWithText:(NSString *)text;
 - (instancetype)initWithFormattedText:(NSString *)text;
 - (instancetype)initWithFormattedText:(NSString *)text paragraphSpacing:(CGFloat)paragraphSpacing clearFormatting:(bool)clearFormatting;
+- (instancetype)initWithFormattedText:(NSString *)text paragraphSpacing:(CGFloat)paragraphSpacing clearFormatting:(bool)clearFormatting alignment:(NSTextAlignment)alignment;
 - (void)setFormattedText:(NSString *)formattedText;
 
 + (NSAttributedString *)attributedStringFromText:(NSString *)text allowFormatting:(bool)allowFormatting paragraphSpacing:(CGFloat)paragraphSpacing;

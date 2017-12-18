@@ -1,5 +1,5 @@
 /*
- * This is the source code of CloudVeil for iOS v. 1.1
+ * This is the source code of Telegram for iOS v. 1.1
  * It is licensed under GNU GPL v. 2 or later.
  * You should have received a copy of the license in this archive (see LICENSE).
  *
@@ -37,7 +37,7 @@
 
 - (void)setOthersUnreadCount:(int)unreadCount;
 - (void)setPreferredInitialMessagePositioning:(int32_t)messageId pipLocation:(TGPIPSourceLocation *)pipLocation;
-- (void)setInitialMessagePayloadWithForwardMessages:(NSArray *)initialForwardMessagePayload sendMessages:(NSArray *)initialSendMessagePayload sendFiles:(NSArray *)initialSendFilePayload;
+- (void)setInitialMessagePayloadWithForwardMessages:(NSArray *)initialForwardMessagePayload initialCompleteGroups:(NSSet *)initialCompleteGroups sendMessages:(NSArray *)initialSendMessagePayload sendFiles:(NSArray *)initialSendFilePayload;
 
 - (int64_t)conversationId;
 - (int64_t)messageAuthorPeerId;
@@ -62,7 +62,7 @@
 - (bool)canSendGames;
 - (bool)canSendInline;
 
-- (void)standaloneForwardMessages:(NSArray *)messages;
+- (void)standaloneForwardMessages:(NSArray *)messages completeGroups:(NSSet *)completeGroups;
 - (void)standaloneSendMessages:(NSArray *)messages;
 - (void)standaloneSendFiles:(NSArray *)files;
 - (void)shareVCard;
@@ -79,4 +79,8 @@
 
 + (bool)canDeleteMessageForEveryone:(TGMessage *)message peerId:(int64_t)peerId isPeerAdmin:(bool)isPeerAdmin;
 
+- (bool)useOnlyLocalLiveLocations;
+- (SSignal *)liveLocationSignal;
+
 @end
+

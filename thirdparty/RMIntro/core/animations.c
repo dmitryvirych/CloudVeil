@@ -54,7 +54,7 @@ static TexturedShape powerful_mask, powerful_infinity, powerful_infinity_white;
 
 static Shape private_bg;
 
-static TexturedShape CloudVeil_sphere, CloudVeil_plane;
+static TexturedShape telegram_sphere, telegram_plane;
 
 static Shape cloud_bg;
 
@@ -83,7 +83,7 @@ static void position_object_in_scene(float x, float y, float z);
 static TexturedShape ic_bubble_dot, ic_bubble, ic_cam_lens, ic_cam, ic_pencil, ic_pin, ic_smile_eye, ic_smile, ic_videocam;
 static int ic_bubble_dot_texture, ic_bubble_texture, ic_cam_lens_texture, ic_cam_texture, ic_pencil_texture, ic_pin_texture, ic_smile_eye_texture, ic_smile_texture, ic_videocam_texture;
 
-static int CloudVeil_sphere_texture, CloudVeil_plane_texture;
+static int telegram_sphere_texture, telegram_plane_texture;
 
 static int fast_spiral_texture, fast_body_texture, fast_arrow_texture, fast_arrow_shadow_texture;
 
@@ -223,10 +223,10 @@ void set_ic_textures(int a_ic_bubble_dot, int a_ic_bubble, int a_ic_cam_lens, in
     ic_videocam_texture = a_ic_videocam;
 }
 
-void set_CloudVeil_textures(int a_CloudVeil_sphere, int a_CloudVeil_plane)
+void set_telegram_textures(int a_telegram_sphere, int a_telegram_plane)
 {
-    CloudVeil_sphere_texture = a_CloudVeil_sphere;
-    CloudVeil_plane_texture = a_CloudVeil_plane;
+    telegram_sphere_texture = a_telegram_sphere;
+    telegram_plane_texture = a_telegram_plane;
 }
 
 void set_fast_textures(int a_fast_body, int a_fast_spiral, int a_fast_arrow, int a_fast_arrow_shadow)
@@ -451,10 +451,10 @@ void on_surface_created() {
 
 
 
-    // CloudVeil
-    CloudVeil_sphere = create_textured_rectangle(CSizeMake(148, 148), CloudVeil_sphere_texture);
-    CloudVeil_plane = create_textured_rectangle(CSizeMake(82, 74), CloudVeil_plane_texture);
-    CloudVeil_plane.params.anchor=xyzMake(6, -5, 0);
+    // Telegram
+    telegram_sphere = create_textured_rectangle(CSizeMake(148, 148), telegram_sphere_texture);
+    telegram_plane = create_textured_rectangle(CSizeMake(82, 74), telegram_plane_texture);
+    telegram_plane.params.anchor=xyzMake(6, -5, 0);
 
 
 
@@ -1595,9 +1595,9 @@ void on_draw_frame() {
 
     /*
     rglNormalDraw();
-    CloudVeil_sphere.params.alpha = 1;
-    //CloudVeil_sphere.params.position.y = -offset_y;
-    draw_textured_shape(&CloudVeil_sphere, main_matrix, NORMAL);
+    telegram_sphere.params.alpha = 1;
+    //telegram_sphere.params.position.y = -offset_y;
+    draw_textured_shape(&telegram_sphere, main_matrix, NORMAL);
 
     draw_stars();
     */
@@ -1609,7 +1609,7 @@ void on_draw_frame() {
     {
         rglNormalDraw();
 
-        CloudVeil_sphere.params.alpha = 1;
+        telegram_sphere.params.alpha = 1;
 
         scale = 1;
 
@@ -1624,21 +1624,21 @@ void on_draw_frame() {
             draw_textured_shape(&fast_body, main_matrix, NORMAL);
         }
 
-        CloudVeil_sphere.params.alpha = alpha;
-        CloudVeil_sphere.params.scale = xyzMake(scale, scale, 1);
+        telegram_sphere.params.alpha = alpha;
+        telegram_sphere.params.scale = xyzMake(scale, scale, 1);
 
-        CloudVeil_plane.params.alpha=1;
+        telegram_plane.params.alpha=1;
 
         float tt = MINf(0, -M_PI*125./180. + time * M_PI * 2 * 1.5);
 
         float dx = sin(tt)*75;
         float dy = -sin(tt)*60;
 
-        CloudVeil_plane.params.position = xyzMake(dx, dy, 0);
+        telegram_plane.params.position = xyzMake(dx, dy, 0);
 
         float scale = (cos(tt)+1)*.5;
 
-        CloudVeil_plane.params.scale = xyzMake(cos(tt)*scale, scale, 1);
+        telegram_plane.params.scale = xyzMake(cos(tt)*scale, scale, 1);
 
         if (tt < D2R(125)) {
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -2103,27 +2103,27 @@ void on_draw_frame() {
 
         if (direct == 0) {
 
-            CloudVeil_sphere.params.alpha = t(0, 1, 0, duration_const*.8, Linear);
+            telegram_sphere.params.alpha = t(0, 1, 0, duration_const*.8, Linear);
 
             scale = 1;
 
-            CloudVeil_sphere.params.scale = xyzMake(scale, scale, 1);
-            draw_textured_shape(&CloudVeil_sphere, main_matrix, NORMAL);
+            telegram_sphere.params.scale = xyzMake(scale, scale, 1);
+            draw_textured_shape(&telegram_sphere, main_matrix, NORMAL);
 
             float tt = MINf(0, -M_PI*125./180. + time * M_PI * 2 * 1.5);
 
             float dx = sin(tt)*75;
             float dy = -sin(tt)*60;
 
-            CloudVeil_plane.params.position = xyzMake(dx, dy, 0);
+            telegram_plane.params.position = xyzMake(dx, dy, 0);
 
             float scale = (cos(tt)+1)*.5;
 
-            CloudVeil_plane.params.scale = xyzMake(cos(tt)*scale, scale, 1);
+            telegram_plane.params.scale = xyzMake(cos(tt)*scale, scale, 1);
 
             if (tt < D2R(125)) {
                 glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                draw_textured_shape(&CloudVeil_plane, main_matrix, NORMAL_ONE);
+                draw_textured_shape(&telegram_plane, main_matrix, NORMAL_ONE);
             }
         }
     }
@@ -2136,23 +2136,23 @@ void on_draw_frame() {
 
         if (direct == 1) {
 
-            CloudVeil_sphere.params.alpha = t(1, 0, 0, duration_const, Linear);
-            draw_textured_shape(&CloudVeil_sphere, main_matrix, NORMAL);
+            telegram_sphere.params.alpha = t(1, 0, 0, duration_const, Linear);
+            draw_textured_shape(&telegram_sphere, main_matrix, NORMAL);
 
             float tt = time * M_PI*2*1.5;
 
             float dx = sin(tt)*75;
             float dy = -sin(tt)*60;
 
-            CloudVeil_plane.params.position = xyzMake(dx, dy, 0);// CGPointMake(planeCenter.x + dx, planeCenter.y + dy);
+            telegram_plane.params.position = xyzMake(dx, dy, 0);// CGPointMake(planeCenter.x + dx, planeCenter.y + dy);
 
             float scale = (cos(tt)+1)*.5;
 
-            CloudVeil_plane.params.scale = xyzMake(cos(tt)*scale, scale, 1);
+            telegram_plane.params.scale = xyzMake(cos(tt)*scale, scale, 1);
 
             if (tt < D2R(125)) {
                 glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                draw_textured_shape(&CloudVeil_plane, main_matrix, NORMAL_ONE);
+                draw_textured_shape(&telegram_plane, main_matrix, NORMAL_ONE);
             }
         }
     }

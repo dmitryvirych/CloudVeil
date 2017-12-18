@@ -3,7 +3,7 @@
 
 #import "ATQueue.h"
 
-#import "ActionStage.h"
+#import <LegacyComponents/ActionStage.h>
 
 #import "opus.h"
 #import "opusenc.h"
@@ -84,7 +84,7 @@ const NSInteger TGBridgeAudioEncoderSampleRate = 16000;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^
     {
-        queue = [[ATQueue alloc] initWithName:@"org.CloudVeil.opusAudioEncoderQueue"];
+        queue = [[ATQueue alloc] initWithName:@"org.telegram.opusAudioEncoderQueue"];
     });
     
     return queue;

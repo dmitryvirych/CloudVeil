@@ -1,11 +1,3 @@
-/*
- * This is the source code of CloudVeil for iOS v. 1.1
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Peter Iakovlev, 2013.
- */
-
 #import "MTDatacenterAuthMessageService.h"
 
 #import "MTLogging.h"
@@ -34,39 +26,71 @@ static NSArray *defaultPublicKeys() {
     dispatch_once(&onceToken, ^
     {
         serverPublicKeys = [[NSArray alloc] initWithObjects:
-                            [[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
-                             "MIIBCgKCAQEAxq7aeLAqJR20tkQQMfRn+ocfrtMlJsQ2Uksfs7Xcoo77jAid0bRt\n"
-                             "ksiVmT2HEIJUlRxfABoPBV8wY9zRTUMaMA654pUX41mhyVN+XoerGxFvrs9dF1Ru\n"
-                             "vCHbI02dM2ppPvyytvvMoefRoL5BTcpAihFgm5xCaakgsJ/tH5oVl74CdhQw8J5L\n"
-                             "xI/K++KJBUyZ26Uba1632cOiq05JBUW0Z2vWIOk4BLysk7+U9z+SxynKiZR3/xdi\n"
-                             "XvFKk01R3BHV+GUKM2RYazpS/P8v7eyKhAbKxOdRcFpHLlVwfjyM1VlDQrEZxsMp\n"
-                             "NTLYXb6Sce1Uov0YtNx5wEowlREH1WOTlwIDAQAB\n"
-                             "-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0x9a996a1db11c729bUL], @"fingerprint", nil],
-                            [[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
-                             "MIIBCgKCAQEAsQZnSWVZNfClk29RcDTJQ76n8zZaiTGuUsi8sUhW8AS4PSbPKDm+\n"
-                             "DyJgdHDWdIF3HBzl7DHeFrILuqTs0vfS7Pa2NW8nUBwiaYQmPtwEa4n7bTmBVGsB\n"
-                             "1700/tz8wQWOLUlL2nMv+BPlDhxq4kmJCyJfgrIrHlX8sGPcPA4Y6Rwo0MSqYn3s\n"
-                             "g1Pu5gOKlaT9HKmE6wn5Sut6IiBjWozrRQ6n5h2RXNtO7O2qCDqjgB2vBxhV7B+z\n"
-                             "hRbLbCmW0tYMDsvPpX5M8fsO05svN+lKtCAuz1leFns8piZpptpSCFn7bWxiA9/f\n"
-                             "x5x17D7pfah3Sy2pA+NDXyzSlGcKdaUmwQIDAQAB\n"
-                             "-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0xb05b2a6f70cdea78UL], @"fingerprint", nil],
-                            [[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
-                             "MIIBCgKCAQEAwVACPi9w23mF3tBkdZz+zwrzKOaaQdr01vAbU4E1pvkfj4sqDsm6\n"
-                             "lyDONS789sVoD/xCS9Y0hkkC3gtL1tSfTlgCMOOul9lcixlEKzwKENj1Yz/s7daS\n"
-                             "an9tqw3bfUV/nqgbhGX81v/+7RFAEd+RwFnK7a+XYl9sluzHRyVVaTTveB2GazTw\n"
-                             "Efzk2DWgkBluml8OREmvfraX3bkHZJTKX4EQSjBbbdJ2ZXIsRrYOXfaA+xayEGB+\n"
-                             "8hdlLmAjbCVfaigxX0CDqWeR1yFL9kwd9P0NsZRPsmoqVwMbMu7mStFai6aIhc3n\n"
-                             "Slv8kg9qv1m6XHVQY3PnEw+QQtqSIXklHwIDAQAB\n"
-                             "-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0xc3b42b026ce86b21UL], @"fingerprint", nil],
-                            [[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
-                             "MIIBCgKCAQEAwqjFW0pi4reKGbkc9pK83Eunwj/k0G8ZTioMMPbZmW99GivMibwa\n"
-                             "xDM9RDWabEMyUtGoQC2ZcDeLWRK3W8jMP6dnEKAlvLkDLfC4fXYHzFO5KHEqF06i\n"
-                             "qAqBdmI1iBGdQv/OQCBcbXIWCGDY2AsiqLhlGQfPOI7/vvKc188rTriocgUtoTUc\n"
-                             "/n/sIUzkgwTqRyvWYynWARWzQg0I9olLBBC2q5RQJJlnYXZwyTL3y9tdb7zOHkks\n"
-                             "WV9IMQmZmyZh/N7sMbGWQpt4NMchGpPGeJ2e5gHBjDnlIf2p1yZOYeUYrdbwcS0t\n"
-                             "UiggS4UeE8TzIuXFQxw7fzEIlmhIaq3FnwIDAQAB\n"
-                             "-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0x71e025b6c76033e3UL], @"fingerprint", nil],
-                            nil];
+[[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
+"MIIBCgKCAQEAxq7aeLAqJR20tkQQMfRn+ocfrtMlJsQ2Uksfs7Xcoo77jAid0bRt\n"
+"ksiVmT2HEIJUlRxfABoPBV8wY9zRTUMaMA654pUX41mhyVN+XoerGxFvrs9dF1Ru\n"
+"vCHbI02dM2ppPvyytvvMoefRoL5BTcpAihFgm5xCaakgsJ/tH5oVl74CdhQw8J5L\n"
+"xI/K++KJBUyZ26Uba1632cOiq05JBUW0Z2vWIOk4BLysk7+U9z+SxynKiZR3/xdi\n"
+"XvFKk01R3BHV+GUKM2RYazpS/P8v7eyKhAbKxOdRcFpHLlVwfjyM1VlDQrEZxsMp\n"
+"NTLYXb6Sce1Uov0YtNx5wEowlREH1WOTlwIDAQAB\n"
+"-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0x9a996a1db11c729bUL], @"fingerprint", nil],
+[[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
+"MIIBCgKCAQEAsQZnSWVZNfClk29RcDTJQ76n8zZaiTGuUsi8sUhW8AS4PSbPKDm+\n"
+"DyJgdHDWdIF3HBzl7DHeFrILuqTs0vfS7Pa2NW8nUBwiaYQmPtwEa4n7bTmBVGsB\n"
+"1700/tz8wQWOLUlL2nMv+BPlDhxq4kmJCyJfgrIrHlX8sGPcPA4Y6Rwo0MSqYn3s\n"
+"g1Pu5gOKlaT9HKmE6wn5Sut6IiBjWozrRQ6n5h2RXNtO7O2qCDqjgB2vBxhV7B+z\n"
+"hRbLbCmW0tYMDsvPpX5M8fsO05svN+lKtCAuz1leFns8piZpptpSCFn7bWxiA9/f\n"
+"x5x17D7pfah3Sy2pA+NDXyzSlGcKdaUmwQIDAQAB\n"
+"-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0xb05b2a6f70cdea78UL], @"fingerprint", nil],
+[[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
+"MIIBCgKCAQEAwVACPi9w23mF3tBkdZz+zwrzKOaaQdr01vAbU4E1pvkfj4sqDsm6\n"
+"lyDONS789sVoD/xCS9Y0hkkC3gtL1tSfTlgCMOOul9lcixlEKzwKENj1Yz/s7daS\n"
+"an9tqw3bfUV/nqgbhGX81v/+7RFAEd+RwFnK7a+XYl9sluzHRyVVaTTveB2GazTw\n"
+"Efzk2DWgkBluml8OREmvfraX3bkHZJTKX4EQSjBbbdJ2ZXIsRrYOXfaA+xayEGB+\n"
+"8hdlLmAjbCVfaigxX0CDqWeR1yFL9kwd9P0NsZRPsmoqVwMbMu7mStFai6aIhc3n\n"
+"Slv8kg9qv1m6XHVQY3PnEw+QQtqSIXklHwIDAQAB\n"
+"-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0xc3b42b026ce86b21UL], @"fingerprint", nil],
+[[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
+"MIIBCgKCAQEAwqjFW0pi4reKGbkc9pK83Eunwj/k0G8ZTioMMPbZmW99GivMibwa\n"
+"xDM9RDWabEMyUtGoQC2ZcDeLWRK3W8jMP6dnEKAlvLkDLfC4fXYHzFO5KHEqF06i\n"
+"qAqBdmI1iBGdQv/OQCBcbXIWCGDY2AsiqLhlGQfPOI7/vvKc188rTriocgUtoTUc\n"
+"/n/sIUzkgwTqRyvWYynWARWzQg0I9olLBBC2q5RQJJlnYXZwyTL3y9tdb7zOHkks\n"
+"WV9IMQmZmyZh/N7sMbGWQpt4NMchGpPGeJ2e5gHBjDnlIf2p1yZOYeUYrdbwcS0t\n"
+"UiggS4UeE8TzIuXFQxw7fzEIlmhIaq3FnwIDAQAB\n"
+"-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0x71e025b6c76033e3UL], @"fingerprint", nil],
+[[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
+"MIIBCgKCAQEAruw2yP/BCcsJliRoW5eBVBVle9dtjJw+OYED160Wybum9SXtBBLX\n"
+"riwt4rROd9csv0t0OHCaTmRqBcQ0J8fxhN6/cpR1GWgOZRUAiQxoMnlt0R93LCX/\n"
+"j1dnVa/gVbCjdSxpbrfY2g2L4frzjJvdl84Kd9ORYjDEAyFnEA7dD556OptgLQQ2\n"
+"e2iVNq8NZLYTzLp5YpOdO1doK+ttrltggTCy5SrKeLoCPPbOgGsdxJxyz5KKcZnS\n"
+"Lj16yE5HvJQn0CNpRdENvRUXe6tBP78O39oJ8BTHp9oIjd6XWXAsp2CvK45Ol8wF\n"
+"XGF710w9lwCGNbmNxNYhtIkdqfsEcwR5JwIDAQAB\n"
+"-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0xbc35f3509f7b7a5UL], @"fingerprint", nil],
+[[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
+"MIIBCgKCAQEAvfLHfYH2r9R70w8prHblWt/nDkh+XkgpflqQVcnAfSuTtO05lNPs\n"
+"pQmL8Y2XjVT4t8cT6xAkdgfmmvnvRPOOKPi0OfJXoRVylFzAQG/j83u5K3kRLbae\n"
+"7fLccVhKZhY46lvsueI1hQdLgNV9n1cQ3TDS2pQOCtovG4eDl9wacrXOJTG2990V\n"
+"jgnIKNA0UMoP+KF03qzryqIt3oTvZq03DyWdGK+AZjgBLaDKSnC6qD2cFY81UryR\n"
+"WOab8zKkWAnhw2kFpcqhI0jdV5QaSCExvnsjVaX0Y1N0870931/5Jb9ICe4nweZ9\n"
+"kSDF/gip3kWLG0o8XQpChDfyvsqB9OLV/wIDAQAB\n"
+"-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0x15ae5fa8b5529542UL], @"fingerprint", nil],
+[[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
+"MIIBCgKCAQEAs/ditzm+mPND6xkhzwFIz6J/968CtkcSE/7Z2qAJiXbmZ3UDJPGr\n"
+"zqTDHkO30R8VeRM/Kz2f4nR05GIFiITl4bEjvpy7xqRDspJcCFIOcyXm8abVDhF+\n"
+"th6knSU0yLtNKuQVP6voMrnt9MV1X92LGZQLgdHZbPQz0Z5qIpaKhdyA8DEvWWvS\n"
+"Uwwc+yi1/gGaybwlzZwqXYoPOhwMebzKUk0xW14htcJrRrq+PXXQbRzTMynseCoP\n"
+"Ioke0dtCodbA3qQxQovE16q9zz4Otv2k4j63cz53J+mhkVWAeWxVGI0lltJmWtEY\n"
+"K6er8VqqWot3nqmWMXogrgRLggv/NbbooQIDAQAB\n"
+"-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0xaeae98e13cd7f94fUL], @"fingerprint", nil],
+[[NSDictionary alloc] initWithObjectsAndKeys:@"-----BEGIN RSA PUBLIC KEY-----\n"
+"MIIBCgKCAQEAvmpxVY7ld/8DAjz6F6q05shjg8/4p6047bn6/m8yPy1RBsvIyvuD\n"
+"uGnP/RzPEhzXQ9UJ5Ynmh2XJZgHoE9xbnfxL5BXHplJhMtADXKM9bWB11PU1Eioc\n"
+"3+AXBB8QiNFBn2XI5UkO5hPhbb9mJpjA9Uhw8EdfqJP8QetVsI/xrCEbwEXe0xvi\n"
+"fRLJbY08/Gp66KpQvy7g8w7VB8wlgePexW3pT13Ap6vuC+mQuJPyiHvSxjEKHgqe\n"
+"Pji9NP3tJUFQjcECqcm0yV7/2d0t/pbCm+ZH1sadZspQCEPPrtbkQBlvHb4OLiIW\n"
+"PGHKSMeRFvp3IWcmdJqXahxLCUS1Eh6MAQIDAQAB\n"
+"-----END RSA PUBLIC KEY-----", @"key", [[NSNumber alloc] initWithUnsignedLongLong:0x5a181b2235057d98UL], @"fingerprint", nil],
+nil];
     });
     return serverPublicKeys;
 }
@@ -81,9 +105,9 @@ static NSDictionary *selectPublicKey(NSArray *fingerprints, NSArray<NSDictionary
             if ([nFingerprint longLongValue] == keyFingerprint)
                 return keyDesc;
         }
-}
+    }
 
-return nil;
+    return nil;
 }
 
 typedef enum {
@@ -96,6 +120,7 @@ typedef enum {
 
 @interface MTDatacenterAuthMessageService ()
 {
+    bool _tempAuth;
     MTSessionInfo *_sessionInfo;
     
     MTDatacenterAuthStage _stage;
@@ -112,7 +137,7 @@ typedef enum {
     int64_t _dhPublicKeyFingerprint;
     NSData *_dhEncryptedData;
     
-    MTDatacenterAuthInfo *_authInfo;
+    MTDatacenterAuthKey *_authKey;
     NSData *_encryptedClientData;
     
     NSArray<NSDictionary *> *_publicKeys;
@@ -122,11 +147,12 @@ typedef enum {
 
 @implementation MTDatacenterAuthMessageService
 
-- (instancetype)initWithContext:(MTContext *)context
+- (instancetype)initWithContext:(MTContext *)context tempAuth:(bool)tempAuth
 {
     self = [super init];
     if (self != nil)
     {
+        _tempAuth = tempAuth;
         _sessionInfo = [[MTSessionInfo alloc] initWithRandomSessionIdAndContext:context];
     }
     return self;
@@ -147,7 +173,7 @@ typedef enum {
     _dhPublicKeyFingerprint = 0;
     _dhEncryptedData = nil;
     
-    _authInfo = nil;
+    _authKey = nil;
     _encryptedClientData = nil;
     
     if (mtProto.cdn) {
@@ -335,42 +361,82 @@ typedef enum {
                 __unused int result = SecRandomCopyBytes(kSecRandomDefault, 32, nonceBytes);
                 _newNonce = [[NSData alloc] initWithBytes:nonceBytes length:32];
                 
-                MTBuffer *innerDataBuffer = [[MTBuffer alloc] init];
-                [innerDataBuffer appendInt32:(int32_t)0x83c95aec];
-                [innerDataBuffer appendTLBytes:pqBytes];
-                [innerDataBuffer appendTLBytes:_dhP];
-                [innerDataBuffer appendTLBytes:_dhQ];
-                [innerDataBuffer appendBytes:_nonce.bytes length:_nonce.length];
-                [innerDataBuffer appendBytes:_serverNonce.bytes length:_serverNonce.length];
-                [innerDataBuffer appendBytes:_newNonce.bytes length:_newNonce.length];
-                
-                NSData *innerDataBytes = innerDataBuffer.data;
-                
-                NSMutableData *dataWithHash = [[NSMutableData alloc] init];
-                [dataWithHash appendData:MTSha1(innerDataBytes)];
-                [dataWithHash appendData:innerDataBytes];
-                while (dataWithHash.length < 255)
-                {
-                    uint8_t random = 0;
-                    arc4random_buf(&random, 1);
-                    [dataWithHash appendBytes:&random length:1];
-                }
-                
-                NSData *encryptedData = MTRsaEncrypt([publicKey objectForKey:@"key"], dataWithHash);
-                if (encryptedData.length < 256)
-                {
-                    NSMutableData *newEncryptedData = [[NSMutableData alloc] init];
-                    for (int i = 0; i < 256 - (int)encryptedData.length; i++)
+                if (_tempAuth) {
+                    MTBuffer *innerDataBuffer = [[MTBuffer alloc] init];
+                    [innerDataBuffer appendInt32:(int32_t)0x3c6a84d4];
+                    [innerDataBuffer appendTLBytes:pqBytes];
+                    [innerDataBuffer appendTLBytes:_dhP];
+                    [innerDataBuffer appendTLBytes:_dhQ];
+                    [innerDataBuffer appendBytes:_nonce.bytes length:_nonce.length];
+                    [innerDataBuffer appendBytes:_serverNonce.bytes length:_serverNonce.length];
+                    [innerDataBuffer appendBytes:_newNonce.bytes length:_newNonce.length];
+                    [innerDataBuffer appendInt32:60 * 60 * 32];
+                    
+                    NSData *innerDataBytes = innerDataBuffer.data;
+                    
+                    NSMutableData *dataWithHash = [[NSMutableData alloc] init];
+                    [dataWithHash appendData:MTSha1(innerDataBytes)];
+                    [dataWithHash appendData:innerDataBytes];
+                    while (dataWithHash.length < 255)
                     {
                         uint8_t random = 0;
                         arc4random_buf(&random, 1);
-                        [newEncryptedData appendBytes:&random length:1];
+                        [dataWithHash appendBytes:&random length:1];
                     }
-                    [newEncryptedData appendData:encryptedData];
-                    encryptedData = newEncryptedData;
+                    
+                    NSData *encryptedData = MTRsaEncrypt([publicKey objectForKey:@"key"], dataWithHash);
+                    if (encryptedData.length < 256)
+                    {
+                        NSMutableData *newEncryptedData = [[NSMutableData alloc] init];
+                        for (int i = 0; i < 256 - (int)encryptedData.length; i++)
+                        {
+                            uint8_t random = 0;
+                            arc4random_buf(&random, 1);
+                            [newEncryptedData appendBytes:&random length:1];
+                        }
+                        [newEncryptedData appendData:encryptedData];
+                        encryptedData = newEncryptedData;
+                    }
+                    
+                    _dhEncryptedData = encryptedData;
+                } else {
+                    MTBuffer *innerDataBuffer = [[MTBuffer alloc] init];
+                    [innerDataBuffer appendInt32:(int32_t)0x83c95aec];
+                    [innerDataBuffer appendTLBytes:pqBytes];
+                    [innerDataBuffer appendTLBytes:_dhP];
+                    [innerDataBuffer appendTLBytes:_dhQ];
+                    [innerDataBuffer appendBytes:_nonce.bytes length:_nonce.length];
+                    [innerDataBuffer appendBytes:_serverNonce.bytes length:_serverNonce.length];
+                    [innerDataBuffer appendBytes:_newNonce.bytes length:_newNonce.length];
+                    
+                    NSData *innerDataBytes = innerDataBuffer.data;
+                    
+                    NSMutableData *dataWithHash = [[NSMutableData alloc] init];
+                    [dataWithHash appendData:MTSha1(innerDataBytes)];
+                    [dataWithHash appendData:innerDataBytes];
+                    while (dataWithHash.length < 255)
+                    {
+                        uint8_t random = 0;
+                        arc4random_buf(&random, 1);
+                        [dataWithHash appendBytes:&random length:1];
+                    }
+                    
+                    NSData *encryptedData = MTRsaEncrypt([publicKey objectForKey:@"key"], dataWithHash);
+                    if (encryptedData.length < 256)
+                    {
+                        NSMutableData *newEncryptedData = [[NSMutableData alloc] init];
+                        for (int i = 0; i < 256 - (int)encryptedData.length; i++)
+                        {
+                            uint8_t random = 0;
+                            arc4random_buf(&random, 1);
+                            [newEncryptedData appendBytes:&random length:1];
+                        }
+                        [newEncryptedData appendData:encryptedData];
+                        encryptedData = newEncryptedData;
+                    }
+                    
+                    _dhEncryptedData = encryptedData;
                 }
-                
-                _dhEncryptedData = encryptedData;
                 
                 _stage = MTDatacenterAuthStageReqDH;
                 _currentStageMessageId = 0;
@@ -542,7 +608,7 @@ typedef enum {
                     [serverSaltData appendBytes:&x length:1];
                 }
                 
-                _authInfo = [[MTDatacenterAuthInfo alloc] initWithAuthKey:authKey authKeyId:authKeyId saltSet:@[[[MTDatacenterSaltInfo alloc] initWithSalt:*((int64_t *)serverSaltData.bytes) firstValidMessageId:((int64_t)message.timestamp) * 4294967296 lastValidMessageId:((int64_t)(message.timestamp + 29.0 * 60.0)) * 4294967296]] authKeyAttributes:nil];
+                _authKey = [[MTDatacenterAuthKey alloc] initWithAuthKey:authKey authKeyId:authKeyId];
                 
                 //client_DH_inner_data#6643b654 nonce:int128 server_nonce:int128 retry_id:long g_b:bytes = Client_DH_Inner_Data;
                 MTBuffer *clientDhInnerDataBuffer = [[MTBuffer alloc] init];
@@ -587,7 +653,7 @@ typedef enum {
         
         if ([_nonce isEqualToData:setClientDhParamsResponseMessage.nonce] && [_serverNonce isEqualToData:setClientDhParamsResponseMessage.serverNonce])
         {
-            NSData *authKeyAuxHashFull = MTSha1(_authInfo.authKey);
+            NSData *authKeyAuxHashFull = MTSha1(_authKey.authKey);
             NSData *authKeyAuxHash = [[NSData alloc] initWithBytes:((uint8_t *)authKeyAuxHashFull.bytes) length:8];
             
             NSMutableData *newNonce1 = [[NSMutableData alloc] init];
@@ -631,8 +697,8 @@ typedef enum {
                     _currentStageTransactionId = nil;
                     
                     id<MTDatacenterAuthMessageServiceDelegate> delegate = _delegate;
-                    if ([delegate respondsToSelector:@selector(authMessageServiceCompletedWithAuthInfo:)])
-                        [delegate authMessageServiceCompletedWithAuthInfo:_authInfo];
+                    if ([delegate respondsToSelector:@selector(authMessageServiceCompletedWithAuthKey:timestamp:)])
+                        [delegate authMessageServiceCompletedWithAuthKey:_authKey timestamp:message.messageId];
                 }
             }
             else if ([setClientDhParamsResponseMessage isKindOfClass:[MTSetClientDhParamsResponseRetryMessage class]])

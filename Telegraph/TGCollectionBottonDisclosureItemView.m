@@ -1,8 +1,6 @@
 #import "TGCollectionBottonDisclosureItemView.h"
 
-#import "TGFont.h"
-
-#import "TGStringUtils.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 #import "TGModernTextViewModel.h"
 
@@ -69,7 +67,7 @@
                     }
                     else if ([link hasPrefix:@"/"])
                     {
-                        link = [[NSString alloc] initWithFormat:@"https://CloudVeil.org/%@", link];
+                        link = [[NSString alloc] initWithFormat:@"https://telegram.org/%@", link];
                         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:link]];
                     }
                     else
@@ -79,7 +77,7 @@
         };
         [self.contentView addSubview:_linkTargetView];
         
-        _disclosureIndicator = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"ListsDownDisclosureIndicator.png"]];
+        _disclosureIndicator = [[UIImageView alloc] initWithImage:TGImageNamed(@"ListsDownDisclosureIndicator.png")];
         [self.contentView addSubview:_disclosureIndicator];
     }
     return self;
@@ -307,7 +305,7 @@
     _textContentView.hidden = !_expanded;
     
     _titleLabel.textColor = _expanded ? TGAccentColor(): [UIColor blackColor];
-    _disclosureIndicator.image = _expanded ? [UIImage imageNamed:@"ListsDownDisclosureIndicator_Highlighted.png"] : [UIImage imageNamed:@"ListsDownDisclosureIndicator.png"];
+    _disclosureIndicator.image = _expanded ? TGImageNamed(@"ListsDownDisclosureIndicator_Highlighted.png") : TGImageNamed(@"ListsDownDisclosureIndicator.png");
     
     [self setNeedsLayout];
 }

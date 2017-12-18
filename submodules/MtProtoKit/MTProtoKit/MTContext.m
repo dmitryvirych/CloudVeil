@@ -1,11 +1,3 @@
-/*
- * This is the source code of CloudVeil for iOS v. 1.1
- * It is licensed under GNU GPL v. 2 or later.
- * You should have received a copy of the license in this archive (see LICENSE).
- *
- * Copyright Peter Iakovlev, 2013.
- */
-
 #import "MTContext.h"
 
 #import <inttypes.h>
@@ -54,6 +46,14 @@
         _contextIsPasswordRequiredUpdated(context, datacenterId);
 }
 
+- (MTSignal *)fetchContextDatacenterPublicKeys:(MTContext *)context datacenterId:(NSInteger)datacenterId {
+    if (_fetchContextDatacenterPublicKeys) {
+        return _fetchContextDatacenterPublicKeys(context, datacenterId);
+    } else {
+        return nil;
+    }
+}
+
 @end
 
 @interface MTContext () <MTDiscoverDatacenterAddressActionDelegate, MTDatacenterAuthActionDelegate, MTDatacenterTransferAuthActionDelegate>
@@ -83,6 +83,7 @@
     
     NSMutableDictionary *_discoverDatacenterAddressActions;
     NSMutableDictionary *_datacenterAuthActions;
+    NSMutableDictionary *_datacenterTempAuthActions;
     NSMutableDictionary *_datacenterTransferAuthActions;
     
     NSMutableDictionary *_cleanupSessionIdsByAuthKeyId;
@@ -146,6 +147,7 @@
         
         _discoverDatacenterAddressActions = [[NSMutableDictionary alloc] init];
         _datacenterAuthActions = [[NSMutableDictionary alloc] init];
+        _datacenterTempAuthActions = [[NSMutableDictionary alloc] init];
         _datacenterTransferAuthActions = [[NSMutableDictionary alloc] init];
         
         _cleanupSessionIdsByAuthKeyId = [[NSMutableDictionary alloc] init];
@@ -180,6 +182,9 @@
 {
     NSDictionary *datacenterAuthActions = _datacenterAuthActions;
     _datacenterAuthActions = nil;
+    
+    NSDictionary *datacenterTempAuthActions = _datacenterTempAuthActions;
+    _datacenterTempAuthActions = nil;
     
     NSDictionary *discoverDatacenterAddressActions = _discoverDatacenterAddressActions;
     _discoverDatacenterAddressActions = nil;
@@ -782,21 +787,23 @@
     [[MTContext contextQueue] dispatchOnQueue:^{
         if (_fetchPublicKeysActions[@(datacenterId)] == nil) {
             for (id<MTContextChangeListener> listener in _changeListeners) {
-                MTSignal *signal = [listener fetchContextDatacenterPublicKeys:self datacenterId:datacenterId];
-                if (signal != nil) {
-                    __weak MTContext *weakSelf = self;
-                    MTMetaDisposable *disposable = [[MTMetaDisposable alloc] init];
-                    _fetchPublicKeysActions[@(datacenterId)] = disposable;
-                    [disposable setDisposable:[signal startWithNext:^(NSArray<NSDictionary *> *next) {
-                        [[MTContext contextQueue] dispatchOnQueue:^{
-                            __strong MTContext *strongSelf = weakSelf;
-                            if (strongSelf != nil) {
-                                [strongSelf->_fetchPublicKeysActions removeObjectForKey:@(datacenterId)];
-                                [strongSelf updatePublicKeysForDatacenterWithId:datacenterId publicKeys:next];
-                            }
-                        } synchronous:false];
-                    }]];
-                    break;
+                if ([listener respondsToSelector:@selector(fetchContextDatacenterPublicKeys:datacenterId:)]) {
+                    MTSignal *signal = [listener fetchContextDatacenterPublicKeys:self datacenterId:datacenterId];
+                    if (signal != nil) {
+                        __weak MTContext *weakSelf = self;
+                        MTMetaDisposable *disposable = [[MTMetaDisposable alloc] init];
+                        _fetchPublicKeysActions[@(datacenterId)] = disposable;
+                        [disposable setDisposable:[signal startWithNext:^(NSArray<NSDictionary *> *next) {
+                            [[MTContext contextQueue] dispatchOnQueue:^{
+                                __strong MTContext *strongSelf = weakSelf;
+                                if (strongSelf != nil) {
+                                    [strongSelf->_fetchPublicKeysActions removeObjectForKey:@(datacenterId)];
+                                    [strongSelf updatePublicKeysForDatacenterWithId:datacenterId publicKeys:next];
+                                }
+                            } synchronous:false];
+                        }]];
+                        break;
+                    }
                 }
             }
         }
@@ -1026,10 +1033,21 @@
     {
         if (_datacenterAuthActions[@(datacenterId)] == nil)
         {
-            MTDatacenterAuthAction *authAction = [[MTDatacenterAuthAction alloc] init];
+            MTDatacenterAuthAction *authAction = [[MTDatacenterAuthAction alloc] initWithTempAuth:false];
             authAction.delegate = self;
             _datacenterAuthActions[@(datacenterId)] = authAction;
             [authAction execute:self datacenterId:datacenterId isCdn:isCdn];
+        }
+    }];
+}
+
+- (void)tempAuthKeyForDatacenterWithIdRequired:(NSInteger)datacenterId {
+    [[MTContext contextQueue] dispatchOnQueue:^{
+        if (_datacenterTempAuthActions[@(datacenterId)] == nil) {
+            MTDatacenterAuthAction *authAction = [[MTDatacenterAuthAction alloc] initWithTempAuth:true];
+            authAction.delegate = self;
+            _datacenterTempAuthActions[@(datacenterId)] = authAction;
+            [authAction execute:self datacenterId:datacenterId isCdn:false];
         }
     }];
 }

@@ -1,8 +1,6 @@
 #import "TGActionTableView.h"
 
-#import "TGViewController.h"
-
-#import "TGHacks.h"
+#import <LegacyComponents/LegacyComponents.h>
 
 @interface TGActionTableView () <UIGestureRecognizerDelegate>
 {
@@ -21,12 +19,6 @@
     if (self)
     {
     }
-    
-    if (@available(iOS 11.0, *))
-    {
-        self.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
-    }
-    
     return self;
 }
 

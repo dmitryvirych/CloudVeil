@@ -3,7 +3,7 @@
 //  SwiftSignalKit
 //
 //  Created by Peter on 10/06/15.
-//  Copyright (c) 2015 CloudVeil. All rights reserved.
+//  Copyright (c) 2015 Telegram. All rights reserved.
 //
 
 #if __IPHONE_OS_VERSION_MIN_REQUIRED

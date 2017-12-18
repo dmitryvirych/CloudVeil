@@ -4,7 +4,7 @@
 #import "TGBridgeRemoteSignals.h"
 #import "TGBridgeAudioSignals.h"
 
-#import "TGPeerIdAdapter.h"
+#import "TGBridgePeerIdAdapter.h"
 
 #import "TGBridgeChat.h"
 #import "TGBridgeUser.h"
@@ -128,7 +128,7 @@ NSString *const TGMessageViewControllerIdentifier = @"TGMessageViewController";
 //    messageDict[@"id"] = @(_context.message.identifier);
 //    
 //    NSDictionary *userInfo = @{@"user_id": @(_context.authorizedContext.userId), @"peer": peerDict, @"message": messageDict};
-//    [self updateUserActivity:@"org.CloudVeil.message" userInfo:userInfo webpageURL:[NSURL URLWithString:@"https://CloudVeil.org/dl"]];
+//    [self updateUserActivity:@"org.telegram.message" userInfo:userInfo webpageURL:[NSURL URLWithString:@"https://telegram.org/dl"]];
 }
 
 - (void)willActivate

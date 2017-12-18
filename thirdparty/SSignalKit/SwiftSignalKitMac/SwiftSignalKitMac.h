@@ -3,7 +3,7 @@
 //  SwiftSignalKitMac
 //
 //  Created by Peter on 9/5/16.
-//  Copyright © 2016 CloudVeil. All rights reserved.
+//  Copyright © 2016 Telegram. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
