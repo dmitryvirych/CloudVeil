@@ -327,22 +327,15 @@
         
         if ([UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPad) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                SFSafariViewController *controller = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:false];
-                [parentController presentViewController:controller animated:true completion:nil];
+                [self nativeOpenURL:url];
             });
         } else {
-            SFSafariViewController *controller = [[SFSafariViewController alloc] initWithURL:url entersReaderIfAvailable:false];
-            [parentController presentViewController:controller animated:true completion:nil];
+            [self nativeOpenURL:url];
         }
         return true;
     }
     
     return [super openURL:url];
-}
-
-- (BOOL)openURL:(NSURL *)url
-{
-    return [self openURL:url forceNative:false];
 }
 
 - (BOOL)nativeOpenURL:(NSURL *)url
