@@ -9955,7 +9955,7 @@ typedef enum {
     if ([_inputTextPanel micButtonFrame].size.width < FLT_EPSILON)
         return;
     
-    NSString *tooltipText = TGLocalized(video ? @"Conversation.HoldForVideo" : @"Conversation.HoldForAudio");
+    NSString *tooltipText = TGLocalized(video ? @"Conversation.HoldForVideo" : @"Hold to record audio.");
     
     if (_recordTooltipContainerView.isShowingTooltip && _recordTooltipContainerView.tooltipView.sourceView == _inputTextPanel.micButton)
     {
