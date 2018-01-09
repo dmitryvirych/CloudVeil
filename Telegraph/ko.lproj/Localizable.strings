@@ -2468,7 +2468,7 @@
 
 "Message.VideoMessage" = "영상 메시지";
 
-"Conversation.HoldForAudio" = "꾹 눌러 음성을 녹음하세요. 탭하여 영상으로 전환하세요.";
+"Conversation.HoldForAudio" = "꾹 눌러 음성을 녹음하세요.";
 "Conversation.HoldForVideo" = "꾹 눌러 영상을 녹화하세요. 탭하여 음성으로 전환하세요.";
 
 "UserInfo.TelegramCall" = "텔레그램 전화";

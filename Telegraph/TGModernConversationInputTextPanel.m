@@ -1279,7 +1279,7 @@ static CGRect viewFrame(UIView *view)
 
 - (bool)isVideoMessage
 {
-    return _videoMessageAvailable && _videoMessage;
+    return false;//_videoMessageAvailable && _videoMessage;
 }
 
 - (void)decideMicButtonAction

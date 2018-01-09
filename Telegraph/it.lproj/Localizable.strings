@@ -2468,7 +2468,7 @@
 
 "Message.VideoMessage" = "Videomessaggio";
 
-"Conversation.HoldForAudio" = "Tieni premuto per l'audio. Tocca per il video. ";
+"Conversation.HoldForAudio" = "Tieni premuto per l'audio.";
 "Conversation.HoldForVideo" = "Tieni premuto per il video. Tocca per l'audio.";
 
 "UserInfo.TelegramCall" = "Chiamata CloudVeil Messenger";
