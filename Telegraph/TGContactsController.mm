@@ -2154,7 +2154,9 @@ static inline NSString *subtitleStringForUser(TGUser *user, bool &subtitleActive
                             if (match)
                                 [filteredGlobalSearchResults addObject:user];
                         }
-                        _globalSearchResults = filteredGlobalSearchResults;
+                        
+                        // MARK: - CloudVeil
+                        //_globalSearchResults = filteredGlobalSearchResults;
                         [searchMixin reloadSearchResults];
                     }
                 });
@@ -3113,7 +3115,8 @@ static inline NSString *subtitleStringForUser(TGUser *user, bool &subtitleActive
                         [filteredGlobalSearchResults addObject:user];
                 }
                 
-                _globalSearchResults = filteredGlobalSearchResults;
+                // MARK: - CloudVeil
+                //_globalSearchResults = filteredGlobalSearchResults;
                 
                 if ((_contactsMode & TGContactsModeCompose) == TGContactsModeCompose)
                 {
