@@ -18,3 +18,5 @@ DerivedData
 *.xcuserstate
 
 *.dSYM.zip
+libsqlcipher.la
+libtclsqlite3.la
